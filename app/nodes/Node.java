@@ -2,8 +2,14 @@ package nodes;
 
 public interface Node {
 	
-	public void authenticate(String code);
+	public static enum AccessType {
+		OAUTH_AUTHORIZE, 
+		OAUTH_TOKEN,
+		OAUTH_RENEW
+	};
+	
+	public String getAccess(AccessType accessType, String data);
+	public Boolean hasAccess();
 	public String getNodeId();
-	public String getOauthAuthorizationURL();
 
 }
