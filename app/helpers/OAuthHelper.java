@@ -5,25 +5,26 @@ import play.libs.WS;
 
 public class OAuthHelper {
 
-	public static String getOAuthRedirectURI(String nodeId) {
+	public static String getRedirectURI(String nodeId) {
 		return "https://localhost:9443/nodes/" + nodeId + "/callback/oauth";
 	}
 	
+	
 	public static String getAccess(String nodeId, String clientId, String clientSecret, 
-			AccessType accessType, String data, String redirectURI, String authorizeURL, String tokenURL) {
+			AccessType accessType, String data, String authorizeURL, String tokenURL) {
 		switch(accessType) {
 			case OAUTH_AUTHORIZE:
 				return authorizeURL + "?response_type=code&client_id="+
-					clientId +"&state=authenticated&redirect_uri=" + getOAuthRedirectURI(nodeId);
+					clientId +"&state=authenticated&redirect_uri=" + getRedirectURI(nodeId);
 				
 			case OAUTH_TOKEN:
-				if(Helper.isEmptyString(data))
+				if(UtilityHelper.isEmptyString(data))
 					throw new RuntimeException("OAuth code empty for Node Id: " + nodeId + " token call");
 
 				return WS.url(tokenURL)
 				.setHeader("Content-Type", "application/x-www-form-urlencoded")
 				.post("grant_type=authorization_code&code="+data+"&client_id=" + clientId +
-						"&client_secret=" + clientSecret + "&redirect_uri=" + getOAuthRedirectURI(nodeId))
+						"&client_secret=" + clientSecret + "&redirect_uri=" + getRedirectURI(nodeId))
 				.get()
 				.asJson()
 				.get("access_token").asText();

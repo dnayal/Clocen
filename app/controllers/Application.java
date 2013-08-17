@@ -1,6 +1,6 @@
 package controllers;
 
-import helpers.Helper;
+import helpers.UtilityHelper;
 import nodes.Node;
 import nodes.Node.AccessType;
 import nodes.asana.Asana;
@@ -14,7 +14,7 @@ import views.html.*;
 public class Application extends Controller {
   
     public static Result index() {
-        return ok(index.render("Your new application is ready."));
+        return ok(index.render());
     }
   
     
@@ -37,13 +37,13 @@ public class Application extends Controller {
         	node = new Box();
         else if (nodeId.equalsIgnoreCase("asana"))
         	node = new Asana();
-    	return redirect(node.getAccess(AccessType.OAUTH_AUTHORIZE, null));
+    	return redirect(node.authorize(AccessType.OAUTH_AUTHORIZE, null));
     }
     
     
     public static Result receiveOauthCallback(String nodeId) {
     	String code = request().getQueryString("code");
-    	if (Helper.isEmptyString(code)) {
+    	if (UtilityHelper.isEmptyString(code)) {
         	String error = request().getQueryString("error");
         	String errorDescription = request().getQueryString("error_description");
     		Logger.error("Code not received for Node Id - " + nodeId);
@@ -56,7 +56,7 @@ public class Application extends Controller {
     			node = new Box();
     		else if (nodeId.equalsIgnoreCase("asana"))
     			node = new Asana();
-    		node.getAccess(AccessType.OAUTH_TOKEN, code);
+    		node.authorize(AccessType.OAUTH_TOKEN, code);
 			return TODO;
     	}
     }

@@ -8,7 +8,7 @@ public interface Node {
 		OAUTH_RENEW
 	};
 	
-	public String getAccess(AccessType accessType, String data);
+	public String authorize(AccessType accessType, String data);
 	public Boolean hasAccess();
 	public String getNodeId();
 

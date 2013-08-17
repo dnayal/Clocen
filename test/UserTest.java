@@ -1,6 +1,6 @@
 
 
-import helpers.Helper;
+import helpers.UtilityHelper;
 
 import java.util.Calendar;
 import java.util.Iterator;
@@ -44,7 +44,7 @@ public class UserTest {
 	
 	@Test
 	public void createUser() {
-		String uniqueId = Helper.getUniqueId();
+		String uniqueId = UtilityHelper.getUniqueId();
 		String userName = "Deepak Nayal";
 		User user = new User(uniqueId, userName, "dnayal@gmail.com", Calendar.getInstance().getTime());
 		user.save();

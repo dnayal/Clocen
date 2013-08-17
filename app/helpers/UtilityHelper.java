@@ -2,7 +2,7 @@ package helpers;
 
 import java.util.UUID;
 
-public class Helper {
+public class UtilityHelper {
 	
 	public static String getUniqueId() {
 		return UUID.randomUUID().toString().replace("-", "");

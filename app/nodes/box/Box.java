@@ -1,6 +1,6 @@
 package nodes.box;
 
-import helpers.Helper;
+import helpers.UtilityHelper;
 import helpers.OAuthHelper;
 
 import java.io.FileNotFoundException;
@@ -24,7 +24,7 @@ import nodes.asana.Asana;
  */
 public class Box implements Node {
 
-	private static final String API_KEY = "af8on2xlppewm0m3i0ceng2yxg7rrgms"; // client id
+	private static final String CLIENT_ID = "af8on2xlppewm0m3i0ceng2yxg7rrgms"; // API Key
 	private static final String CLIENT_SECRET = "I9AtREMVttIl7exrfJ5FIEoE43U5uB6j";
 	private static final String OAUTH_AUTHORIZE_URL = "https://www.box.com/api/oauth2/authorize";
 	private static final String OAUTH_TOKEN_URL = "https://www.box.com/api/oauth2/token";
@@ -33,33 +33,9 @@ public class Box implements Node {
 	
 
 	@Override
-	public String getAccess(AccessType accessType, String data) {
-		switch(accessType) {
-			case OAUTH_AUTHORIZE:
-				return "https://www.box.com/api/oauth2/authorize?response_type=code&client_id="+
-					API_KEY+"&state=authenticated&redirect_uri=" + OAuthHelper.getOAuthRedirectURI(NODE_ID);
-				
-			case OAUTH_TOKEN:
-				if(Helper.isEmptyString(data))
-					throw new RuntimeException("Oauth code empty for Box token call");
-
-				accessToken = WS.url("https://www.box.com/api/oauth2/token")
-				.setHeader("Content-Type", "application/x-www-form-urlencoded")
-				.post("grant_type=authorization_code&code="+data+"&client_id="+API_KEY+
-						"&client_secret="+CLIENT_SECRET+"&redirect_uri=" + OAuthHelper.getOAuthRedirectURI(NODE_ID))
-				.get()
-				.asJson()
-				.get("access_token").asText();
-				
-				Logger.info("Box Access Token : " + accessToken);
-				return accessToken;
-				
-			case OAUTH_RENEW:
-				return null;
-			
-			default:
-				return null;
-		}
+	public String authorize(AccessType accessType, String data) {
+		return OAuthHelper.getAccess(NODE_ID, CLIENT_ID, CLIENT_SECRET, 
+				accessType, data, OAUTH_AUTHORIZE_URL, OAUTH_TOKEN_URL);
 	}
 	
 	
@@ -70,7 +46,7 @@ public class Box implements Node {
 	 */
 	@Override
 	public Boolean hasAccess() {
-		return !Helper.isEmptyString(accessToken);
+		return !UtilityHelper.isEmptyString(accessToken);
 	}
 
 

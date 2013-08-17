@@ -1,7 +1,36 @@
-@(message: String)
-
-@main("ServiceNode") {
-    
-    <h1>@message</h1>
-    
-}
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>ServiceNode</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="http://fonts.googleapis.com/css?family=Ubuntu:300" rel="stylesheet" type="text/css">
+		<link href="@routes.Assets.at("stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
+		<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" media="screen">
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="span4">
+					<h2>Authorize Apps</h2>
+				</div>
+			</div>
+			<div class="control-group row">
+				<form action="">
+					<div class="span4">
+						<div class="controls">
+							<div class="input-append">
+								<div class="input-prepend">
+									<span class="add-on"><i class="icon-envelope"></i></span>
+									<input class="span2" id="email" type="text" placeholder="Email">
+								</div>
+								<button class="btn btn-primary" type="submit">Login</button>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+			<script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
+		</div>
+	</body>
+</html>
