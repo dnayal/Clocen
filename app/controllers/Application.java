@@ -1,6 +1,6 @@
 package controllers;
 
-import nodes.Helper;
+import helpers.Helper;
 import nodes.Node;
 import nodes.Node.AccessType;
 import nodes.asana.Asana;

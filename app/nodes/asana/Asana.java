@@ -1,8 +1,10 @@
 package nodes.asana;
 
+import helpers.Helper;
+import helpers.OAuthHelper;
+
 import java.util.Iterator;
 
-import nodes.Helper;
 import nodes.Node;
 
 import org.codehaus.jackson.JsonNode;
@@ -14,9 +16,9 @@ import play.libs.WS.Response;
 
 public class Asana implements Node {
 
-	private static String API_KEY = "7169780706601"; // client id
-	private static String CLIENT_SECRET = "3f230584e30bcffa7f9149a3c5332319";
-	private static String NODE_ID = "asana";
+	private static final String API_KEY = "7169780706601"; // client id
+	private static final String CLIENT_SECRET = "3f230584e30bcffa7f9149a3c5332319";
+	private static final String NODE_ID = "asana";
 	private String accessToken = null;
 
 	@Override
@@ -24,7 +26,7 @@ public class Asana implements Node {
 		switch(accessType) {
 			case OAUTH_AUTHORIZE:
 				return "https://app.asana.com/-/oauth_authorize?response_type=code&client_id="+
-					API_KEY+"&state=authenticated&redirect_uri=" + Helper.getOauthRedirectURI(NODE_ID);
+					API_KEY+"&state=authenticated&redirect_uri=" + OAuthHelper.getOAuthRedirectURI(NODE_ID);
 				
 			case OAUTH_TOKEN:
 				if(Helper.isEmptyString(data))
@@ -33,7 +35,7 @@ public class Asana implements Node {
 				accessToken = WS.url("https://app.asana.com/-/oauth_token")
 				.setHeader("Content-Type", "application/x-www-form-urlencoded")
 				.post("grant_type=authorization_code&code="+data+"&client_id="+API_KEY+
-						"&client_secret="+CLIENT_SECRET+"&redirect_uri=" + Helper.getOauthRedirectURI(NODE_ID))
+						"&client_secret="+CLIENT_SECRET+"&redirect_uri=" + OAuthHelper.getOAuthRedirectURI(NODE_ID))
 				.get()
 				.asJson()
 				.get("access_token").asText();

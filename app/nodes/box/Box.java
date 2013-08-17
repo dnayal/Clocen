@@ -1,5 +1,8 @@
 package nodes.box;
 
+import helpers.Helper;
+import helpers.OAuthHelper;
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,7 +12,6 @@ import play.Logger;
 import play.libs.F.Promise;
 import play.libs.WS;
 import play.libs.WS.Response;
-import nodes.Helper;
 import nodes.Node;
 import nodes.asana.Asana;
 
@@ -22,9 +24,11 @@ import nodes.asana.Asana;
  */
 public class Box implements Node {
 
-	private static String API_KEY = "af8on2xlppewm0m3i0ceng2yxg7rrgms"; // client id
-	private static String CLIENT_SECRET = "I9AtREMVttIl7exrfJ5FIEoE43U5uB6j";
-	private static String NODE_ID = "box";
+	private static final String API_KEY = "af8on2xlppewm0m3i0ceng2yxg7rrgms"; // client id
+	private static final String CLIENT_SECRET = "I9AtREMVttIl7exrfJ5FIEoE43U5uB6j";
+	private static final String OAUTH_AUTHORIZE_URL = "https://www.box.com/api/oauth2/authorize";
+	private static final String OAUTH_TOKEN_URL = "https://www.box.com/api/oauth2/token";
+	private static final String NODE_ID = "box";
 	private String accessToken = null;
 	
 
@@ -33,7 +37,7 @@ public class Box implements Node {
 		switch(accessType) {
 			case OAUTH_AUTHORIZE:
 				return "https://www.box.com/api/oauth2/authorize?response_type=code&client_id="+
-					API_KEY+"&state=authenticated&redirect_uri=" + Helper.getOauthRedirectURI(NODE_ID);
+					API_KEY+"&state=authenticated&redirect_uri=" + OAuthHelper.getOAuthRedirectURI(NODE_ID);
 				
 			case OAUTH_TOKEN:
 				if(Helper.isEmptyString(data))
@@ -42,7 +46,7 @@ public class Box implements Node {
 				accessToken = WS.url("https://www.box.com/api/oauth2/token")
 				.setHeader("Content-Type", "application/x-www-form-urlencoded")
 				.post("grant_type=authorization_code&code="+data+"&client_id="+API_KEY+
-						"&client_secret="+CLIENT_SECRET+"&redirect_uri=" + Helper.getOauthRedirectURI(NODE_ID))
+						"&client_secret="+CLIENT_SECRET+"&redirect_uri=" + OAuthHelper.getOAuthRedirectURI(NODE_ID))
 				.get()
 				.asJson()
 				.get("access_token").asText();
