@@ -16,6 +16,10 @@ public class Application extends Controller {
     public static Result index() {
         return ok(index.render());
     }
+    
+    public static Result testAngularJS() {
+    	return ok(angular.render());
+    }
   
     
     public static Result callTriggerListener(String nodeId) {

@@ -7,30 +7,29 @@
 		<link href="@routes.Assets.at("stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
 		<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" media="screen">
 	</head>
-	<body>
-		<div class="container">
-			<div class="row">
-				<div class="span4">
-					<h2>Authorize Apps</h2>
-				</div>
-			</div>
-			<div class="control-group row">
-				<form action="">
-					<div class="span4">
-						<div class="controls">
-							<div class="input-append">
-								<div class="input-prepend">
-									<span class="add-on"><i class="icon-envelope"></i></span>
-									<input class="span2" id="email" type="text" placeholder="Email">
-								</div>
-								<button class="btn btn-primary" type="submit">Login</button>
-							</div>
+	<body ng-app="UserConfigApp">
+		<div class="container" ng-controller="LoginController">
+			<h1>&nbsp;{{user.name}}</h1>
+			<h1>&nbsp;</h1>
+			
+			<!-- login box starts -->
+			<div class="row" ng-show="isVisible.loginBox">
+				<div class="col-lg-offset-3 col-lg-6 login-board img-rounded" ><br><br><br><br><br><br>
+					<div class="col-lg-offset-2 col-lg-8 form-group" >
+						<div class="input-group">
+							<span class="input-group-addon"><span class="glyphicon glyphicon-envelope"></span></span>
+							<input class="form-control input-lg " id="email" ng-model="email" type="text" placeholder="Email">
+							<span class="input-group-btn">
+								<button class="btn btn-primary btn-lg" type="submit" ng-click="getUser()">Login</button>
+							</span>
 						</div>
 					</div>
-				</form>
+				</div>
 			</div>
-			<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-			<script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
+			<!-- login box ends -->
+			
 		</div>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+		<script src="@routes.Assets.at("javascripts/main.js")"></script>
 	</body>
 </html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Angular Test</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="http://fonts.googleapis.com/css?family=Ubuntu:300" rel="stylesheet" type="text/css">
+		<link href="@routes.Assets.at("stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
+		<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" media="screen">
+	</head>
+	<body>
+		<div class="container" ng-app="myApp">
+			<div class="row" ng-controller="ParentController">
+				<div class="col-lg-4" ng-controller="ChildController">
+					<h2>{{greeting}}, {{name}}!</h2>
+					<input class="form-control input-lg" type="text" ng-model="name" placeholder="Your name...">
+					<button class="btn btn-primary" ng-click="greet()">Greet</button>
+				</div>
+			</div>
+			<div class="row" ng-controller="ClockController">
+				<h3>{{time}}</h3>
+			</div>
+			<div class="row">
+				<div class="col-sm-3">
+					<input type="text" class="form-control input-lg" ng-model="format">
+					<span myapp-current-time="format"></span>
+				</div>
+			</div>
+		</div>
+		<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+		<script src="@routes.Assets.at("javascripts/main.js")"></script>
+	</body>
+</html>
