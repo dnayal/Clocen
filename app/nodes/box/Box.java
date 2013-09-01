@@ -1,7 +1,7 @@
 package nodes.box;
 
+import helpers.ServiceNodeHelper;
 import helpers.UtilityHelper;
-import helpers.OAuthHelper;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -34,7 +34,7 @@ public class Box implements Node {
 
 	@Override
 	public String authorize(AccessType accessType, String data) {
-		return OAuthHelper.getAccess(NODE_ID, CLIENT_ID, CLIENT_SECRET, 
+		return ServiceNodeHelper.getAccess(NODE_ID, CLIENT_ID, CLIENT_SECRET, 
 				accessType, data, OAUTH_AUTHORIZE_URL, OAUTH_TOKEN_URL);
 	}
 	
@@ -55,6 +55,18 @@ public class Box implements Node {
 		return NODE_ID;
 	}
 
+
+	@Override
+	public String getName() {
+		return "Box";
+	}
+	
+
+	@Override
+	public String getDescription() {
+		return "Simple file sharing in the cloud";
+	}
+	
 
 	public void getFile(String fileId) {
 		String endPoint = "https://api.box.com/2.0/files/" + fileId + "/content";

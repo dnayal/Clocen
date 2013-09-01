@@ -1,6 +1,9 @@
 package helpers;
 
+import java.util.Calendar;
 import java.util.UUID;
+
+import play.Logger;
 
 public class UtilityHelper {
 	
@@ -15,5 +18,15 @@ public class UtilityHelper {
 		else
 			return false;
 	}
+	
+	
+	public static void logMessage(String component, String method, String message) {
+		Logger.info("[" + Calendar.getInstance().getTime() + "] " + "["+ component +"] " + "[" + method + "] " + message);
+	}
+	
 
+	public static void logError(String component, String method, String message, Throwable error) {
+		Logger.error("[" + Calendar.getInstance().getTime() + "] " + "["+ component +"] " + "[" + method + "] " + message, error);
+	}
+	
 }

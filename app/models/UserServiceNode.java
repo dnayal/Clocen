@@ -40,9 +40,17 @@ import javax.persistence.Embeddable;
 			}
 			return false;
 		}
+		
 
 		@Override
 		public int hashCode() {
 			return userId.hashCode();
+		}
+
+		
+		@Override
+		public String toString() {
+			return "UserServiceNode [userId=" + userId + ", nodeId=" + nodeId
+					+ "]";
 		}
 	}

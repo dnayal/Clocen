@@ -56,7 +56,7 @@ public class UserTest {
 	public void createServiceAccessToken() {
 		UserServiceNode userNode = new UserServiceNode(testUserId, new Asana().getNodeId());
 		ServiceAccessToken serviceToken = new ServiceAccessToken(userNode, "accessToken", "refreshToken",
-				Calendar.getInstance().getTime());
+				Calendar.getInstance().getTime(), Calendar.getInstance().getTime());
 		serviceToken.save();
 	}
 	

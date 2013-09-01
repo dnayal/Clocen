@@ -2,7 +2,12 @@ h1, h2, h3, h4, h5, h6, legend, body, p, a, button, input, div, img, select, opt
 	font-family: 'Ubuntu', 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
 }
 
-.login-board {
+.cc-login-board {
 	background-image: url("/assets/images/metal-back.png");
 	height: 300px;
+}
+
+
+.cc-vertical-center {
+	top: 35%;
 }

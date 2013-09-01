@@ -9,20 +9,53 @@
 	</head>
 	<body ng-app="UserConfigApp">
 		<div class="container" ng-controller="LoginController">
-			<h1>&nbsp;{{user.name}}</h1>
-			<h1>&nbsp;</h1>
+
+			<div class="row" ng-show="isVisible.oauthAuthorizeBox">
+				<h2>My Apps</h2>
+				<div class="row">
+					<div class="col-lg-6">
+						<div ng-repeat="node in nodes | filter:isAuthorized=true">
+							<div class="row">
+								<div class="col-lg-3">{{node.nodeName}}</div>
+								<div class="col-lg-6">{{node.nodeDescription}}</div>
+								<div class="col-lg-3"><a class="btn btn-warning" href="{{node.url}}">Refresh</a></div>
+							</div>
+							<br/>
+						</div>
+					</div>
+				</div>
+				
+				<hr/>
+				
+				<h2>All Apps</h2>
+				<div class="row">
+					<div class="col-lg-6">
+						<div ng-repeat="node in nodes | filter:isAuthorized=false">
+							<div class="row">
+								<div class="col-lg-3">{{node.nodeName}}</div>
+								<div class="col-lg-6">{{node.nodeDescription}}</div>
+								<div class="col-lg-3"><a class="btn btn-success" href="{{node.url}}">Authorize</a></div>
+							</div>
+							<br/>
+						</div>
+					</div>
+				</div>
+			</div>
 			
 			<!-- login box starts -->
 			<div class="row" ng-show="isVisible.loginBox">
-				<div class="col-lg-offset-3 col-lg-6 login-board img-rounded" ><br><br><br><br><br><br>
-					<div class="col-lg-offset-2 col-lg-8 form-group" >
-						<div class="input-group">
-							<span class="input-group-addon"><span class="glyphicon glyphicon-envelope"></span></span>
-							<input class="form-control input-lg " id="email" ng-model="email" type="text" placeholder="Email">
-							<span class="input-group-btn">
-								<button class="btn btn-primary btn-lg" type="submit" ng-click="getUser()">Login</button>
-							</span>
-						</div>
+				<h1>&nbsp;</h1>
+				<div class="col-lg-offset-3 col-lg-6 cc-login-board img-rounded" >
+					<div class="col-lg-offset-1 col-lg-10 form-group cc-vertical-center" >
+						<form action="#">
+							<div class="input-group" >
+								<span class="input-group-addon"><span class="glyphicon glyphicon-envelope"></span></span>
+								<input class="form-control input-lg " id="email" ng-model="email" type="text" placeholder="Email">
+								<span class="input-group-btn">
+									<button class="btn btn-primary btn-lg" type="submit" ng-click="getUser()">Login</button>
+								</span>
+							</div>
+						</form>
 					</div>
 				</div>
 			</div>

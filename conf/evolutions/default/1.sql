@@ -9,6 +9,7 @@ create table service_access_token (
   access_token              varchar(100),
   refresh_token             varchar(100),
   expiration_time           datetime,
+  create_timestamp          datetime,
   constraint pk_service_access_token primary key (user_id, node_id))
 ;
 

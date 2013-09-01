@@ -1,22 +1,22 @@
 package controllers;
 
 import helpers.UtilityHelper;
-import nodes.Node;
-import nodes.Node.AccessType;
-import nodes.asana.Asana;
 import nodes.box.Box;
-import play.Logger;
 import play.data.DynamicForm;
-import play.mvc.*;
-
-import views.html.*;
+import play.mvc.Controller;
+import play.mvc.Result;
+import views.html.angular;
+import views.html.index;
 
 public class Application extends Controller {
-  
-    public static Result index() {
+
+	private static final String COMPONENT_NAME = "Application Controller";
+
+	public static Result index() {
         return ok(index.render());
     }
     
+
     public static Result testAngularJS() {
     	return ok(angular.render());
     }
@@ -24,45 +24,15 @@ public class Application extends Controller {
     
     public static Result callTriggerListener(String nodeId) {
 		DynamicForm form = DynamicForm.form().bindFromRequest();
-    	Logger.info("Item Id : " + form.get("item_id"));
-    	Logger.info("From User Id : " + form.get("from_user_id"));
-        Logger.info("Item Name : " + form.get("item_name"));
-        Logger.info("Event Type : " + form.get("event_type"));
-        Logger.info("Call triggered by - " + nodeId);
+    	UtilityHelper.logMessage(COMPONENT_NAME, "callTriggerListener", "Item Id : " + form.get("item_id"));
+    	UtilityHelper.logMessage(COMPONENT_NAME, "callTriggerListener", "From User Id : " + form.get("from_user_id"));
+    	UtilityHelper.logMessage(COMPONENT_NAME, "callTriggerListener", "Item Name : " + form.get("item_name"));
+    	UtilityHelper.logMessage(COMPONENT_NAME, "callTriggerListener", "Event Type : " + form.get("event_type"));
+    	UtilityHelper.logMessage(COMPONENT_NAME, "callTriggerListener", "Call triggered by - " + nodeId);
         Box box = new Box();
         box.getFile(form.get("item_id"));
         return ok();
     }
     
-
-    public static Result redirectAuthenticationCall(String nodeId) {
-        Node node = null;
-        if (nodeId.equalsIgnoreCase("box"))
-        	node = new Box();
-        else if (nodeId.equalsIgnoreCase("asana"))
-        	node = new Asana();
-    	return redirect(node.authorize(AccessType.OAUTH_AUTHORIZE, null));
-    }
-    
-    
-    public static Result receiveOauthCallback(String nodeId) {
-    	String code = request().getQueryString("code");
-    	if (UtilityHelper.isEmptyString(code)) {
-        	String error = request().getQueryString("error");
-        	String errorDescription = request().getQueryString("error_description");
-    		Logger.error("Code not received for Node Id - " + nodeId);
-    		Logger.error("Error - " + error + " :: Error Description - " + errorDescription);
-    		return TODO;
-    	} else {
-    		Logger.info("Code - " + code);
-    		Node node = null;
-    		if (nodeId.equalsIgnoreCase("box"))
-    			node = new Box();
-    		else if (nodeId.equalsIgnoreCase("asana"))
-    			node = new Asana();
-    		node.authorize(AccessType.OAUTH_TOKEN, code);
-			return TODO;
-    	}
-    }
 
 }

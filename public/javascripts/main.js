@@ -7,14 +7,14 @@ app.controller('LoginController', ['$scope', '$http', function($scope, $http){
 	};
 	$scope.getUser = function() {
 		requestData = {"email" : $scope.email};
-		$http.post('/users/find/email', requestData)
+		$http.post('/users/login', requestData)
 		.success(function(responseData){
-			console.log("Success");
-			$scope.user = {"name" : responseData.name};
+			$scope.nodes = responseData;
 			$scope.isVisible.loginBox = false;
+			$scope.isVisible.oauthAuthorizeBox = true;
 		}).error(function(errorData){
-			console.log("Error Message");
 			$scope.isVisible.loginBox = true;
+			$scope.isVisible.oauthAuthorizeBox = false;
 		});
 	}
 }]);

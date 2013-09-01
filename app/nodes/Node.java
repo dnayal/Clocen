@@ -11,5 +11,7 @@ public interface Node {
 	public String authorize(AccessType accessType, String data);
 	public Boolean hasAccess();
 	public String getNodeId();
+	public String getName();
+	public String getDescription();
 
 }
