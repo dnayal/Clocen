@@ -105,9 +105,9 @@ public class User extends Model {
 				.findList();
 		for(ServiceAccessToken token: tokenList) {
 			if(token.getExpirationTime().before(Calendar.getInstance().getTime())) {
-				UtilityHelper.logMessage(COMPONENT_NAME, "getAllServiceTokens", "Token Expired - user:" + token.getUserNode().getUserId() + " node:" + token.getUserNode().getNodeId());
+				UtilityHelper.logMessage(COMPONENT_NAME, "getAllServiceTokens()", "Token Expired - user:" + token.getKey().getUserId() + " node:" + token.getKey().getNodeId());
 				if(!token.refreshToken()) {
-					UtilityHelper.logMessage(COMPONENT_NAME, "getAllServiceTokens", "Removing Token - user:" + token.getUserNode().getUserId() + " node:" + token.getUserNode().getNodeId());
+					UtilityHelper.logMessage(COMPONENT_NAME, "getAllServiceTokens()", "Removing Token - user:" + token.getKey().getUserId() + " node:" + token.getKey().getNodeId());
 					tokenList.remove(token);
 				}
 			}
@@ -138,7 +138,7 @@ public class User extends Model {
 			isAuthorized = false;
 			
 			for (ServiceAccessToken serviceToken : serviceTokens) {
-				if(serviceToken.getUserNode().getNodeId().equalsIgnoreCase(nodeId)) {
+				if(serviceToken.getKey().getNodeId().equalsIgnoreCase(nodeId)) {
 					isAuthorized = true;
 					break;
 				}
@@ -163,7 +163,7 @@ public class User extends Model {
 	
 
 	public static User getUserByEmail(String email) {
-		return User.find.where().eq("email", email).findUnique();
+		return find.where().eq("email", email).findUnique();
 	}
 
 
@@ -172,4 +172,24 @@ public class User extends Model {
 		return "User [userId=" + userId + ", name=" + name + ", email=" + email
 				+ ", createTimestamp=" + createTimestamp + "]";
 	}
+	
+	
+	public ServiceAccessToken getServiceAccessToken(String nodeId) {
+		ServiceAccessToken token = ServiceAccessToken.find.where().eq("user_id", userId).eq("node_id", nodeId).findUnique();
+		
+		if (token.getExpirationTime().before(Calendar.getInstance().getTime())) {
+			UtilityHelper.logError(COMPONENT_NAME, "getServiceAccessToken()", "Token expired", new RuntimeException("Token expired for Node:" +nodeId + " User:"+userId));
+			if(!token.refreshToken()) {
+				UtilityHelper.logError(COMPONENT_NAME, "getServiceAccessToken()", "Token refresh failed", new RuntimeException("Unable to refresh token for Node:" +nodeId + " User:"+userId));
+				return null;
+			} else {
+				// retrieve token again, if refresh is successful
+				token = ServiceAccessToken.find.where().eq("user_id", userId).eq("node_id", nodeId).findUnique();
+				UtilityHelper.logMessage(COMPONENT_NAME, "getServiceAccessToken()", "Token refreshed");
+			}
+		}
+
+		return token;
+	}
+
 }

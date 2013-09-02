@@ -6,18 +6,18 @@ public class ServiceNodeInfo {
 	String nodeName;
 	String nodeDescription;
 	String URL;
-	Boolean isAuthorized=false;
+	Boolean authorized=false;
 	
 	
 	public ServiceNodeInfo() {}
 	
 	
-	public ServiceNodeInfo(String nodeId, String nodeName, String nodeDescription, String URL, Boolean isAuthorized) {
+	public ServiceNodeInfo(String nodeId, String nodeName, String nodeDescription, String URL, Boolean authorized) {
 		this.nodeId = nodeId;
 		this.nodeName = nodeName;
 		this.nodeDescription = nodeDescription;
 		this.URL = URL;
-		this.isAuthorized = isAuthorized;
+		this.authorized = authorized;
 	}
 	
 	
@@ -61,21 +61,21 @@ public class ServiceNodeInfo {
 	}
 	
 	
-	public Boolean getIsAuthorized() {
-		return isAuthorized;
-	}
-	
-	
-	public void setIsAuthorized(Boolean isAuthorized) {
-		this.isAuthorized = isAuthorized;
+	public Boolean isAuthorized() {
+		return authorized;
 	}
 
+
+	public void setAuthorized(Boolean authorized) {
+		this.authorized = authorized;
+	}
+	
 
 	@Override
 	public String toString() {
 		return "ServiceNodeInfo [nodeId=" + nodeId + ", nodeName=" + nodeName
 				+ ", nodeDescription=" + nodeDescription + ", URL=" + URL
-				+ ", isAuthorized=" + isAuthorized + "]";
+				+ ", authorized=" + authorized + "]";
 	}
-	
+
 }

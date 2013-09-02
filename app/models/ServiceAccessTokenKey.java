@@ -4,14 +4,14 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 	@Embeddable
-	public class UserServiceNode {
+	public class ServiceAccessTokenKey {
 		@Column(length=100)
 		String userId;
 
 		@Column(length=20)
 		String nodeId;
 
-		public UserServiceNode(String userId, String nodeId) {
+		public ServiceAccessTokenKey(String userId, String nodeId) {
 			this.userId = userId;
 			this.nodeId = nodeId;
 		}
@@ -34,8 +34,8 @@ import javax.persistence.Embeddable;
 
 		@Override
 		public boolean equals(Object obj) {
-			if (obj instanceof UserServiceNode) {
-				UserServiceNode node = ((UserServiceNode)obj);
+			if (obj instanceof ServiceAccessTokenKey) {
+				ServiceAccessTokenKey node = ((ServiceAccessTokenKey)obj);
 				return node.getNodeId().equalsIgnoreCase(getNodeId()) && node.getUserId().equalsIgnoreCase(getUserId());
 			}
 			return false;
@@ -50,7 +50,7 @@ import javax.persistence.Embeddable;
 		
 		@Override
 		public String toString() {
-			return "UserServiceNode [userId=" + userId + ", nodeId=" + nodeId
+			return "ServiceAccessTokenKey [userId=" + userId + ", nodeId=" + nodeId
 					+ "]";
 		}
 	}

@@ -1,10 +1,12 @@
 package nodes.asana;
 
 import helpers.ServiceNodeHelper;
+import helpers.UserHelper;
 import helpers.UtilityHelper;
 
 import java.util.Iterator;
 
+import models.ServiceAccessToken;
 import nodes.Node;
 
 import org.codehaus.jackson.JsonNode;
@@ -60,15 +62,11 @@ public class Asana implements Node {
 	
 
 	public void getWorkspaces() {
+		ServiceAccessToken sat = UserHelper.getCurrentUser().getServiceAccessToken(NODE_ID);
+
 		String endPoint = "https://app.asana.com/api/1.0/workspaces";
-		Promise<Response> response = WS.url(endPoint).setHeader("Authorization", "Bearer " + accessToken).get();
-		int status = response.get().getStatus();
-		String statusText = response.get().getStatusText();
+		Promise<Response> response = WS.url(endPoint).setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
 		Iterator<JsonNode> iterator = response.get().asJson().path("data").getElements();
-		Logger.info("++++++++++++++++");
-		Logger.info(response.get().getBody());
-		Logger.info("++++++++++++++++");
-		Logger.info("ASANA STATUS: [" + status + "] " + statusText);
 		Logger.info("=====WORKSPACES=====");
 		while (iterator.hasNext()){
 			JsonNode node = iterator.next();
@@ -79,9 +77,12 @@ public class Asana implements Node {
 
 
 	public void createTask() {
+		ServiceAccessToken sat = UserHelper.getCurrentUser().getServiceAccessToken(NODE_ID);
+		
 		String endPoint = "https://app.asana.com/api/1.0/workspaces/180666096176/tasks";
+		
 		JsonNode json=null;
-			json = WS.url(endPoint).setHeader("Authorization", "Bearer " + accessToken)
+			json = WS.url(endPoint).setHeader("Authorization", "Bearer " + sat.getAccessToken())
 					.setHeader("Content-Type", "application/x-www-form-urlencoded")
 					.post("name=Successful+Task&notes=YYYYYIIIIPPPPEEEE&assignee=177113805935")
 							.get().asJson();

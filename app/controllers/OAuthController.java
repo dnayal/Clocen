@@ -3,7 +3,7 @@ package controllers;
 import helpers.ServiceNodeHelper;
 import helpers.UtilityHelper;
 import models.ServiceAccessToken;
-import models.UserServiceNode;
+import models.ServiceAccessTokenKey;
 import nodes.Node;
 import nodes.Node.AccessType;
 import play.mvc.*;
@@ -29,17 +29,17 @@ public class OAuthController extends Controller {
     		UtilityHelper.logMessage(COMPONENT_NAME, "tokenCallback", "Code Received - " + code);
     		Node node = ServiceNodeHelper.getNode(nodeId);
     		node.authorize(AccessType.OAUTH_TOKEN, code);
-			return redirect(routes.Application.index());
+			return redirect(routes.UserController.home());
     	}
     }
     
     
     public static Result refreshToken(String nodeId) {
-    	UserServiceNode key = new UserServiceNode(session("user_id"), nodeId);
+    	ServiceAccessTokenKey key = new ServiceAccessTokenKey(session("user_id"), nodeId);
     	ServiceAccessToken token = ServiceAccessToken.getServiceAccessToken(key);
     	token.refreshToken();
     	UtilityHelper.logMessage(COMPONENT_NAME, "refreshToken", "Refresh token - " + token);
-		return redirect(routes.Application.index());
+		return redirect(routes.UserController.home());
     }
 
 }

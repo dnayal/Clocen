@@ -7,7 +7,7 @@ import java.util.Iterator;
 
 import models.ServiceAccessToken;
 import models.User;
-import models.UserServiceNode;
+import models.ServiceAccessTokenKey;
 import nodes.asana.Asana;
 import play.test.FakeApplication;
 import play.test.Helpers;
@@ -38,7 +38,7 @@ public class UserTest {
 		
 		iterator = ServiceAccessToken.find.findIds().iterator();
 		while(iterator.hasNext())
-			ServiceAccessToken.find.ref((UserServiceNode) iterator.next()).delete();
+			ServiceAccessToken.find.ref((ServiceAccessTokenKey) iterator.next()).delete();
 	}
 	
 	
@@ -54,7 +54,7 @@ public class UserTest {
 	
 	@Test
 	public void createServiceAccessToken() {
-		UserServiceNode userNode = new UserServiceNode(testUserId, new Asana().getNodeId());
+		ServiceAccessTokenKey userNode = new ServiceAccessTokenKey(testUserId, new Asana().getNodeId());
 		ServiceAccessToken serviceToken = new ServiceAccessToken(userNode, "accessToken", "refreshToken",
 				Calendar.getInstance().getTime(), Calendar.getInstance().getTime());
 		serviceToken.save();

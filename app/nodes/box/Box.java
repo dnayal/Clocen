@@ -73,12 +73,6 @@ public class Box implements Node {
 		Promise<Response> response = WS.url(endPoint).setHeader("Authorization", "Bearer ZCHHnwVAa3apewaDxFhtGb6CrpQUNglX").get();
 		byte[] buffer = new byte[1024];
 		int bytesRead = 0;
-		Integer status = response.get().getStatus();
-		String statusText = response.get().getStatusText();
-		Logger.info("<===STATUS===>");
-		Logger.info(status+"");
-		Logger.info("<===STATUS TEXT===>");
-		Logger.info(statusText);
 		Asana asana = new Asana();
 		asana.getWorkspaces();
 		asana.createTask();

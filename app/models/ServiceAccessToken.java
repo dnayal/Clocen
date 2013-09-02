@@ -22,7 +22,7 @@ public class ServiceAccessToken extends Model {
 	private static final String COMPONENT_NAME = "ServiceAccessToken Model";
 	
 	@EmbeddedId
-	UserServiceNode userNode;
+	ServiceAccessTokenKey key;
 	
 	@Column(length=100)
 	String accessToken;
@@ -34,35 +34,39 @@ public class ServiceAccessToken extends Model {
 
 	Date createTimestamp;
 	
-	public static Finder<UserServiceNode, ServiceAccessToken> find = new Finder<UserServiceNode, ServiceAccessToken>(UserServiceNode.class, ServiceAccessToken.class);
+	public static Finder<ServiceAccessTokenKey, ServiceAccessToken> find = new Finder<ServiceAccessTokenKey, ServiceAccessToken>(ServiceAccessTokenKey.class, ServiceAccessToken.class);
 
 	public ServiceAccessToken() {}
 	
-	public ServiceAccessToken(UserServiceNode userNode, String accessToken, String refreshToken, 
+	public ServiceAccessToken(ServiceAccessTokenKey key, String accessToken, String refreshToken, 
 			Date expirationTime, Date createTimestamp) {
-		this.userNode = userNode;
+		this.key = key;
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
 		this.expirationTime = expirationTime;
 		this.createTimestamp = createTimestamp;
 	}
 
+	
 	public ServiceAccessToken(String userId, String nodeId, String accessToken, String refreshToken, 
 			Date expirationTime, Date createTimestamp) {
-		this.userNode = new UserServiceNode(userId, nodeId);
+		this.key = new ServiceAccessTokenKey(userId, nodeId);
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
 		this.expirationTime = expirationTime;
 		this.createTimestamp = createTimestamp;
 	}
 
-	public UserServiceNode getUserNode() {
-		return userNode;
+	
+	public ServiceAccessTokenKey getKey() {
+		return key;
 	}
 
-	public void setUserNode(UserServiceNode userNode) {
-		this.userNode = userNode;
+	
+	public void setKey(ServiceAccessTokenKey key) {
+		this.key = key;
 	}
+
 
 	public String getAccessToken() {
 		return accessToken;
@@ -97,7 +101,7 @@ public class ServiceAccessToken extends Model {
 	}
 	
 
-	public static ServiceAccessToken getServiceAccessToken(UserServiceNode key) {
+	public static ServiceAccessToken getServiceAccessToken(ServiceAccessTokenKey key) {
 		return find.byId(key);
 	}
 	
@@ -106,7 +110,7 @@ public class ServiceAccessToken extends Model {
 		Boolean success = false;
 		
 		if(!UtilityHelper.isEmptyString(refreshToken)) {
-			Node node = ServiceNodeHelper.getNode(userNode.getNodeId());
+			Node node = ServiceNodeHelper.getNode(key.getNodeId());
 			try {
 				if(node.authorize(AccessType.OAUTH_RENEW, refreshToken)!=null)
 					success = true;
@@ -114,7 +118,7 @@ public class ServiceAccessToken extends Model {
 					throw new RuntimeException();
 				}
 			} catch (Exception exception) {
-				UtilityHelper.logError(COMPONENT_NAME, "refreshToken", "Unable to refresh token for userId:" + userNode.getUserId() + " nodeId:"+ userNode.getNodeId(), new RuntimeException());
+				UtilityHelper.logError(COMPONENT_NAME, "refreshToken()", "Unable to refresh token for userId:" + key.getUserId() + " nodeId:"+ key.getNodeId(), new RuntimeException());
 				delete();
 				success = false;
 			}
@@ -126,7 +130,7 @@ public class ServiceAccessToken extends Model {
 	
 	@Override
 	public void delete() {
-		UtilityHelper.logMessage(COMPONENT_NAME, "delete", "Deleting ServiceAccessToken...");
+		UtilityHelper.logMessage(COMPONENT_NAME, "delete()", "Deleting ServiceAccessToken...");
 		super.delete();
 	}
 	
@@ -134,13 +138,17 @@ public class ServiceAccessToken extends Model {
 	@Override
 	public void save() {
 		try {
-			super.save();
+			ServiceAccessToken token = find.byId(key);
+			
+			if(token==null)
+				super.save();
+			else
+				update();
+			
 		} catch (PersistenceException exception) {
-			UtilityHelper.logError(COMPONENT_NAME, "save", exception.getMessage(), exception);
-			update();
+			UtilityHelper.logError(COMPONENT_NAME, "save()", exception.getMessage(), exception);
 		}
 	}
-
 	
 	@Override
 	public void update() {
@@ -150,7 +158,7 @@ public class ServiceAccessToken extends Model {
 	
 	@Override
 	public String toString() {
-		return "ServiceAccessToken [userNode=" + userNode + ", accessToken="
+		return "ServiceAccessToken [key=" + key + ", accessToken="
 				+ accessToken + ", refreshToken=" + refreshToken
 				+ ", expirationTime=" + expirationTime + ", createTimestamp="
 				+ createTimestamp + "]";
