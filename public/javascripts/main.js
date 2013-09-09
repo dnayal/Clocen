@@ -1,39 +1,50 @@
-var app = angular.module('UserConfigApp', []);
+var app = angular.module('CreateProcessApp', []);
 
-app.controller('LoginController', ['$scope', '$http', function($scope, $http){
+app.controller('ProcessController', ['$scope', '$http', function($scope, $http){
+	
 	$scope.isVisible = {
-			"loginBox" : true,
-			"oauthAuthorizeBox" : false
+		"trigger" : false,
+		"action" : false,
+		"step2" : false
 	};
-	$scope.getUser = function() {
-		requestData = {"email" : $scope.email};
-		$http.post('/users/login', requestData)
+
+	
+	$http.get('/nodes/all')
+	.success(function(responseData){
+		$scope.nodes = responseData;
+	}).error(function(errorData){
+		$scope.error = errorData;
+	});
+	
+	
+	$scope.updateTriggers = function() {
+		$http.get('/nodes/reflection/' + $scope.triggerNode.nodeId)
 		.success(function(responseData){
-			$scope.nodes = responseData;
-			$scope.isVisible.loginBox = false;
-			$scope.isVisible.oauthAuthorizeBox = true;
+			$scope.triggers = responseData.triggers;
+			$scope.trigger = $scope.triggers[0];
+			$scope.isVisible.trigger = true;
 		}).error(function(errorData){
-			$scope.isVisible.loginBox = true;
-			$scope.isVisible.oauthAuthorizeBox = false;
+			$scope.error = errorData;
 		});
 	}
+
+	
+	$scope.updateActions = function() {
+		$http.get('/nodes/reflection/' + $scope.actionNode.nodeId)
+		.success(function(responseData){
+			$scope.actions = responseData.actions;
+			$scope.action = $scope.actions[0];
+			$scope.isVisible.action = true;
+		}).error(function(errorData){
+			$scope.error = errorData;
+		});
+	}
+	
+	
+	// If both action and trigger are set, then make Step 2 visible
+	$scope.$watch('action + trigger', function(){
+		if($scope.action && $scope.trigger)
+			$scope.isVisible.step2 = true;
+	});
+
 }]);
-
-
-app.directive('myappCurrentTime', function($timeout, dateFilter){
-	return function(scope, element, attrs) {
-		var format;
-		scope.format = "d-MMM-yyyy hh:mm:ss a";
-		
-		function updateTime() {
-			element.text(dateFilter(new Date(), format))
-		}
-		
-		scope.$watch(attrs.myappCurrentTime, function(value){
-			format = value;
-			updateTime();
-		});
-		
-		setInterval(function(){updateTime();}, 1000);
-	}
-});

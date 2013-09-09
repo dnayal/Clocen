@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Create Process</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="http://fonts.googleapis.com/css?family=Ubuntu:300" rel="stylesheet" type="text/css">
+		<link href="@routes.Assets.at("stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
+		<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" media="screen">
+	</head>
+	<body ng-app="CreateProcessApp">
+		<div class="container" ng-controller="ProcessController">
+			<div class="row">
+				<div class="col-lg-2">
+					<ol class="breadcrumb">
+						<li><a href="@routes.UserController.home"><< Home</a></li>
+					</ol>
+				</div>
+			</div>
+
+			<!-- Step 1 Starts -->
+			<div class="row step-1">
+				<h2 class="cc-cool-font">Step 1</h2>
+				<div class="col-lg-offset-1 col-lg-3">
+					<div class="row">
+						<h3>Trigger</h3>
+						<select class="form-control" ng-model="triggerNode" ng-options="n.nodeName for n in nodes" ng-change="updateTriggers()">
+							<option value="">-- Select Trigger --</option>
+						</select>
+					</div>
+					<br/>
+					<div class="row">
+						<select class="form-control" ng-show="isVisible.trigger" ng-model="trigger" ng-options="t.name for t in triggers"></select>
+					</div>
+				</div>
+				<div class="col-lg-offset-1 col-lg-1">
+					<div class="row">
+						<h3><span class="glyphicon glyphicon-chevron-right cc-cool-font"></span></h3>
+					</div>
+				</div>
+				<div class="col-lg-offset-1 col-lg-3">
+					<div class="row">
+						<h3>Action</h3>
+						<select class="form-control" ng-model="actionNode" ng-options="n.nodeName for n in nodes" ng-change="updateActions()">
+							<option value="">-- Select Action --</option>
+						</select>
+					</div>
+					<br/>
+					<div class="row">
+						<select class="form-control" ng-show="isVisible.action" ng-model="action" ng-options="a.name for a in actions"></select>
+					</div>
+				</div>
+			</div>
+			<!-- Step 1 Ends -->
+
+			<br/>
+			<br/>
+			
+			<!-- Step 2 Starts -->
+			<div class="row step-2" ng-show="isVisible.step2">
+				<h2 class="cc-cool-font">Step 2</h2>
+				<div class="col-lg-offset-1 col-lg-3">
+					<div class="row">
+						<h3>Configure Trigger</h3>
+						<h5>[ {{triggerNode.nodeName}} -> {{trigger.name}} ]</h5>
+					</div>
+					<!-- insert input fields here -->
+				</div>
+				<div class="col-lg-offset-3 col-lg-3">
+					<div class="row">
+					</div>
+				</div>
+			</div>
+			<!-- Step 2 Ends -->
+			
+		</div>	
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+		<script src="@routes.Assets.at("javascripts/main.js")"></script>
+	</body>
+</html>

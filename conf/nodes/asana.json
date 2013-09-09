@@ -1,0 +1,109 @@
+{
+	"node":"asana",
+	"triggers":[
+		{
+			"id":"newtaskcreated",
+			"name":"New Task Created",
+			"sequence":"1",
+			"input":[
+				{
+					"id":"workspace",
+					"name":"Workspace",
+					"type":"list",
+					"source":"getworkspaces"
+				}
+			],
+			"output":[
+				{
+					"id":"id",
+					"name":"Task Id",
+					"type":"string"
+				},
+				{
+					"id":"name",
+					"name":"Task Name",
+					"type":"string"
+				},
+				{
+					"id":"description",
+					"name":"Task Description",
+					"type":"string"
+				},
+				{
+					"id":"attachment",
+					"name":"Attachment",
+					"type":"file"
+				}
+			]
+		},
+		{
+			"id":"newprojectcreated",
+			"name":"New Project Created",
+			"sequence":"2",
+			"input":[
+				{
+					"id":"workspace",
+					"name":"Workspace",
+					"type":"list",
+					"source":"getworkspaces"
+				}
+			],
+			"output":[
+				{
+					"id":"id",
+					"name":"Project Id",
+					"type":"string"
+				},
+				{
+					"id":"name",
+					"name":"Project Name",
+					"type":"string"
+				},
+				{
+					"id":"description",
+					"name":"Project Description",
+					"type":"string"
+				}
+			]
+		}
+	],
+	"actions":[
+		{
+			"id":"createtask",
+			"name":"Create Task",
+			"sequence":"1",
+			"input":[
+				{
+					"id":"workspace",
+					"name":"Workspace",
+					"type":"list",
+					"source":"getworkspaces"
+				},
+				{
+					"id":"taskname",
+					"name":"Task Name",
+					"type":"string"
+				},
+				{
+					"id":"taskdescription",
+					"name":"Task Description",
+					"type":"string"
+				}
+			]
+		}
+	],
+	"support":[
+		{
+			"id":"getworkspaces",
+			"name":"Get Workspaces",
+			"sequence":"1",
+			"output":[
+				{
+					"id":"workspaces",
+					"name":"Workspaces",
+					"type":"array"
+				}
+			]
+		}
+	]
+}

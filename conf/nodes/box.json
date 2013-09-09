@@ -1,0 +1,74 @@
+{
+	"node":"box",
+	"triggers":[
+		{
+			"id":"newfilecreated",
+			"name":"New File Created",
+			"sequence":"1",
+			"input":[
+				{
+					"id":"folder",
+					"name":"Folder",
+					"type":"list",
+					"source":"getfolders"
+				}
+			],
+			"output":[
+				{
+					"id":"id",
+					"name":"File Id",
+					"type":"string"
+				},
+				{
+					"id":"name",
+					"name":"File Name",
+					"type":"string"
+				},
+				{
+					"id":"filedata",
+					"name":"File",
+					"type":"file"
+				}
+			]
+		}
+	],
+	"actions":[
+		{
+			"id":"createfile",
+			"name":"Create File",
+			"sequence":"1",
+			"input":[
+				{
+					"id":"parentfolder",
+					"name":"Parent Folder",
+					"type":"list",
+					"source":"getfolders"
+				},
+				{
+					"id":"filename",
+					"name":"File Name",
+					"type":"string"
+				},
+				{
+					"id":"filedata",
+					"name":"File",
+					"type":"file"
+				}
+			]
+		}
+	],
+	"support":[
+		{
+			"id":"getfolders",
+			"name":"Get Folders",
+			"sequence":"1",
+			"output":[
+				{
+					"id":"folders",
+					"name":"Folders",
+					"type":"array"
+				}
+			]
+		}
+	]
+}

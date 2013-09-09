@@ -1,11 +1,8 @@
 package controllers;
 
-import helpers.UserHelper;
 import helpers.UtilityHelper;
 
 import java.util.List;
-
-import nodes.asana.Asana;
 
 import models.ServiceNodeInfo;
 import models.User;
@@ -26,7 +23,7 @@ public class UserController extends Controller {
 
 		if(!UtilityHelper.isEmptyString(email)) {
 			User user = User.getUserByEmail(email);
-			UserHelper.setCurrentUser(user.getUserId());
+			user.setAsCurrentUser();
 		}
 
 		return redirect(routes.UserController.home());
@@ -34,13 +31,10 @@ public class UserController extends Controller {
 	
 	
 	public static Result home() {
-		User user = UserHelper.getCurrentUser();
+		User user = User.getCurrentUser();
 		
 		if(user==null)
 			return redirect(routes.Application.index());
-		
-		Asana asana = new Asana();
-		asana.getWorkspaces();
 		
 		List<ServiceNodeInfo> list = user.getAllNodes();
 		

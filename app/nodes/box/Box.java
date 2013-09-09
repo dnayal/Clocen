@@ -1,7 +1,6 @@
 package nodes.box;
 
 import helpers.ServiceNodeHelper;
-import helpers.UtilityHelper;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -29,7 +28,6 @@ public class Box implements Node {
 	private static final String OAUTH_AUTHORIZE_URL = "https://www.box.com/api/oauth2/authorize";
 	private static final String OAUTH_TOKEN_URL = "https://www.box.com/api/oauth2/token";
 	private static final String NODE_ID = "box";
-	private String accessToken = null;
 	
 
 	@Override
@@ -39,17 +37,6 @@ public class Box implements Node {
 	}
 	
 	
-	/* 
-	 * TODO 
-	 * This method needs to be updated to check 
-	 * whether we have the access to the given node
-	 */
-	@Override
-	public Boolean hasAccess() {
-		return !UtilityHelper.isEmptyString(accessToken);
-	}
-
-
 	@Override
 	public String getNodeId() {
 		return NODE_ID;

@@ -19,6 +19,7 @@ import nodes.Node;
 import play.data.validation.Constraints.Email;
 import play.data.validation.Constraints.Required;
 import play.db.ebean.Model;
+import play.mvc.Controller;
 
 @SuppressWarnings("serial")
 @Entity
@@ -96,6 +97,34 @@ public class User extends Model {
 		this.createTimestamp = createTimestamp;
 	}
 	
+
+	/**
+	 * Returns currently logged in user
+	 */
+	public static User getCurrentUser() {
+		String userId = Controller.ctx().session().get("user_id");
+		if(UtilityHelper.isEmptyString(userId))
+			return null;
+		else 
+			return User.find.byId(userId);
+	}
+	
+	
+	/**
+	 * Sets the id of currently logged in user in session
+	 */
+	public static void setCurrentUser(User user) {
+		Controller.ctx().session().put("user_id", user.getUserId());
+	}
+
+
+	/**
+	 * Sets the user as currently logged in
+	 */
+	public void setAsCurrentUser() {
+		Controller.ctx().session().put("user_id", userId);
+	}
+
 
 	public List<ServiceAccessToken> getAllServiceTokens() {
 		List<ServiceAccessToken> tokenList = new ArrayList<ServiceAccessToken>();

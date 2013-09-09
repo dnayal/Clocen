@@ -11,3 +11,7 @@ h1, h2, h3, h4, h5, h6, legend, body, p, a, button, input, div, img, select, opt
 .cc-vertical-center {
 	top: 35%;
 }
+
+.cc-cool-font {
+	color:#33CCFF;
+}

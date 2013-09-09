@@ -5,8 +5,8 @@ import nodes.box.Box;
 import play.data.DynamicForm;
 import play.mvc.Controller;
 import play.mvc.Result;
-import views.html.angular;
-import views.html.index;
+
+import views.html.*;
 
 public class Application extends Controller {
 
@@ -17,8 +17,8 @@ public class Application extends Controller {
     }
     
 
-    public static Result testAngularJS() {
-    	return ok(angular.render());
+    public static Result getCreateProcessPage() {
+    	return ok(create_process.render());
     }
   
     

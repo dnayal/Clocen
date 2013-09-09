@@ -9,6 +9,7 @@ import java.util.HashSet;
 import org.codehaus.jackson.JsonNode;
 
 import models.ServiceAccessToken;
+import models.User;
 import nodes.Node;
 import nodes.Node.AccessType;
 import play.Play;
@@ -53,7 +54,7 @@ public class ServiceNodeHelper {
 				Calendar calendar = Calendar.getInstance();
 				calendar.add(Calendar.SECOND, expiresIn);
 				
-				ServiceAccessToken sat = new ServiceAccessToken(UserHelper.getCurrentUser().getUserId(), 
+				ServiceAccessToken sat = new ServiceAccessToken(User.getCurrentUser().getUserId(), 
 						nodeId, accessToken, refreshToken, calendar.getTime(), Calendar.getInstance().getTime());
 				sat.save();
 				
@@ -81,7 +82,7 @@ public class ServiceNodeHelper {
 				calendar = Calendar.getInstance();
 				calendar.add(Calendar.SECOND, expiresIn);
 				
-				sat = new ServiceAccessToken(UserHelper.getCurrentUser().getUserId(), 
+				sat = new ServiceAccessToken(User.getCurrentUser().getUserId(), 
 						nodeId, accessToken, refreshToken, calendar.getTime(), Calendar.getInstance().getTime());
 				sat.save();
 				

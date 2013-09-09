@@ -1,12 +1,11 @@
 package nodes.asana;
 
 import helpers.ServiceNodeHelper;
-import helpers.UserHelper;
-import helpers.UtilityHelper;
 
 import java.util.Iterator;
 
 import models.ServiceAccessToken;
+import models.User;
 import nodes.Node;
 
 import org.codehaus.jackson.JsonNode;
@@ -23,7 +22,6 @@ public class Asana implements Node {
 	private static final String OAUTH_AUTHORIZE_URL = "https://app.asana.com/-/oauth_authorize";
 	private static final String OAUTH_TOKEN_URL = "https://app.asana.com/-/oauth_token";
 	private static final String NODE_ID = "asana";
-	private String accessToken = null;
 
 	@Override
 	public String authorize(AccessType accessType, String data) {
@@ -32,17 +30,6 @@ public class Asana implements Node {
 	}
 	
 	
-	/* 
-	 * TODO 
-	 * This method needs to be updated to check 
-	 * whether we have the access to the given node
-	 */
-	@Override
-	public Boolean hasAccess() {
-		return !UtilityHelper.isEmptyString(accessToken);
-	}
-
-
 	@Override
 	public String getNodeId() {
 		return NODE_ID;
@@ -60,9 +47,10 @@ public class Asana implements Node {
 		return "Task management for teams";
 	}
 	
-
+	
+	
 	public void getWorkspaces() {
-		ServiceAccessToken sat = UserHelper.getCurrentUser().getServiceAccessToken(NODE_ID);
+		ServiceAccessToken sat = User.getCurrentUser().getServiceAccessToken(NODE_ID);
 
 		String endPoint = "https://app.asana.com/api/1.0/workspaces";
 		Promise<Response> response = WS.url(endPoint).setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
@@ -77,7 +65,7 @@ public class Asana implements Node {
 
 
 	public void createTask() {
-		ServiceAccessToken sat = UserHelper.getCurrentUser().getServiceAccessToken(NODE_ID);
+		ServiceAccessToken sat = User.getCurrentUser().getServiceAccessToken(NODE_ID);
 		
 		String endPoint = "https://app.asana.com/api/1.0/workspaces/180666096176/tasks";
 		
