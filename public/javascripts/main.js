@@ -5,7 +5,8 @@ app.controller('ProcessController', ['$scope', '$http', function($scope, $http){
 	$scope.isVisible = {
 		"trigger" : false,
 		"action" : false,
-		"step2" : false
+		"step2" : false,
+		"step3" : false
 	};
 
 	
@@ -43,8 +44,10 @@ app.controller('ProcessController', ['$scope', '$http', function($scope, $http){
 	
 	// If both action and trigger are set, then make Step 2 visible
 	$scope.$watch('action + trigger', function(){
-		if($scope.action && $scope.trigger)
+		if($scope.action && $scope.trigger) {
 			$scope.isVisible.step2 = true;
+			$scope.isVisible.step3 = true;
+		}
 	});
 
 }]);

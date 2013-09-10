@@ -58,20 +58,64 @@
 			<!-- Step 2 Starts -->
 			<div class="row step-2" ng-show="isVisible.step2">
 				<h2 class="cc-cool-font">Step 2</h2>
-				<div class="col-lg-offset-1 col-lg-3">
+				<div class="col-lg-offset-1 col-lg-5">
 					<div class="row">
 						<h3>Configure Trigger</h3>
-						<h5>[ {{triggerNode.nodeName}} -> {{trigger.name}} ]</h5>
+						<h5>[{{triggerNode.nodeName}}: {{trigger.name}}]</h5>
 					</div>
-					<!-- insert input fields here -->
-				</div>
-				<div class="col-lg-offset-3 col-lg-3">
-					<div class="row">
+					<br/>
+
+					<div class="row" ng-repeat="field in trigger.input">
+						<div class="col-lg-4">{{field.name}}</div>
+						<div class="col-lg-8" ng-switch on="field.type">
+							<span ng-switch-when="service">
+								<!-- replace this drop down with a directive -->
+								<select ng-model="field.value" type="text" class="form-control"> 
+									<option value="#1">option #1</option>
+									<option value="#2">option #2</option>
+								</select>
+							</span>
+							<span ng-switch-when="user">
+								<input ng-model="field.value" type="text" class="form-control">
+							</span>	
+						</div>
+						<br><br>
 					</div>
 				</div>
 			</div>
 			<!-- Step 2 Ends -->
 			
+			<!-- Step 3 Starts -->
+			<div class="row step-2" ng-show="isVisible.step3">
+				<h2 class="cc-cool-font">Step 3</h2>
+				<div class="col-lg-offset-1 col-lg-5">
+					<div class="row">
+						<h3>Configure Action</h3>
+						<h5>[{{actionNode.nodeName}}: {{action.name}}]</h5>
+					</div>
+					<br/>
+
+					<div class="row" ng-repeat="field in action.input">
+						<div class="col-lg-4">{{field.name}}</div>
+						<div class="col-lg-8" ng-switch on="field.type">
+							<span ng-switch-when="service">
+								<!-- replace this drop down with a directive -->
+								<select ng-model="field.value" type="text" class="form-control"> 
+									<option value="#1">option #1</option>
+									<option value="#2">option #2</option>
+								</select>
+							</span>
+							<span ng-switch-when="user">
+								<input ng-model="field.value" type="text" class="form-control">
+							</span>	
+						</div>
+						<br><br>
+					</div>
+				</div>
+			</div>
+			<!-- Step 3 Ends -->
+
+
 		</div>	
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
 		<script src="@routes.Assets.at("javascripts/main.js")"></script>

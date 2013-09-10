@@ -9,7 +9,7 @@
 				{
 					"id":"folder",
 					"name":"Folder",
-					"type":"list",
+					"type":"service",
 					"source":"getfolders"
 				}
 			],
@@ -41,13 +41,13 @@
 				{
 					"id":"parentfolder",
 					"name":"Parent Folder",
-					"type":"list",
+					"type":"service",
 					"source":"getfolders"
 				},
 				{
 					"id":"filename",
 					"name":"File Name",
-					"type":"string"
+					"type":"user"
 				},
 				{
 					"id":"filedata",

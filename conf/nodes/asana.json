@@ -9,23 +9,28 @@
 				{
 					"id":"workspace",
 					"name":"Workspace",
-					"type":"list",
+					"type":"service",
 					"source":"getworkspaces"
+				},
+				{
+					"id":"taskname",
+					"name":"Task Name",
+					"type":"user"
 				}
 			],
 			"output":[
 				{
-					"id":"id",
+					"id":"taskid",
 					"name":"Task Id",
 					"type":"string"
 				},
 				{
-					"id":"name",
+					"id":"taskname",
 					"name":"Task Name",
 					"type":"string"
 				},
 				{
-					"id":"description",
+					"id":"taskdescription",
 					"name":"Task Description",
 					"type":"string"
 				},
@@ -44,7 +49,7 @@
 				{
 					"id":"workspace",
 					"name":"Workspace",
-					"type":"list",
+					"type":"service",
 					"source":"getworkspaces"
 				}
 			],
@@ -76,18 +81,18 @@
 				{
 					"id":"workspace",
 					"name":"Workspace",
-					"type":"list",
+					"type":"service",
 					"source":"getworkspaces"
 				},
 				{
 					"id":"taskname",
 					"name":"Task Name",
-					"type":"string"
+					"type":"user"
 				},
 				{
 					"id":"taskdescription",
 					"name":"Task Description",
-					"type":"string"
+					"type":"user"
 				}
 			]
 		}
