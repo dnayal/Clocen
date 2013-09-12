@@ -54,7 +54,7 @@
 
 			<br/>
 			<br/>
-			
+
 			<!-- Step 2 Starts -->
 			<div class="row step-2" ng-show="isVisible.step2">
 				<h2 class="cc-cool-font">Step 2</h2>
@@ -69,11 +69,12 @@
 						<div class="col-lg-4">{{field.name}}</div>
 						<div class="col-lg-8" ng-switch on="field.type">
 							<span ng-switch-when="service">
-								<!-- replace this drop down with a directive -->
-								<select ng-model="field.value" type="text" class="form-control"> 
-									<option value="#1">option #1</option>
-									<option value="#2">option #2</option>
+								<!-- service drop down start -->
+								<button class="btn btn-info" ng-show="!data.showData" ng-click="getData(data=[], triggerNode.nodeId, field.source)">Get {{field.name}}</button>
+								<select ng-model="field.value" ng-show="data.showData" ng-options="d.id as d.name for d in data.data" class="form-control">
+									<option value="">-- Select {{field.name}} --</option>
 								</select>
+								<!-- service drop down end -->
 							</span>
 							<span ng-switch-when="user">
 								<input ng-model="field.value" type="text" class="form-control">
@@ -99,11 +100,12 @@
 						<div class="col-lg-4">{{field.name}}</div>
 						<div class="col-lg-8" ng-switch on="field.type">
 							<span ng-switch-when="service">
-								<!-- replace this drop down with a directive -->
-								<select ng-model="field.value" type="text" class="form-control"> 
-									<option value="#1">option #1</option>
-									<option value="#2">option #2</option>
+								<!-- service drop down start -->
+								<button class="btn btn-info" ng-show="!data.showData" ng-click="getData(data=[], actionNode.nodeId, field.source)">Get {{field.name}}</button>
+								<select ng-model="field.value" ng-show="data.showData" ng-options="d.id as d.name for d in data.data" class="form-control">
+									<option value="">-- Select {{field.name}} --</option>
 								</select>
+								<!-- service drop down end -->
 							</span>
 							<span ng-switch-when="user">
 								<input ng-model="field.value" type="text" class="form-control">

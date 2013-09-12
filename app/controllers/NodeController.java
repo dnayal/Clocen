@@ -1,8 +1,10 @@
 package controllers;
 
+import helpers.ServiceNodeHelper;
 import helpers.UtilityHelper;
 
 import models.User;
+import nodes.Node;
 
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
@@ -37,5 +39,11 @@ public class NodeController extends Controller {
     	return ok(result);
     }
     
+	
+	public static Result callInfoService(String nodeId, String service) {
+		User user = User.getCurrentUser();
+		Node node = ServiceNodeHelper.getNode(nodeId);
+		return ok(node.callInfoService(user, service));
+	}
 
 }

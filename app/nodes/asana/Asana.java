@@ -2,13 +2,16 @@ package nodes.asana;
 
 import helpers.ServiceNodeHelper;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
+import models.IdName;
 import models.ServiceAccessToken;
 import models.User;
 import nodes.Node;
 
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import play.Logger;
 import play.libs.F.Promise;
@@ -49,23 +52,33 @@ public class Asana implements Node {
 	
 	
 	
-	public void getWorkspaces() {
-		ServiceAccessToken sat = User.getCurrentUser().getServiceAccessToken(NODE_ID);
+	public JsonNode getWorkspaces(User user) {
+		ServiceAccessToken sat = user.getServiceAccessToken(NODE_ID);
+		ArrayList<IdName> list = new ArrayList<IdName>();
 
 		String endPoint = "https://app.asana.com/api/1.0/workspaces";
 		Promise<Response> response = WS.url(endPoint).setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
-		Iterator<JsonNode> iterator = response.get().asJson().path("data").getElements();
+		JsonNode json = response.get().asJson().path("data");
+
 		Logger.info("=====WORKSPACES=====");
+		Iterator<JsonNode> iterator = json.getElements();
 		while (iterator.hasNext()){
 			JsonNode node = iterator.next();
-			Logger.info(node.get("id").asText() + " : " + node.get("name").asText()); 
+			Logger.info(node.get("id").asText() + " : " + node.get("name").asText());
+			list.add(new IdName(node.get("id").asText(), node.get("name").asText()));
 		}
-		Logger.info("+-+-+-+-+-+-+-+-+-+-+-+");
+		Logger.info("=====END=====");
+		
+		json = null;
+		ObjectMapper mapper = new ObjectMapper();
+		json = mapper.valueToTree(list);
+
+		return json;
 	}
 
 
-	public void createTask() {
-		ServiceAccessToken sat = User.getCurrentUser().getServiceAccessToken(NODE_ID);
+	public void createTask(User user) {
+		ServiceAccessToken sat = user.getServiceAccessToken(NODE_ID);
 		
 		String endPoint = "https://app.asana.com/api/1.0/workspaces/180666096176/tasks";
 		
@@ -75,6 +88,16 @@ public class Asana implements Node {
 					.post("name=Successful+Task&notes=YYYYYIIIIPPPPEEEE&assignee=177113805935")
 							.get().asJson();
 		Logger.info("NEW TASK : " + json.toString());
+	}
+
+
+	@Override
+	public JsonNode callInfoService(User user, String service) {
+		if (service.equalsIgnoreCase("getworkspaces")) {
+			return getWorkspaces(user);
+		} else {
+			return null;
+		}
 	}
 
 

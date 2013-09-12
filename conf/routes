@@ -11,6 +11,8 @@ POST	/triggers/:node_id				controllers.Application.callTriggerListener(node_id: 
 GET		/nodes/all						controllers.NodeController.getAllNodes()
 GET		/nodes/reflection/:nodeId		controllers.NodeController.getNodeConfiguration(nodeId: String)
 
+GET		/nodes/reflection/:nodeId/info/:service	controllers.NodeController.callInfoService(nodeId: String, service: String)
+
 GET		/nodes/:node_id/oauth/authorize	controllers.OAuthController.authorizeCall(node_id: String)
 GET		/nodes/:node_id/oauth/callback	controllers.OAuthController.tokenCallback(node_id: String)
 GET		/nodes/:node_id/oauth/refresh	controllers.OAuthController.refreshToken(node_id: String)

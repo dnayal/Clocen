@@ -6,13 +6,21 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import models.IdName;
+import models.ServiceAccessToken;
+import models.User;
+import nodes.Node;
+
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import play.Logger;
 import play.libs.F.Promise;
 import play.libs.WS;
 import play.libs.WS.Response;
-import nodes.Node;
-import nodes.asana.Asana;
 
 /**
  * Box access token is valid for 1 hour. In order to get a new valid token, 
@@ -55,14 +63,42 @@ public class Box implements Node {
 	}
 	
 
+	public JsonNode getFolders(User user) {
+		ServiceAccessToken sat = user.getServiceAccessToken(NODE_ID);
+		String id = null;
+		String name = null;
+
+		String endPoint = "https://api.box.com/2.0/folders/0";
+		Promise<Response> response = WS.url(endPoint).setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
+		JsonNode json = response.get().asJson();
+		ArrayList<IdName> list = new ArrayList<IdName>();
+		list.add(new IdName(json.path("id").asText(), json.path("name").asText()));
+		JsonNode itemEntries = json.path("item_collection").path("entries");
+		Iterator<JsonNode> iterator = itemEntries.iterator();
+
+		Logger.info("=====Folders=====");
+		while (iterator.hasNext()){
+			JsonNode node = iterator.next();
+			id = node.path("id").asText();
+			name = node.path("name").asText();
+			Logger.info( id + " : " + name); 
+			list.add(new IdName(id, name));
+		}
+		Logger.info("=====END=====");
+		
+		json = null;
+		ObjectMapper mapper = new ObjectMapper();
+		json = mapper.valueToTree(list);
+		
+		return json;
+	}
+
+
 	public void getFile(String fileId) {
 		String endPoint = "https://api.box.com/2.0/files/" + fileId + "/content";
 		Promise<Response> response = WS.url(endPoint).setHeader("Authorization", "Bearer ZCHHnwVAa3apewaDxFhtGb6CrpQUNglX").get();
 		byte[] buffer = new byte[1024];
 		int bytesRead = 0;
-		Asana asana = new Asana();
-		asana.getWorkspaces();
-		asana.createTask();
 		Logger.info("<===BODY===>");
 		FileOutputStream file;
 		try {
@@ -78,6 +114,16 @@ public class Box implements Node {
 			e.printStackTrace();
 		}
 		Logger.info("File created");
+	}
+
+
+	@Override
+	public JsonNode callInfoService(User user, String service) {
+		if (service.equalsIgnoreCase("getfolders")) {
+			return getFolders(user);
+		} else {
+			return null;
+		}
 	}
 
 }

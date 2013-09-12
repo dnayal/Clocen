@@ -1,5 +1,9 @@
 package nodes;
 
+import models.User;
+
+import org.codehaus.jackson.JsonNode;
+
 public interface Node {
 	
 	public static enum AccessType {
@@ -12,5 +16,6 @@ public interface Node {
 	public String getNodeId();
 	public String getName();
 	public String getDescription();
+	public JsonNode callInfoService(User user, String service);
 
 }
