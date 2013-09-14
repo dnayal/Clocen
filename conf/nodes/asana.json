@@ -11,11 +11,6 @@
 					"name":"Workspace",
 					"type":"service",
 					"source":"getworkspaces"
-				},
-				{
-					"id":"taskname",
-					"name":"Task Name",
-					"type":"user"
 				}
 			],
 			"output":[
@@ -93,20 +88,6 @@
 					"id":"taskdescription",
 					"name":"Task Description",
 					"type":"user"
-				}
-			]
-		}
-	],
-	"support":[
-		{
-			"id":"getworkspaces",
-			"name":"Get Workspaces",
-			"sequence":"1",
-			"output":[
-				{
-					"id":"workspaces",
-					"name":"Workspaces",
-					"type":"array"
 				}
 			]
 		}

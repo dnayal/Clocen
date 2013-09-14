@@ -2,13 +2,11 @@ var app = angular.module('CreateProcessApp', []);
 
 app.controller('ProcessController', ['$scope', '$http', function($scope, $http){
 	
-	$scope.isVisible = {
-		"trigger" : false,
-		"action" : false,
-		"step2" : false,
-		"step3" : false
-	};
-
+	$scope.process = [];
+	$scope.activities = [];
+	$scope.node = [];
+	$scope.count = [{"index":0}];
+	
 	
 	$http.get('/nodes/all')
 	.success(function(responseData){
@@ -18,47 +16,43 @@ app.controller('ProcessController', ['$scope', '$http', function($scope, $http){
 	});
 	
 	
-	$scope.updateTriggers = function() {
-		$http.get('/nodes/reflection/' + $scope.triggerNode.nodeId)
+	$scope.nextAction = function() {
+		$scope.count.push({"index":$scope.count.length});
+	}
+
+
+	$scope.updateActivities = function(index) {
+		$http.get('/nodes/reflection/' + $scope.node[index].nodeId)
 		.success(function(responseData){
-			$scope.triggers = responseData.triggers;
-			$scope.trigger = $scope.triggers[0];
-			$scope.isVisible.trigger = true;
+			if(index==0) {
+				$scope.activities[index] = responseData.triggers;
+				$scope.process[index] = {"node":$scope.node[index].nodeId, "data":responseData.triggers[0]};
+			} else {
+				$scope.activities[index] = responseData.actions;
+				$scope.process[index] = {"node":$scope.node[index].nodeId, "data":responseData.actions[0]};
+			}
 		}).error(function(errorData){
 			$scope.error = errorData;
 		});
 	}
-
+		
 	
-	$scope.updateActions = function() {
-		$http.get('/nodes/reflection/' + $scope.actionNode.nodeId)
-		.success(function(responseData){
-			$scope.actions = responseData.actions;
-			$scope.action = $scope.actions[0];
-			$scope.isVisible.action = true;
-		}).error(function(errorData){
-			$scope.error = errorData;
-		});
-	}
-	
-	
-	// If both action and trigger are set, then make Step 2 visible
-	$scope.$watch('action + trigger', function(){
-		if($scope.action && $scope.trigger) {
-			$scope.isVisible.step2 = true;
-			$scope.isVisible.step3 = true;
-		}
-	});
-
-	
-	$scope.getData = function(field, node, source) {
+	$scope.getData = function(data, node, source) {
+		data.showWorking = true;
 		$http.get('/nodes/reflection/' + node + '/info/' + source)
 		.success(function(responseData){
-			field.data = responseData;
-			field.showData = true;
+			data.data = responseData;
+			data.showData = true;
+			data.showWorking = false;
 		}).error(function(errorData){
 			$scope.error = errorData;
 		});
+	}
+	
+	
+	$scope.showOutput = function() {
+		console.log("****OUTPUT******");
+		console.log(JSON.stringify($scope.process));
 	}
 	
 }]);

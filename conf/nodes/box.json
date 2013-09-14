@@ -56,19 +56,5 @@
 				}
 			]
 		}
-	],
-	"support":[
-		{
-			"id":"getfolders",
-			"name":"Get Folders",
-			"sequence":"1",
-			"output":[
-				{
-					"id":"folders",
-					"name":"Folders",
-					"type":"array"
-				}
-			]
-		}
 	]
 }
