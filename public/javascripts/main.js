@@ -26,10 +26,22 @@ app.controller('ProcessController', ['$scope', '$http', function($scope, $http){
 		.success(function(responseData){
 			if(index==0) {
 				$scope.activities[index] = responseData.triggers;
-				$scope.process[index] = {"node":$scope.node[index].nodeId, "data":responseData.triggers[0]};
+				$scope.process[index] = {
+						"node":$scope.node[index].nodeId, 
+						"name":$scope.node[index].nodeName, 
+						"logo":$scope.node[index].nodeLogo, 
+						"description":$scope.node[index].nodeDescription, 
+						"data":responseData.triggers[0]
+				};
 			} else {
 				$scope.activities[index] = responseData.actions;
-				$scope.process[index] = {"node":$scope.node[index].nodeId, "data":responseData.actions[0]};
+				$scope.process[index] = {
+						"node":$scope.node[index].nodeId, 
+						"name":$scope.node[index].nodeName, 
+						"logo":$scope.node[index].nodeLogo, 
+						"description":$scope.node[index].nodeDescription, 
+						"data":responseData.actions[0]
+				};
 			}
 		}).error(function(errorData){
 			$scope.error = errorData;
@@ -55,6 +67,15 @@ app.controller('ProcessController', ['$scope', '$http', function($scope, $http){
 		console.log(JSON.stringify($scope.process));
 	}
 	
+
+	$scope.addText = function(model, nodeIndex, value) {
+		if(model.value)
+			model.value = model.value + ' ##'+nodeIndex+'.'+value+'##';
+		else
+			model.value = '##'+nodeIndex+'.'+value+'##';
+			
+	}
+
 }]);
 
 /**

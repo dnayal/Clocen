@@ -4,6 +4,7 @@ public class ServiceNodeInfo {
 
 	String nodeId;
 	String nodeName;
+	String nodeLogo;
 	String nodeDescription;
 	String URL;
 	Boolean authorized=false;
@@ -12,9 +13,10 @@ public class ServiceNodeInfo {
 	public ServiceNodeInfo() {}
 	
 	
-	public ServiceNodeInfo(String nodeId, String nodeName, String nodeDescription, String URL, Boolean authorized) {
+	public ServiceNodeInfo(String nodeId, String nodeName, String nodeLogo, String nodeDescription, String URL, Boolean authorized) {
 		this.nodeId = nodeId;
 		this.nodeName = nodeName;
+		this.nodeLogo = nodeLogo;
 		this.nodeDescription = nodeDescription;
 		this.URL = URL;
 		this.authorized = authorized;
@@ -70,6 +72,16 @@ public class ServiceNodeInfo {
 		this.authorized = authorized;
 	}
 	
+
+	public String getNodeLogo() {
+		return nodeLogo;
+	}
+
+
+	public void setNodeLogo(String nodeLogo) {
+		this.nodeLogo = nodeLogo;
+	}
+
 
 	@Override
 	public String toString() {

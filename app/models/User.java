@@ -174,7 +174,7 @@ public class User extends Model {
 			}
 			
 			Node node = ServiceNodeHelper.getNode(nodeId);
-			ServiceNodeInfo serviceNode = new ServiceNodeInfo(nodeId, node.getName(), node.getDescription(), 
+			ServiceNodeInfo serviceNode = new ServiceNodeInfo(nodeId, node.getName(), node.getLogo(), node.getDescription(), 
 					isAuthorized
 						?controllers.routes.OAuthController.refreshToken(node.getNodeId()).toString()	
 						:controllers.routes.OAuthController.authorizeCall(node.getNodeId()).toString(), 

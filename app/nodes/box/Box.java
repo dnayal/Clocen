@@ -21,6 +21,7 @@ import play.Logger;
 import play.libs.F.Promise;
 import play.libs.WS;
 import play.libs.WS.Response;
+import play.mvc.Controller;
 
 /**
  * Box access token is valid for 1 hour. In order to get a new valid token, 
@@ -124,6 +125,12 @@ public class Box implements Node {
 		} else {
 			return null;
 		}
+	}
+
+
+	@Override
+	public String getLogo() {
+		return controllers.routes.Assets.at("images/nodes/box.png").absoluteURL(Controller.request());
 	}
 
 }

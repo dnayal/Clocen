@@ -89,6 +89,28 @@
 					"name":"Task Description",
 					"type":"user"
 				}
+			],
+			"output":[
+				{
+					"id":"taskid",
+					"name":"Task Id",
+					"type":"string"
+				},
+				{
+					"id":"taskname",
+					"name":"Task Name",
+					"type":"string"
+				},
+				{
+					"id":"taskdescription",
+					"name":"Task Description",
+					"type":"string"
+				},
+				{
+					"id":"attachment",
+					"name":"Attachment",
+					"type":"file"
+				}
 			]
 		}
 	]

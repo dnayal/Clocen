@@ -54,6 +54,23 @@
 					"name":"File",
 					"type":"file"
 				}
+			],
+			"output":[
+				{
+					"id":"id",
+					"name":"File Id",
+					"type":"string"
+				},
+				{
+					"id":"name",
+					"name":"File Name",
+					"type":"string"
+				},
+				{
+					"id":"filedata",
+					"name":"File",
+					"type":"file"
+				}
 			]
 		}
 	]
