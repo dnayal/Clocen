@@ -20,11 +20,12 @@ h1, h2, h3, h4, h5, h6, legend, body, p, a, button, input, div, img, select, opt
 	color: #909090;
 }
 
-.cc-node-logo-small {
+.cc-node-input-logo {
 	height: 20px;
-	margin: -7px;
-/*	padding: 3px;
-	border: 1px solid lightgray;
-	border-radius: 5px;
-*/	
+	margin: -5px;
+}
+
+.cc-node-medium-logo {
+	height: 50px;
+	padding: 3px;
 }
