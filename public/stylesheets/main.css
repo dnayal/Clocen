@@ -29,3 +29,9 @@ h1, h2, h3, h4, h5, h6, legend, body, p, a, button, input, div, img, select, opt
 	height: 50px;
 	padding: 3px;
 }
+
+.cc-input-required-label {
+	padding: 1px;
+	color: red;
+	font-size: 0.75em;
+}

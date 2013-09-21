@@ -16,6 +16,7 @@
 			</div>
 
 <!-- -------------->
+		<form name="processform">
 			<div class="row">
 				<div class="row" ng-repeat="counter in count">
 					<span class="cc-light-font col-lg-12" ng-switch on="counter.index">
@@ -34,18 +35,20 @@
 							<img class="cc-node-medium-logo" ng-src="{{node[counter.index].nodeLogo}}">
 						</div>
 						<div class="col-lg-3">
-							<select class="form-control input-lg" ng-model="node[counter.index]" ng-options="n.nodeName for n in nodes" ng-change="updateActivities(counter.index)">
+							<select class="form-control input-lg" ng-required="true" ng-model="node[counter.index]" ng-options="n.nodeName for n in nodes" ng-change="updateActivities(counter.index)">
 								<option value="">-- Select Service --</option>
 							</select>
 						</div>
 						<div class="col-lg-offset-1 col-lg-3">
-							<select class="form-control input-lg" ng-model="process[counter.index].data" ng-options="t.name for t in activities[counter.index]"></select>
+							<select class="form-control input-lg" ng-required="true" ng-model="process[counter.index].data" ng-options="t.name for t in activities[counter.index]"></select>
 						</div>
 					</div>
 					<div class="row"><div class="col-lg-offset-1 col-lg-7"><hr></div></div>
 					<!-- node form starts -->
 					<div class="row" ng-repeat="field in process[counter.index].data.input">
-						<div class="col-lg-offset-1 col-lg-2"><strong>{{field.name}}</strong></div>
+						<div class="col-lg-offset-1 col-lg-2">
+							<strong>{{field.name}}</strong> <span ng-show="field.required" class="cc-input-required-label">required</span>
+						</div>
 						<div class="col-lg-5" ng-switch on="field.type">
 							<span ng-switch-when="service">
 								<!-- service drop down start -->
@@ -53,14 +56,14 @@
 								Get {{field.name}}
 								<img alt="" ng-show="data.showWorking" src="@routes.Assets.at("images/spinner.gif")">
 								</button>
-								<select ng-model="field.value" ng-show="data.showData" ng-options="d.id as d.name for d in data.data" class="form-control">
+								<select ng-model="field.value" ng-required="field.required" ng-show="data.showData" ng-options="d.id as d.name for d in data.data" class="form-control">
 									<option value="">-- Select {{field.name}} --</option>
 								</select>
 								<!-- service drop down end -->
 							</span>
 							<span ng-switch-when="user">
 								<div class="input-group">
-									<input ng-model="field.value" type="text" class="form-control">
+									<input ng-model="field.value" type="text" ng-required="field.required" class="form-control">
 									<div class="input-group-btn">
 										<a href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 											<img class="cc-node-input-logo" ng-src="{{process[counter.index-1].logo}}">
@@ -82,18 +85,19 @@
 				
 				<span ng-switch on="count.length">
 					<span ng-switch-when="1">
-						<button class="btn btn-info btn-lg" ng-click="nextAction()">Add Action</button>&nbsp;					
+						<button class="btn btn-info btn-lg" ng-disabled="processform.$invalid" ng-click="nextAction()">Add Action</button>&nbsp;					
 					</span>
 					<span ng-switch-default>
-						<button class="btn btn-info btn-lg" ng-click="nextAction()">Add Next Action</button>&nbsp;					
+						<button class="btn btn-info btn-lg" ng-disabled="processform.$invalid" ng-click="nextAction()">Add Next Action</button>&nbsp;					
 					</span>
 				</span>
-				<button class="btn btn-primary btn-lg" ng-show="count.length!=1" ng-click="showOutput()">Confirm Process</button>&nbsp;
+				<button class="btn btn-primary btn-lg" ng-disabled="processform.$invalid" ng-show="count.length!=1" ng-click="showOutput()">Confirm Process</button>&nbsp;
 				<a href="@routes.UserController.home" class="btn btn-danger btn-lg">Cancel</a>
 
 				<br/>
 				<br/>
 			</div>
+		</form>	
 <!-- -------------->
 
 		</div>	

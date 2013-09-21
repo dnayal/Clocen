@@ -10,7 +10,8 @@
 					"id":"folder",
 					"name":"Folder",
 					"type":"service",
-					"source":"getfolders"
+					"source":"getfolders",
+					"required":true
 				}
 			],
 			"output":[
@@ -42,17 +43,20 @@
 					"id":"parentfolder",
 					"name":"Parent Folder",
 					"type":"service",
-					"source":"getfolders"
+					"source":"getfolders",
+					"required":true
 				},
 				{
 					"id":"filename",
 					"name":"File Name",
-					"type":"user"
+					"type":"user",
+					"required":true
 				},
 				{
 					"id":"filedata",
 					"name":"File",
-					"type":"file"
+					"type":"file",
+					"required":true
 				}
 			],
 			"output":[

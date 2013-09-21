@@ -10,7 +10,8 @@
 					"id":"workspace",
 					"name":"Workspace",
 					"type":"service",
-					"source":"getworkspaces"
+					"source":"getworkspaces",
+					"required":true
 				}
 			],
 			"output":[
@@ -45,7 +46,8 @@
 					"id":"workspace",
 					"name":"Workspace",
 					"type":"service",
-					"source":"getworkspaces"
+					"source":"getworkspaces",
+					"required":true
 				}
 			],
 			"output":[
@@ -77,12 +79,14 @@
 					"id":"workspace",
 					"name":"Workspace",
 					"type":"service",
-					"source":"getworkspaces"
+					"source":"getworkspaces",
+					"required":true
 				},
 				{
 					"id":"taskname",
 					"name":"Task Name",
-					"type":"user"
+					"type":"user",
+					"required":true
 				},
 				{
 					"id":"taskdescription",
