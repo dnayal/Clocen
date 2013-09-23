@@ -2,12 +2,6 @@ h1, h2, h3, h4, h5, h6, legend, body, p, a, button, input, div, img, select, opt
 	font-family: 'Ubuntu', 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
 }
 
-.cc-login-board {
-	background-image: url("/assets/images/metal-back.png");
-	height: 300px;
-}
-
-
 .cc-vertical-center {
 	top: 35%;
 }
@@ -34,4 +28,9 @@ h1, h2, h3, h4, h5, h6, legend, body, p, a, button, input, div, img, select, opt
 	padding: 1px;
 	color: red;
 	font-size: 0.75em;
+}
+
+.jumbotron {
+	background: #0c5490;
+	color: white;
 }

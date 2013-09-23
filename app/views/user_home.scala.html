@@ -13,9 +13,9 @@
 		<div class="container">
 
 			<div class="row">
-				<h3 class="cc-cool-font">My Apps</h3>
+				<h2 class="page-header cc-cool-font">My Apps</h2>
 				<div class="row">
-					<div class="col-lg-6">
+					<div class="col-lg-8 lead">
 						@for(node <- infoList) {
 							@if(node.isAuthorized) {
 							<div class="row">
@@ -27,13 +27,12 @@
 							}
 						}
 						<a href="@routes.Application.getCreateProcessPage" class="btn btn-lg btn-primary">Create Process</a>
-						<hr/>
 					</div>
 				</div>
 				
-				<h3 class="cc-cool-font">All Apps</h3>
+				<h2 class="page-header cc-cool-font">All Apps</h2>
 				<div class="row">
-					<div class="col-lg-6">
+					<div class="col-lg-8 lead">
 						@for(node <- infoList) {
 							@if(!node.isAuthorized) {
 							<div class="row">

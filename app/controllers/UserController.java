@@ -30,6 +30,11 @@ public class UserController extends Controller {
     }
 	
 	
+	public static Result register() {
+		return TODO;
+	}
+	
+
 	public static Result home() {
 		User user = User.getCurrentUser();
 		
