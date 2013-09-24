@@ -8,10 +8,11 @@
 		<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" media="screen">
 	</head>
 	<body ng-app="CreateProcessApp">
+		@navbar()
 		<div class="container" ng-controller="ProcessController">
 			<div class="row page-header">
-				<div class="col-lg-12">
-					<h1><span class="glyphicon glyphicon-list"></span>&nbsp;Create Your Process</h1>
+				<div class="col-md-12">
+					<h1><span class="glyphicon glyphicon-link"></span>&nbsp;Create Your Process</h1>
 				</div>
 			</div>
 
@@ -19,7 +20,7 @@
 		<form name="processform">
 			<div class="row">
 				<div class="row" ng-repeat="counter in count">
-					<span class="cc-light-font col-lg-12" ng-switch on="counter.index">
+					<span class="cc-light-font col-md-12" ng-switch on="counter.index">
 						<span ng-switch-when="0">
 							<h3><span class="glyphicon glyphicon-edit"></span>&nbsp; Configure Trigger</h3>
 						</span>
@@ -31,25 +32,25 @@
 						</span>
 					</span>
 					<div class="row">
-						<div class="col-lg-1">
+						<div class="col-md-1">
 							<img class="cc-node-medium-logo" ng-src="{{node[counter.index].nodeLogo}}">
 						</div>
-						<div class="col-lg-3">
+						<div class="col-md-3">
 							<select class="form-control input-lg" ng-required="true" ng-model="node[counter.index]" ng-options="n.nodeName for n in nodes" ng-change="updateActivities(counter.index)">
 								<option value="">-- Select Service --</option>
 							</select>
 						</div>
-						<div class="col-lg-offset-1 col-lg-3">
+						<div class="col-md-offset-1 col-md-3">
 							<select class="form-control input-lg" ng-required="true" ng-model="process[counter.index].data" ng-options="t.name for t in activities[counter.index]"></select>
 						</div>
 					</div>
-					<div class="row"><div class="col-lg-offset-1 col-lg-7"><hr></div></div>
+					<div class="row"><div class="col-md-offset-1 col-md-7"><hr></div></div>
 					<!-- node form starts -->
 					<div class="row" ng-repeat="field in process[counter.index].data.input">
-						<div class="col-lg-offset-1 col-lg-2">
+						<div class="col-md-offset-1 col-md-2">
 							<strong>{{field.name}}</strong> <span ng-show="field.required" class="cc-input-required-label">required</span>
 						</div>
-						<div class="col-lg-5" ng-switch on="field.type">
+						<div class="col-md-5" ng-switch on="field.type">
 							<span ng-switch-when="service">
 								<!-- service drop down start -->
 								<button class="btn btn-default" ng-show="!data.showData" ng-click="getData(data=[], node[counter.index].nodeId, field.source)">

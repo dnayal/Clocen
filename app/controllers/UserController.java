@@ -30,6 +30,12 @@ public class UserController extends Controller {
     }
 	
 	
+	public static Result logout() {
+		User.logout();
+		return redirect(routes.Application.index());
+	}
+	
+	
 	public static Result register() {
 		return TODO;
 	}
@@ -42,8 +48,6 @@ public class UserController extends Controller {
 			return redirect(routes.Application.index());
 		
 		List<ServiceNodeInfo> list = user.getAllNodes();
-		
-		
 		return ok(user_home.render(list));
 	}
 

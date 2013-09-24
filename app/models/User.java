@@ -98,6 +98,44 @@ public class User extends Model {
 	}
 	
 
+	public static User getUser(String userId) {
+		return find.byId(userId);	
+	}
+	
+
+	public static User getUserByEmail(String email) {
+		return find.where().eq("email", email).findUnique();
+	}
+
+
+	@Override
+	public String toString() {
+		return "User [userId=" + userId + ", name=" + name + ", email=" + email
+				+ ", createTimestamp=" + createTimestamp + "]";
+	}
+	
+	
+	/**
+	 * Logout the current user
+	 */
+	public static void logout() {
+		Controller.ctx().session().clear();
+	}
+	
+	
+	/**
+	 * Returns whether a user has logged in
+	 */
+	public static Boolean isLoggedIn() {
+		String userId = Controller.ctx().session().get("user_id");
+		if(UtilityHelper.isEmptyString(userId)) {
+			return false;
+		} else { 
+			return true;
+		}
+	}
+	
+	
 	/**
 	 * Returns currently logged in user
 	 */
@@ -186,23 +224,6 @@ public class User extends Model {
 	}
 
 
-	public static User getUser(String userId) {
-		return find.byId(userId);	
-	}
-	
-
-	public static User getUserByEmail(String email) {
-		return find.where().eq("email", email).findUnique();
-	}
-
-
-	@Override
-	public String toString() {
-		return "User [userId=" + userId + ", name=" + name + ", email=" + email
-				+ ", createTimestamp=" + createTimestamp + "]";
-	}
-	
-	
 	public ServiceAccessToken getServiceAccessToken(String nodeId) {
 		ServiceAccessToken token = ServiceAccessToken.find.where().eq("user_id", userId).eq("node_id", nodeId).findUnique();
 		

@@ -1,6 +1,7 @@
 package controllers;
 
 import helpers.UtilityHelper;
+import models.User;
 import nodes.box.Box;
 import play.data.DynamicForm;
 import play.mvc.Controller;
@@ -13,12 +14,18 @@ public class Application extends Controller {
 	private static final String COMPONENT_NAME = "Application Controller";
 
 	public static Result index() {
-        return ok(index.render());
+        if(User.isLoggedIn())
+        	return redirect(routes.UserController.home());
+        
+		return ok(index.render());
     }
     
 
     public static Result getCreateProcessPage() {
-    	return ok(create_process.render());
+        if(!User.isLoggedIn())
+        	return redirect(routes.Application.index());
+
+        return ok(create_process.render());
     }
   
     
