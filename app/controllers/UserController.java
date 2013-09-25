@@ -8,6 +8,7 @@ import models.ServiceNodeInfo;
 import models.User;
 
 import play.data.DynamicForm;
+import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
 
@@ -50,5 +51,28 @@ public class UserController extends Controller {
 		List<ServiceNodeInfo> list = user.getAllNodes();
 		return ok(user_home.render(list));
 	}
+	
+	
+	public static Result getProfile() {
+		User user = User.getCurrentUser();
+		
+		if(user==null)
+			return redirect(routes.Application.index());
+
+		Form<User> userForm = Form.form(User.class).fill(user);
+		return ok(user_profile.render(user, userForm));
+	}
+	
+	
+	public static Result updateProfile(String userId) {
+		Form<User> userForm = Form.form(User.class).bindFromRequest();
+		User newUser = userForm.get();
+		User oldUser = User.getUser(userId);
+		newUser.setUserId(oldUser.getUserId());
+		newUser.setCreateTimestamp(oldUser.getCreateTimestamp());
+		newUser.update();
+		return redirect(routes.UserController.getProfile());
+	}
+	
 
 }

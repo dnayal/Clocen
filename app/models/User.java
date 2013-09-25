@@ -31,7 +31,6 @@ public class User extends Model {
 	@Column(length=100)
 	String userId;
 	
-	@Required
 	@Column(length=100)
 	String name;
 	
@@ -40,6 +39,11 @@ public class User extends Model {
 	@Column(length=100, unique=true)
 	String email;
 	
+	@Column(length=100)
+	String password;
+	
+	@Column(length=100)
+	String country;
 	
 	Date createTimestamp;
 	
@@ -50,10 +54,12 @@ public class User extends Model {
 	public User() {}
 	
 	
-	public User(String userId, String name, String email, Date createTimestamp) {
+	public User(String userId, String name, String email, String password, String country, Date createTimestamp) {
 		this.userId = userId;
 		this.name = name;
 		this.email = email;
+		this.password = password;
+		this.country = country;
 		this.createTimestamp = createTimestamp;
 	}
 
@@ -88,6 +94,26 @@ public class User extends Model {
 	}
 
 	
+	public String getPassword() {
+		return password;
+	}
+
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+
+	public String getCountry() {
+		return country;
+	}
+
+
+	public void setCountry(String country) {
+		this.country = country;
+	}
+
+
 	public Date getCreateTimestamp() {
 		return createTimestamp;
 	}

@@ -17,6 +17,8 @@ create table user (
   user_id                   varchar(100) not null,
   name                      varchar(100),
   email                     varchar(100),
+  password                  varchar(100),
+  country                   varchar(100),
   create_timestamp          datetime,
   constraint uq_user_email unique (email),
   constraint pk_user primary key (user_id))
