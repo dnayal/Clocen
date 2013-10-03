@@ -36,8 +36,6 @@ public class ServiceAccessToken extends Model {
 	
 	public static Finder<ServiceAccessTokenKey, ServiceAccessToken> find = new Finder<ServiceAccessTokenKey, ServiceAccessToken>(ServiceAccessTokenKey.class, ServiceAccessToken.class);
 
-	public ServiceAccessToken() {}
-	
 	public ServiceAccessToken(ServiceAccessTokenKey key, String accessToken, String refreshToken, 
 			Date expirationTime, Date createTimestamp) {
 		this.key = key;
@@ -130,7 +128,6 @@ public class ServiceAccessToken extends Model {
 	
 	@Override
 	public void delete() {
-		UtilityHelper.logMessage(COMPONENT_NAME, "delete()", "Deleting ServiceAccessToken...");
 		super.delete();
 	}
 	
@@ -143,18 +140,13 @@ public class ServiceAccessToken extends Model {
 			if(token==null)
 				super.save();
 			else
-				update();
+				super.update();
 			
 		} catch (PersistenceException exception) {
 			UtilityHelper.logError(COMPONENT_NAME, "save()", exception.getMessage(), exception);
 		}
 	}
 	
-	@Override
-	public void update() {
-		super.update();
-	}
-
 	
 	@Override
 	public String toString() {

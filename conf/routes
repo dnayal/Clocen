@@ -4,7 +4,10 @@
 
 # Home page
 GET     /                           	controllers.Application.index()
+GET		/register						controllers.Application.getRegistrationForm()
 GET		/process						controllers.Application.getCreateProcessPage()
+GET		/profile						controllers.Application.getUserProfilePage()
+GET		/password/:requestType			controllers.Application.getForgotAndResetPasswordPage(requestType: String)
 POST	/triggers/:node_id				controllers.Application.callTriggerListener(node_id: String)
 
 
@@ -18,11 +21,16 @@ GET		/nodes/:node_id/oauth/callback	controllers.OAuthController.tokenCallback(no
 GET		/nodes/:node_id/oauth/refresh	controllers.OAuthController.refreshToken(node_id: String)
 
 POST	/users/login					controllers.UserController.login()
-POST	/users/register					controllers.UserController.register()
-GET		/users/home						controllers.UserController.home()
-GET		/users/profile					controllers.UserController.getProfile()
-POST	/users/:userId					controllers.UserController.updateProfile(userId: String)
 GET		/users/logout					controllers.UserController.logout()
+POST	/users/signup					controllers.UserController.signup()
+POST    /users/register					controllers.UserController.register()
+GET		/users/home						controllers.UserController.home()
+POST	/users/profile/:userId			controllers.UserController.updateProfile(userId: String)
+POST	/user/password/forgot			controllers.UserController.forgotPassword()
+POST	/user/password/reset			controllers.UserController.passwordReset()
+
+GET		/admin/betausers/all			controllers.AdminController.showBetaUsers()
+GET		/admin/betausers/invite/:email	controllers.AdminController.inviteBetaUser(email: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               	controllers.Assets.at(path="/public", file)

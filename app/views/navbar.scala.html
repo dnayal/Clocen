@@ -9,10 +9,13 @@
 		<a class="navbar-brand" style="font-size: 2em; color: white;" href="@routes.Application.index">Clocen</a>
 	</div>
 	<div class="collapse navbar-collapse navbar-responsive-collapse">
+		@if(models.User.isCurrentUserAdmin) {
+			<p class="navbar-text" style="color: red; font-size: 1.2em;">ADMIN MODE</p>
+		}
 		@if(models.User.isLoggedIn) {
 		<ul class="nav navbar-nav navbar-right">
 			<li><a href="@routes.Application.getCreateProcessPage"><span class="glyphicon glyphicon-link"></span>&nbsp;Create Process</a></li>
-			<li><a href="@routes.UserController.getProfile"><span class="glyphicon glyphicon-cog"></span>&nbsp;My Account</a></li>
+			<li><a href="@routes.Application.getUserProfilePage"><span class="glyphicon glyphicon-cog"></span>&nbsp;My Account</a></li>
 			<li><a href="@routes.UserController.logout"><span class="glyphicon glyphicon-off"></span>&nbsp;Sign Out</a></li>
 		</ul>
 		} else {

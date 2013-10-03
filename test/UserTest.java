@@ -46,7 +46,7 @@ public class UserTest {
 	public void createUser() {
 		String uniqueId = UtilityHelper.getUniqueId();
 		String userName = "Deepak Nayal";
-		User user = new User(uniqueId, userName, "dnayal@gmail.com", "password", "country", Calendar.getInstance().getTime());
+		User user = new User(uniqueId, userName, "dnayal@gmail.com", "password", "country", "admin", Calendar.getInstance().getTime());
 		user.save();
 		Assert.assertEquals("User Created", userName, User.find.byId(uniqueId).getName());
 	}

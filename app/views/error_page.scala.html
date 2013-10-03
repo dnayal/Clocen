@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Error</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="http://fonts.googleapis.com/css?family=Ubuntu:300" rel="stylesheet" type="text/css">
+		<link href="@routes.Assets.at("stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
+		<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" media="screen">
+	</head>
+	<body>
+		@navbar()
+		<div class="container">
+			<br/>
+			<div class="row lead">
+				<div class="col-md-offset-3 col-md-6">
+					<p class="text-error">There was some problem in serving your request. 
+					We will look into it, meanwhile why don't you explore the rest of <a href="@routes.Application.index">Clocen</a>.</p>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

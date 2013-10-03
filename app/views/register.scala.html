@@ -1,0 +1,45 @@
+@(userForm: Form[User])
+
+@import helper._
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Register</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="http://fonts.googleapis.com/css?family=Ubuntu:300" rel="stylesheet" type="text/css">
+		<link href="@routes.Assets.at("stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
+		<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" media="screen">
+	</head>
+	<body>
+		@navbar()
+		<div class="container">
+			<div class="row">
+					<h1 style="font-size: 64px; padding: 30px; text-align: center;">Welcome to Clocen!</h1>
+			</div>
+			<br/>
+			<br/>
+			<div class="row lead">
+				<div class="col-md-4">
+					<p>Register with us and leverage the power of the cloud!</p>
+				</div>
+				@form(routes.UserController.register()) {
+				<div class="col-md-offset-2 col-md-4">
+					@if(userForm.error("register_error")!=null) {
+					<span class="text-danger"><small><i>@userForm.error("register_error").message</i></small></span>
+					}
+					<div class="form-group" >
+						<label for="@userForm("email").id">Email</label>
+						<input class="form-control input-lg" name="@userForm("email").name" id="@userForm("email").id" type="email" value="@userForm("email").value" placeholder="Email" readonly>
+					</div>
+					<div class="form-group" >
+						<label for="@userForm("password").id">Password</label>
+						<input class="form-control input-lg" name="@userForm("password").name" id="@userForm("password").id" type="password" placeholder="Password">
+					</div>
+					<button class="btn btn-info btn-lg" type="submit">Register</button>
+				</div>
+				}
+			</div>
+		</div>
+	</body>
+</html>

@@ -12,8 +12,9 @@ object ApplicationBuild extends Build {
     javaCore,
     javaJdbc,
     javaEbean,
-    "mysql" % "mysql-connector-java" % "5.1.18",
-    "com.google.inject" % "guice" % "3.0"
+    "mysql" % "mysql-connector-java" % "5.1.26",
+    "commons-codec" % "commons-codec" % "1.8",
+	"javax.mail" % "mail" % "1.4.7"
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(

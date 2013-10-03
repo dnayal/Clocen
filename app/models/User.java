@@ -1,5 +1,6 @@
 package models;
 
+import helpers.SecurityHelper;
 import helpers.ServiceNodeHelper;
 import helpers.UtilityHelper;
 
@@ -13,6 +14,7 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.PersistenceException;
 
 import nodes.Node;
 
@@ -26,6 +28,11 @@ import play.mvc.Controller;
 public class User extends Model {
 	
 	private static final String COMPONENT_NAME = "User Model";
+	private static final String ADMIN_ROLE = "admin";
+
+	public static final Integer PASSWORD_FORGOT_VIEW = 1;
+	public static final Integer PASSWORD_RESET_VIEW = 2;
+	public static final Integer PASSWORD_FORGOT_PROCESSED = 3;
 
 	@Id
 	@Column(length=100)
@@ -45,21 +52,23 @@ public class User extends Model {
 	@Column(length=100)
 	String country;
 	
+	@Column(length=20)
+	String role;
+
 	Date createTimestamp;
 	
 	
 	public static Finder<String, User> find = new Finder<String, User>(String.class, User.class);
 	
 	
-	public User() {}
-	
-	
-	public User(String userId, String name, String email, String password, String country, Date createTimestamp) {
+	public User(String userId, String name, String email, String password, String country, 
+			String role, Date createTimestamp) {
 		this.userId = userId;
 		this.name = name;
 		this.email = email;
 		this.password = password;
 		this.country = country;
+		this.role = role;
 		this.createTimestamp = createTimestamp;
 	}
 
@@ -114,6 +123,16 @@ public class User extends Model {
 	}
 
 
+	public String getRole() {
+		return role;
+	}
+
+
+	public void setRole(String role) {
+		this.role = role;
+	}
+
+
 	public Date getCreateTimestamp() {
 		return createTimestamp;
 	}
@@ -123,6 +142,13 @@ public class User extends Model {
 		this.createTimestamp = createTimestamp;
 	}
 	
+
+	@Override
+	public String toString() {
+		return "User [userId=" + userId + ", name=" + name + ", email=" + email
+				+ ", country=" + country + ", role=" + role + ", createTimestamp=" + createTimestamp + "]";
+	}
+
 
 	public static User getUser(String userId) {
 		return find.byId(userId);	
@@ -135,9 +161,37 @@ public class User extends Model {
 
 
 	@Override
-	public String toString() {
-		return "User [userId=" + userId + ", name=" + name + ", email=" + email
-				+ ", createTimestamp=" + createTimestamp + "]";
+	public void save() {
+		User user = find.byId(userId);
+		try{
+			if(user == null)
+				super.save();
+			else
+				super.update();
+				
+		} catch (PersistenceException exception) {
+			UtilityHelper.logError(COMPONENT_NAME, "save()", exception.getMessage(), exception);
+		}
+	}
+
+	
+	/**
+	 * Returns true if the user with given credentials exists
+	 */
+	public static Boolean login(String email, String password) {
+		User checkUser = getUserByEmail(email);
+		if(checkUser == null)
+			return false;
+		
+		User user = find.where().eq("email", email)
+				.eq("password", SecurityHelper.generateHash(checkUser.getUserId(), password)).findUnique();
+		
+		if(user==null) {
+			return false;
+		} else {
+			setCurrentUser(user);
+			return true;
+		}
 	}
 	
 	
@@ -188,8 +242,34 @@ public class User extends Model {
 	public void setAsCurrentUser() {
 		Controller.ctx().session().put("user_id", userId);
 	}
+		
+	
+	/**
+	 * Returns whether the user an admin
+	 */
+	public Boolean isAdmin() {
+		if(!UtilityHelper.isEmptyString(role) && role.equalsIgnoreCase(ADMIN_ROLE))
+			return true;
+		else
+			return false;
+	}
+	
+	
+	/**
+	 * Returns whether the currently logged in user is admin
+	 */
+	public static Boolean isCurrentUserAdmin() {
+		User user = getCurrentUser();
+		if (user!=null && user.isAdmin())
+			return true;
+		else
+			return false;
+	}
 
 
+	/**
+	 * Returns all active access tokens of active services for the given user
+	 */
 	public List<ServiceAccessToken> getAllServiceTokens() {
 		List<ServiceAccessToken> tokenList = new ArrayList<ServiceAccessToken>();
 		tokenList = ServiceAccessToken.find.where()
@@ -250,6 +330,9 @@ public class User extends Model {
 	}
 
 
+	/**
+	 * Returns access token of the given service for the current user
+	 */
 	public ServiceAccessToken getServiceAccessToken(String nodeId) {
 		ServiceAccessToken token = ServiceAccessToken.find.where().eq("user_id", userId).eq("node_id", nodeId).findUnique();
 		

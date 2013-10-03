@@ -3,6 +3,14 @@
 
 # --- !Ups
 
+create table beta_user (
+  email                     varchar(100) not null,
+  invite_email_sent         tinyint(1) default 0,
+  registered                tinyint(1) default 0,
+  create_timestamp          datetime,
+  constraint pk_beta_user primary key (email))
+;
+
 create table service_access_token (
   user_id                   varchar(100),
   node_id                   varchar(20),
@@ -19,6 +27,7 @@ create table user (
   email                     varchar(100),
   password                  varchar(100),
   country                   varchar(100),
+  role                      varchar(20),
   create_timestamp          datetime,
   constraint uq_user_email unique (email),
   constraint pk_user primary key (user_id))
@@ -30,6 +39,8 @@ create table user (
 # --- !Downs
 
 SET FOREIGN_KEY_CHECKS=0;
+
+drop table beta_user;
 
 drop table service_access_token;
 

@@ -10,9 +10,6 @@ public class ServiceNodeInfo {
 	Boolean authorized=false;
 	
 	
-	public ServiceNodeInfo() {}
-	
-	
 	public ServiceNodeInfo(String nodeId, String nodeName, String nodeLogo, String nodeDescription, String URL, Boolean authorized) {
 		this.nodeId = nodeId;
 		this.nodeName = nodeName;
