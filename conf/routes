@@ -10,6 +10,8 @@ GET		/profile						controllers.Application.getUserProfilePage()
 GET		/password/:requestType			controllers.Application.getForgotAndResetPasswordPage(requestType: String)
 POST	/triggers/:node_id				controllers.Application.callTriggerListener(node_id: String)
 
+POST	/process/new					controllers.ProcessController.saveProcess()
+
 
 GET		/nodes/all						controllers.NodeController.getAllNodes()
 GET		/nodes/reflection/:nodeId		controllers.NodeController.getNodeConfiguration(nodeId: String)

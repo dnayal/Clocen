@@ -12,9 +12,13 @@ public interface Node {
 		OAUTH_RENEW
 	};
 	
+	public static final String TRIGGER_TYPE_POLL = "poll";
+	public static final String TRIGGER_TYPE_HOOK = "hook";
+	
 	public String authorize(AccessType accessType, String data);
 	public String getNodeId();
 	public String getName();
+	public String getTriggerType();
 	public String getLogo();
 	public String getDescription();
 	public JsonNode callInfoService(User user, String service);

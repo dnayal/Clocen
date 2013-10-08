@@ -5,11 +5,11 @@ import javax.persistence.Embeddable;
 
 	@Embeddable
 	public class ServiceAccessTokenKey {
-		@Column(length=100)
-		String userId;
 
+		@Column(length=100)
+		private String userId;
 		@Column(length=20)
-		String nodeId;
+		private String nodeId;
 
 		public ServiceAccessTokenKey(String userId, String nodeId) {
 			this.userId = userId;

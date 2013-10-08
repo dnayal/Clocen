@@ -2,12 +2,12 @@ package models;
 
 public class ServiceNodeInfo {
 
-	String nodeId;
-	String nodeName;
-	String nodeLogo;
-	String nodeDescription;
-	String URL;
-	Boolean authorized=false;
+	private String nodeId;
+	private String nodeName;
+	private String nodeLogo;
+	private String nodeDescription;
+	private String URL;
+	private Boolean authorized=false;
 	
 	
 	public ServiceNodeInfo(String nodeId, String nodeName, String nodeLogo, String nodeDescription, String URL, Boolean authorized) {

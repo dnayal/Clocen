@@ -11,6 +11,16 @@ create table beta_user (
   constraint pk_beta_user primary key (email))
 ;
 
+create table process (
+  process_id                varchar(100) not null,
+  user_id                   varchar(100),
+  trigger_node              varchar(25),
+  trigger_type              varchar(10),
+  process_data              text,
+  create_timestamp          datetime,
+  constraint pk_process primary key (process_id))
+;
+
 create table service_access_token (
   user_id                   varchar(100),
   node_id                   varchar(20),
@@ -41,6 +51,8 @@ create table user (
 SET FOREIGN_KEY_CHECKS=0;
 
 drop table beta_user;
+
+drop table process;
 
 drop table service_access_token;
 

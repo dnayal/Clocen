@@ -22,15 +22,12 @@ public class BetaUser extends Model {
 	@Id
 	@Email
 	@Column(length=100, unique=true)
-	String email;
-
-	Boolean inviteEmailSent;
+	private String email;
+	private Boolean inviteEmailSent;
+	private Boolean registered;
+	private Date createTimestamp;
+	private static Finder<String, BetaUser> find = new Finder<String, BetaUser>(String.class, BetaUser.class);
 	
-	Boolean registered;
-	
-	Date createTimestamp;
-
-	public static Finder<String, BetaUser> find = new Finder<String, BetaUser>(String.class, BetaUser.class);
 	
 	public BetaUser(String email, Date createTimestamp, Boolean inviteEmailSent, Boolean registered) {
 		this.email = email;

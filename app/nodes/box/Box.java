@@ -17,7 +17,6 @@ import nodes.Node;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import play.Logger;
 import play.libs.F.Promise;
 import play.libs.WS;
 import play.libs.WS.Response;
@@ -77,15 +76,12 @@ public class Box implements Node {
 		JsonNode itemEntries = json.path("item_collection").path("entries");
 		Iterator<JsonNode> iterator = itemEntries.iterator();
 
-		Logger.info("=====Folders=====");
 		while (iterator.hasNext()){
 			JsonNode node = iterator.next();
 			id = node.path("id").asText();
 			name = node.path("name").asText();
-			Logger.info( id + " : " + name); 
 			list.add(new IdName(id, name));
 		}
-		Logger.info("=====END=====");
 		
 		json = null;
 		ObjectMapper mapper = new ObjectMapper();
@@ -100,7 +96,6 @@ public class Box implements Node {
 		Promise<Response> response = WS.url(endPoint).setHeader("Authorization", "Bearer ZCHHnwVAa3apewaDxFhtGb6CrpQUNglX").get();
 		byte[] buffer = new byte[1024];
 		int bytesRead = 0;
-		Logger.info("<===BODY===>");
 		FileOutputStream file;
 		try {
 			file = new FileOutputStream("BOX_API_OUTPUT_" + System.currentTimeMillis());
@@ -114,7 +109,6 @@ public class Box implements Node {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Logger.info("File created");
 	}
 
 
@@ -131,6 +125,12 @@ public class Box implements Node {
 	@Override
 	public String getLogo() {
 		return controllers.routes.Assets.at("images/nodes/box.png").absoluteURL(Controller.request());
+	}
+
+
+	@Override
+	public String getTriggerType() {
+		return Node.TRIGGER_TYPE_HOOK;
 	}
 
 }

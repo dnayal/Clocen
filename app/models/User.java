@@ -36,29 +36,21 @@ public class User extends Model {
 
 	@Id
 	@Column(length=100)
-	String userId;
-	
+	private String userId;
 	@Column(length=100)
-	String name;
-	
+	private String name;
 	@Required
 	@Email
 	@Column(length=100, unique=true)
-	String email;
-	
+	private String email;
 	@Column(length=100)
-	String password;
-	
+	private String password;
 	@Column(length=100)
-	String country;
-	
+	private String country;
 	@Column(length=20)
-	String role;
-
-	Date createTimestamp;
-	
-	
-	public static Finder<String, User> find = new Finder<String, User>(String.class, User.class);
+	private String role;
+	private Date createTimestamp;
+	private static Finder<String, User> find = new Finder<String, User>(String.class, User.class);
 	
 	
 	public User(String userId, String name, String email, String password, String country, 
@@ -271,11 +263,7 @@ public class User extends Model {
 	 * Returns all active access tokens of active services for the given user
 	 */
 	public List<ServiceAccessToken> getAllServiceTokens() {
-		List<ServiceAccessToken> tokenList = new ArrayList<ServiceAccessToken>();
-		tokenList = ServiceAccessToken.find.where()
-				.eq("user_id", userId)
-//				.ge("expiration_time", Calendar.getInstance().getTime())
-				.findList();
+		List<ServiceAccessToken> tokenList = ServiceAccessToken.getAllServiceAccessTokensForUser(userId);
 		for(ServiceAccessToken token: tokenList) {
 			if(token.getExpirationTime().before(Calendar.getInstance().getTime())) {
 				UtilityHelper.logMessage(COMPONENT_NAME, "getAllServiceTokens()", "Token Expired - user:" + token.getKey().getUserId() + " node:" + token.getKey().getNodeId());
@@ -334,7 +322,8 @@ public class User extends Model {
 	 * Returns access token of the given service for the current user
 	 */
 	public ServiceAccessToken getServiceAccessToken(String nodeId) {
-		ServiceAccessToken token = ServiceAccessToken.find.where().eq("user_id", userId).eq("node_id", nodeId).findUnique();
+		ServiceAccessTokenKey key = new ServiceAccessTokenKey(userId, nodeId);
+		ServiceAccessToken token = ServiceAccessToken.getServiceAccessToken(key);
 		
 		if (token.getExpirationTime().before(Calendar.getInstance().getTime())) {
 			UtilityHelper.logError(COMPONENT_NAME, "getServiceAccessToken()", "Token expired", new RuntimeException("Token expired for Node:" +nodeId + " User:"+userId));
@@ -343,7 +332,7 @@ public class User extends Model {
 				return null;
 			} else {
 				// retrieve token again, if refresh is successful
-				token = ServiceAccessToken.find.where().eq("user_id", userId).eq("node_id", nodeId).findUnique();
+				token = ServiceAccessToken.getServiceAccessToken(key);
 				UtilityHelper.logMessage(COMPONENT_NAME, "getServiceAccessToken()", "Token refreshed");
 			}
 		}

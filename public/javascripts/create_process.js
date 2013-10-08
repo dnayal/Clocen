@@ -62,9 +62,10 @@ app.controller('ProcessController', ['$scope', '$http', function($scope, $http){
 	}
 	
 	
-	$scope.showOutput = function() {
-		console.log("****OUTPUT******");
-		console.log(JSON.stringify($scope.process));
+	$scope.saveProcess = function() {
+		$('#processData').val(JSON.stringify($scope.process));
+		$('#triggerNode').val($scope.process[0].node);
+		$('#save_process_form').submit();
 	}
 	
 
@@ -77,33 +78,3 @@ app.controller('ProcessController', ['$scope', '$http', function($scope, $http){
 	}
 
 }]);
-
-/**
-app.directive('nodeDropdown', function() {
-	return {
-		restrict: 'E',
-		template: "<select ng-model='selected' ng-options='d.name for d in data' class='form-control'></select>",
-		scope: {
-			selected: '=',
-			source: '@',
-			node: '@'
-		},
-		controller: ['$scope', '$http', function($scope, $http) {
-			$scope.getData = function(selected, source, node) {
-				console.log("Selected : " + selected + " Source : " + source + " Node : " + node);
-				$http.get('/nodes/reflection/' + node + '/info/' + source)
-				.success(function(responseData){
-					$scope.data = responseData;
-					$scope.selected = responseData[0];
-				}).error(function(errorData){
-					$scope.error = errorData;
-				});
-			};
-		}],
-		link: function (scope, element, attrs, controller) {
-			scope.getData(scope.selected, attrs.source, attrs.node);
-		}
-	}
-});
-
-**/

@@ -1,3 +1,5 @@
+@import helper._
+
 <!DOCTYPE html>
 <html>
 	<head>
@@ -92,19 +94,24 @@
 						<button class="btn btn-info btn-lg" ng-disabled="processform.$invalid" ng-click="nextAction()">Add Next Action</button>&nbsp;					
 					</span>
 				</span>
-				<button class="btn btn-primary btn-lg" ng-disabled="processform.$invalid" ng-show="count.length!=1" ng-click="showOutput()">Confirm Process</button>&nbsp;
+				<button class="btn btn-primary btn-lg" ng-disabled="processform.$invalid" ng-show="count.length!=1" ng-click="saveProcess()">Confirm Process</button>&nbsp;
 				<a href="@routes.UserController.home" class="btn btn-danger btn-lg">Cancel</a>
 
 				<br/>
 				<br/>
 			</div>
 		</form>	
+		@form(routes.ProcessController.saveProcess(), 'id -> "save_process_form"){
+			<input name="processData" id="processData" type="hidden">
+			<input name="triggerNode" id="triggerNode" type="hidden">
+		}
+		</form>
 <!-- -------------->
 
 		</div>	
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+		<script type="text/javascript" src="@routes.Assets.at("javascripts/angular.min.js")"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
-		<script src="@routes.Assets.at("javascripts/main.js")"></script>
+		<script src="@routes.Assets.at("javascripts/create_process.js")"></script>
 	</body>
 </html>

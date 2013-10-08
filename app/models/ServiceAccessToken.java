@@ -3,7 +3,9 @@ package models;
 import helpers.ServiceNodeHelper;
 import helpers.UtilityHelper;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
@@ -22,20 +24,16 @@ public class ServiceAccessToken extends Model {
 	private static final String COMPONENT_NAME = "ServiceAccessToken Model";
 	
 	@EmbeddedId
-	ServiceAccessTokenKey key;
-	
+	private ServiceAccessTokenKey key;
 	@Column(length=100)
-	String accessToken;
-	
+	private String accessToken;
 	@Column(length=100)
-	String refreshToken;
+	private String refreshToken;
+	private Date expirationTime;
+	private Date createTimestamp;
+	private static Finder<ServiceAccessTokenKey, ServiceAccessToken> find = new Finder<ServiceAccessTokenKey, ServiceAccessToken>(ServiceAccessTokenKey.class, ServiceAccessToken.class);
 
-	Date expirationTime;
-
-	Date createTimestamp;
 	
-	public static Finder<ServiceAccessTokenKey, ServiceAccessToken> find = new Finder<ServiceAccessTokenKey, ServiceAccessToken>(ServiceAccessTokenKey.class, ServiceAccessToken.class);
-
 	public ServiceAccessToken(ServiceAccessTokenKey key, String accessToken, String refreshToken, 
 			Date expirationTime, Date createTimestamp) {
 		this.key = key;
@@ -103,6 +101,15 @@ public class ServiceAccessToken extends Model {
 		return find.byId(key);
 	}
 	
+	public static List<ServiceAccessToken> getAllServiceAccessTokensForUser(String userId) {
+		List<ServiceAccessToken> tokenList = new ArrayList<ServiceAccessToken>();
+
+		tokenList = ServiceAccessToken.find.where()
+				.eq("user_id", userId)
+				.findList();
+		
+		return tokenList;
+	}
 	
 	public Boolean refreshToken() {
 		Boolean success = false;
@@ -135,7 +142,7 @@ public class ServiceAccessToken extends Model {
 	@Override
 	public void save() {
 		try {
-			ServiceAccessToken token = find.byId(key);
+			ServiceAccessToken token = getServiceAccessToken(key);
 			
 			if(token==null)
 				super.save();

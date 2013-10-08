@@ -13,7 +13,6 @@ import nodes.Node;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import play.Logger;
 import play.libs.F.Promise;
 import play.libs.WS;
 import play.libs.WS.Response;
@@ -61,14 +60,11 @@ public class Asana implements Node {
 		Promise<Response> response = WS.url(endPoint).setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
 		JsonNode json = response.get().asJson().path("data");
 
-		Logger.info("=====WORKSPACES=====");
 		Iterator<JsonNode> iterator = json.getElements();
 		while (iterator.hasNext()){
 			JsonNode node = iterator.next();
-			Logger.info(node.get("id").asText() + " : " + node.get("name").asText());
 			list.add(new IdName(node.get("id").asText(), node.get("name").asText()));
 		}
-		Logger.info("=====END=====");
 		
 		json = null;
 		ObjectMapper mapper = new ObjectMapper();
@@ -83,12 +79,10 @@ public class Asana implements Node {
 		
 		String endPoint = "https://app.asana.com/api/1.0/workspaces/180666096176/tasks";
 		
-		JsonNode json=null;
-			json = WS.url(endPoint).setHeader("Authorization", "Bearer " + sat.getAccessToken())
-					.setHeader("Content-Type", "application/x-www-form-urlencoded")
-					.post("name=Successful+Task&notes=YYYYYIIIIPPPPEEEE&assignee=177113805935")
-							.get().asJson();
-		Logger.info("NEW TASK : " + json.toString());
+		WS.url(endPoint).setHeader("Authorization", "Bearer " + sat.getAccessToken())
+			.setHeader("Content-Type", "application/x-www-form-urlencoded")
+			.post("name=Successful+Task&notes=YYYYYIIIIPPPPEEEE&assignee=177113805935")
+			.get().asJson();
 	}
 
 
@@ -107,5 +101,10 @@ public class Asana implements Node {
 		return controllers.routes.Assets.at("images/nodes/asana.png").absoluteURL(Controller.request());
 	}
 
+
+	@Override
+	public String getTriggerType() {
+		return Node.TRIGGER_TYPE_POLL;
+	}
 
 }

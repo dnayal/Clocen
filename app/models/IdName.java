@@ -2,8 +2,8 @@ package models;
 
 public class IdName {
 
-	String id;
-	String name;
+	private String id;
+	private String name;
 	
 	public IdName() {}
 
