@@ -3,6 +3,7 @@ package controllers;
 import helpers.ServiceNodeHelper;
 import helpers.UtilityHelper;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
@@ -21,9 +22,14 @@ import views.html.error_page;
 
 public class ProcessController extends Controller {
 
-	public static Result getAllProcessesForUser(String userId) {
-		List<Process> list = Process.getProcessesForUser(userId);
-		return ok(Json.toJson(list));
+	public static Result getAllProcessesForUser() {
+		User user = User.getCurrentUser();
+		List<Process> list = Process.getProcessesForUser(user.getUserId());
+		List<JsonNode> json = new ArrayList<JsonNode>();
+		for(Process process : list) 
+			json.add(Json.parse(process.getProcessData()));
+
+		return ok(Json.toJson(json));
 	}
 	
 	

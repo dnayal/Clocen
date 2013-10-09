@@ -12,8 +12,23 @@
 	<body>
 		@navbar()
 		<div class="container">
-			<div class="row">
-				<h2 class="page-header text-primary"><span class="glyphicon glyphicon-th"></span>&nbsp;My Apps</h2>
+			<br/>
+			<div class="row text-primary" style="font-size: 1.5em;">
+				<ul id="tabHeader" class="nav nav-tabs">
+					<li class="active"><a href="#apps" data-toggle="tab"><span class="glyphicon glyphicon-th"></span>&nbsp;Apps</a></li>
+					<li><a href="#processes" data-toggle="tab"><span class="glyphicon glyphicon-link"></span>&nbsp;Processes</a></li>
+				</ul>
+			</div>
+			<!-- Tab Content Start -->
+			<div id="tabContent" class="tab-content">
+
+			<!-- Apps Tab End -->
+			<div id="apps" class="tab-pane fade in active">
+				<div class="row">
+					<span class="col-md-3">
+					<h3 class="text-muted page-header">My Apps</h3>
+					</span>
+				</div>
 				<div class="row">
 					<div class="col-md-8">
 						@for(node <- infoList) {
@@ -23,7 +38,7 @@
 									<img class="cc-node-medium-logo" src="@node.getNodeLogo" style="padding-bottom: 5px;border-bottom: 1px solid lightgray;">
 									<p class="text-info">@node.getNodeName</p>
 								</div>
-								<div class="col-md-7 lead">@node.getNodeDescription</div>
+								<div class="col-md-7 cc-node-description">@node.getNodeDescription</div>
 								<div class="col-md-2"><a class="btn btn-warning" href="@node.getURL" target="_new_"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Refresh</a></div>
 							</div>
 							<br/>
@@ -32,7 +47,11 @@
 					</div>
 				</div>
 				
-				<h2 class="page-header text-primary"><span class="glyphicon glyphicon-th"></span>&nbsp;All Apps</h2>
+				<div class="row">
+					<span class="col-md-3">
+					<h3 class="text-muted page-header">All Apps</h3>
+					</span>
+				</div>
 				<div class="row">
 					<div class="col-md-8">
 						@for(node <- infoList) {
@@ -42,7 +61,7 @@
 									<img class="cc-node-medium-logo" src="@node.getNodeLogo" style="padding-bottom: 5px;border-bottom: 1px solid lightgray;">
 									<p class="text-info">@node.getNodeName</p>
 								</div>
-								<div class="col-md-7 lead">@node.getNodeDescription</div>
+								<div class="col-md-7 cc-node-description">@node.getNodeDescription</div>
 								<div class="col-md-2"><a class="btn btn-success" href="@node.getURL" target="_new_">Authorize</a></div>
 							</div>
 							<br/>
@@ -51,9 +70,42 @@
 					</div>
 				</div>
 			</div>
+			<!-- Apps Tab End -->
+			
+			<!-- Processes Tab Start -->
+			<div id="processes" class="tab-pane fade" ng-app="UserHomeApp">
+				<br/>
+				<div class="row" ng-controller="ProcessController">
+					<div class="row" ng-repeat="item in process">
+						<div class="panel panel-default">
+							<div class="panel-body">
+							<div ng-repeat="node in item">
+								<div class="col-md-1" style="text-align: center;">
+									<p class="text-primary">{{node.data.name}}</p>
+									<img class="cc-node-small-logo" ng-src="{{node.logo}}" style="padding-bottom: 5px;border-bottom: 1px solid lightgray;">
+									<p class="text-info" style="font-size:0.8em;">{{node.name}}</p>
+								</div>
+								<div ng-if="!$last" class="col-md-1 text-muted" style="text-align: center; font-size: 1.5em;">
+									<span class="glyphicon glyphicon-chevron-right"></span>
+								</div>
+							</div>
+							</div>
+							<div class="panel-footer">
+								<a href="#" class="btn btn-info btn-lg">View Process</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Processes Tab End -->
+
+			</div>
+			<!-- Tab Content End -->
 			
 		</div>
+		<script type="text/javascript" src="@routes.Assets.at("javascripts/angular.min.js")"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
+		<script src="@routes.Assets.at("javascripts/user_home.js")"></script>
 	</body>
 </html>

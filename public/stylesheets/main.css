@@ -24,6 +24,11 @@ body {
 	padding: 3px;
 }
 
+.cc-node-small-logo {
+	height: 25px;
+	padding: 3px;
+}
+
 .cc-input-required-label {
 	padding: 1px;
 	color: red;
@@ -33,4 +38,8 @@ body {
 .text-danger, .text-error {
 	color: red;
 	font-size: 0.8em;
+}
+
+.cc-node-description {
+	font-size: 1.25em;
 }
