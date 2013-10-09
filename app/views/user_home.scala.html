@@ -81,9 +81,9 @@
 							<div class="panel-body">
 							<div ng-repeat="node in item">
 								<div class="col-md-1" style="text-align: center;">
-									<p class="text-primary">{{node.data.name}}</p>
 									<img class="cc-node-small-logo" ng-src="{{node.logo}}" style="padding-bottom: 5px;border-bottom: 1px solid lightgray;">
-									<p class="text-info" style="font-size:0.8em;">{{node.name}}</p>
+									<p class="text-muted" style="font-size:0.8em;">{{node.name}}</p>
+									<p class="text-primary">{{node.data.name}}</p>
 								</div>
 								<div ng-if="!$last" class="col-md-1 text-muted" style="text-align: center; font-size: 1.5em;">
 									<span class="glyphicon glyphicon-chevron-right"></span>
@@ -91,7 +91,7 @@
 							</div>
 							</div>
 							<div class="panel-footer">
-								<a href="#" class="btn btn-info btn-lg">View Process</a>
+								<a href="#" class="btn btn-info">View Process Details</a>
 							</div>
 						</div>
 					</div>
