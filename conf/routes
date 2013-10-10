@@ -12,7 +12,7 @@ POST	/triggers/:node_id				controllers.Application.callTriggerListener(node_id: 
 
 POST	/process/new					controllers.ProcessController.saveProcess()
 GET		/process/all					controllers.ProcessController.getAllProcessesForUser()
-
+GET		/process/delete/:processId		controllers.ProcessController.deleteProcess(processId: String)
 
 GET		/nodes/all						controllers.NodeController.getAllNodes()
 GET		/nodes/reflection/:nodeId		controllers.NodeController.getNodeConfiguration(nodeId: String)

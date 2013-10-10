@@ -114,8 +114,16 @@ public class Process extends Model {
 
 	public static List<Process> getProcessesForUser(String userId) {
 		List<Process> list = new ArrayList<Process>();
-		list = Process.find.where().eq("user_id", userId).findList();
+		list = Process.find.where().eq("user_id", userId).orderBy("createTimestamp desc").findList();
 		return list;
+	}
+	
+	
+	public Boolean isUserOwner(String userId) {
+		if(userId.equalsIgnoreCase(this.userId))
+			return true;
+		else
+			return false;
 	}
 	
 

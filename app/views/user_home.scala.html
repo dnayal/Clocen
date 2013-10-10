@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>ServiceNode</title>
+		<title>Clocen</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link href="http://fonts.googleapis.com/css?family=Ubuntu:300" rel="stylesheet" type="text/css">
 		<link href="@routes.Assets.at("stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
@@ -73,25 +73,27 @@
 			<!-- Apps Tab End -->
 			
 			<!-- Processes Tab Start -->
-			<div id="processes" class="tab-pane fade" ng-app="UserHomeApp">
+			<div id="processes" class="tab-pane fade" ng-app="AllProcessesApp">
 				<br/>
-				<div class="row" ng-controller="ProcessController">
-					<div class="row" ng-repeat="item in process">
-						<div class="panel panel-default">
+				<div class="row" ng-controller="AllProcessController" ng-init="getAllProcesses()">
+					<div class="row" ng-repeat="process in processes">
+						<div class="panel panel-info">
 							<div class="panel-body">
-							<div ng-repeat="node in item">
-								<div class="col-md-1" style="text-align: center;">
-									<img class="cc-node-small-logo" ng-src="{{node.logo}}" style="padding-bottom: 5px;border-bottom: 1px solid lightgray;">
-									<p class="text-muted" style="font-size:0.8em;">{{node.name}}</p>
-									<p class="text-primary">{{node.data.name}}</p>
+								<div ng-repeat="node in process.data">
+									<div class="col-md-1" style="text-align: center;">
+										<img class="cc-node-small-logo" ng-src="{{node.logo}}" style="padding-bottom: 5px;border-bottom: 1px solid lightgray;">
+										<p class="text-muted" style="font-size:0.8em;">{{node.name}}</p>
+										<p class="text-primary">{{node.data.name}}</p>
+									</div>
+									<div ng-if="!$last" class="col-md-1 text-muted" style="text-align: center; font-size: 1.5em;">
+										<span class="glyphicon glyphicon-chevron-right"></span>
+									</div>
 								</div>
-								<div ng-if="!$last" class="col-md-1 text-muted" style="text-align: center; font-size: 1.5em;">
-									<span class="glyphicon glyphicon-chevron-right"></span>
-								</div>
-							</div>
 							</div>
 							<div class="panel-footer">
-								<a href="#" class="btn btn-info">View Process Details</a>
+								<button ng-click="pauseProcess(process.processId)" class="btn btn-warning btn-lg"><span class="glyphicon glyphicon-pause"></span>&nbsp;Pause</button>
+								&nbsp;
+								<button ng-click="deleteProcess(process.processId)" class="btn btn-danger btn-lg"><span class="glyphicon glyphicon-trash"></span>&nbsp;Delete</button>
 							</div>
 						</div>
 					</div>
@@ -106,6 +108,6 @@
 		<script type="text/javascript" src="@routes.Assets.at("javascripts/angular.min.js")"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
-		<script src="@routes.Assets.at("javascripts/user_home.js")"></script>
+		<script src="@routes.Assets.at("javascripts/process_info.js")"></script>
 	</body>
 </html>
