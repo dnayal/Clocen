@@ -5,32 +5,32 @@
 # Home page
 GET     /                           	controllers.Application.index()
 GET		/register						controllers.Application.getRegistrationForm()
-GET		/process						controllers.Application.getCreateProcessPage()
 GET		/profile						controllers.Application.getUserProfilePage()
 GET		/password/:requestType			controllers.Application.getForgotAndResetPasswordPage(requestType: String)
 POST	/triggers/:node_id				controllers.Application.callTriggerListener(node_id: String)
 
 POST	/process/new					controllers.ProcessController.saveProcess()
+GET		/process/new					controllers.Application.getCreateProcessPage()
 GET		/process/all					controllers.ProcessController.getAllProcessesForUser()
+GET		/process/:processId				controllers.ProcessController.getProcess(processId: String)
+GET		/process/view/:processId		controllers.Application.getProcessViewPage(processId: String)
 GET		/process/delete/:processId		controllers.ProcessController.deleteProcess(processId: String)
 
 GET		/nodes/all						controllers.NodeController.getAllNodes()
 GET		/nodes/reflection/:nodeId		controllers.NodeController.getNodeConfiguration(nodeId: String)
-
 GET		/nodes/reflection/:nodeId/info/:service	controllers.NodeController.callInfoService(nodeId: String, service: String)
-
 GET		/nodes/:node_id/oauth/authorize	controllers.OAuthController.authorizeCall(node_id: String)
 GET		/nodes/:node_id/oauth/callback	controllers.OAuthController.tokenCallback(node_id: String)
 GET		/nodes/:node_id/oauth/refresh	controllers.OAuthController.refreshToken(node_id: String)
 
 POST	/users/login					controllers.UserController.login()
-GET		/users/logout					controllers.UserController.logout()
 POST	/users/signup					controllers.UserController.signup()
 POST    /users/register					controllers.UserController.register()
-GET		/users/home						controllers.UserController.home()
-POST	/users/profile/:userId			controllers.UserController.updateProfile(userId: String)
 POST	/user/password/forgot			controllers.UserController.forgotPassword()
 POST	/user/password/reset			controllers.UserController.passwordReset()
+POST	/users/profile/:userId			controllers.UserController.updateProfile(userId: String)
+GET		/users/logout					controllers.UserController.logout()
+GET		/users/home						controllers.UserController.home()
 
 GET		/admin/betausers/all			controllers.AdminController.showBetaUsers()
 GET		/admin/betausers/invite/:email	controllers.AdminController.inviteBetaUser(email: String)

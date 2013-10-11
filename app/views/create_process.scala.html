@@ -59,7 +59,7 @@
 								Get {{field.name}}
 								<img alt="" ng-show="data.showWorking" src="@routes.Assets.at("images/spinner.gif")">
 								</button>
-								<select ng-model="field.value" ng-required="field.required" ng-show="data.showData" ng-options="d.id as d.name for d in data.data" class="form-control">
+								<select ng-model="field.value" ng-required="field.required" ng-show="data.showData" ng-options="d.name for d in data.data" class="form-control">
 									<option value="">-- Select {{field.name}} --</option>
 								</select>
 								<!-- service drop down end -->

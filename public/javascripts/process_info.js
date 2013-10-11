@@ -21,5 +21,23 @@ allprocesses.controller('AllProcessController', ['$scope', '$http', function($sc
 			$scope.error = errorData;
 		});
 	}
-	
 }]);
+
+
+var allprocesses = angular.module('ViewProcessApp', []);
+
+allprocesses.controller('ProcessController', ['$scope', '$http', function($scope, $http){
+	
+	$scope.process = [];
+	
+	$scope.getProcess = function(processId) {
+		$http.get('/process/'+processId)
+		.success(function(responseData){
+			$scope.process = responseData;
+		}).error(function(errorData){
+			$scope.error = errorData;
+		});
+	}
+
+}]);
+

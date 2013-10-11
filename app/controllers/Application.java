@@ -99,7 +99,11 @@ public class Application extends Controller {
 	}
 	
 	
-    public static Result callTriggerListener(String nodeId) {
+	public static Result getProcessViewPage(String processId) {
+		return ok(view_process.render(processId));
+	}
+	
+	public static Result callTriggerListener(String nodeId) {
 		DynamicForm form = DynamicForm.form().bindFromRequest();
     	UtilityHelper.logMessage(COMPONENT_NAME, "callTriggerListener", "Item Id : " + form.get("item_id"));
     	UtilityHelper.logMessage(COMPONENT_NAME, "callTriggerListener", "From User Id : " + form.get("from_user_id"));
