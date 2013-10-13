@@ -1,4 +1,4 @@
-@(processId: String)
+@(process: org.codehaus.jackson.JsonNode)
 
 @import helper._
 
@@ -13,7 +13,7 @@
 	</head>
 	<body ng-app="ViewProcessApp">
 		@navbar()
-		<div class="container" ng-controller="ProcessController" ng-init="getProcess('@processId')">
+		<div class="container" ng-controller="ProcessController" ng-init="initialize()">
 			<div class="row page-header">
 				<div class="col-md-12">
 					<h1><span class="glyphicon glyphicon-link"></span>&nbsp;Process</h1>
@@ -22,7 +22,7 @@
 
 <!-- -------------->
 			<div class="row">
-				<div class="row" ng-repeat="node in process">
+				<div class="row" ng-repeat="node in process.data">
 					<span class="text-primary col-md-12" ng-switch on="$index">
 						<span ng-switch-when="0">
 							<h3><span class="glyphicon glyphicon-edit"></span>&nbsp; Trigger</h3>
@@ -68,7 +68,7 @@
 									<input ng-model="field.value" type="text" class="form-control" readonly>
 									<div class="input-group-btn">
 										<a href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-											<img class="cc-node-input-logo" ng-src="{{process[$parent.$parent.$index-1].logo}}">
+											<img class="cc-node-input-logo" ng-src="{{process.data[$parent.$parent.$index-1].logo}}">
 										</a>
 									</div>
 								</div>
@@ -82,7 +82,7 @@
 				
 				<br/>
 				<br/>
-				<a href="@routes.UserController.home" class="btn btn-info btn-lg"><span class="glyphicon glyphicon-circle-arrow-left"></span>&nbsp;Cancel</a>
+				<a href="@routes.UserController.home" class="btn btn-info btn-lg"><span class="glyphicon glyphicon-circle-arrow-left"></span>&nbsp;Back</a>
 				<br/>
 				<br/>
 			</div>
@@ -92,6 +92,14 @@
 		<script type="text/javascript" src="@routes.Assets.at("javascripts/angular.min.js")"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
-		<script src="@routes.Assets.at("javascripts/process_info.js")"></script>
+		<script>
+			angular.module('ViewProcessApp', []).controller('ProcessController', ['$scope', function($scope){
+				$scope.initialize = function() {
+					$scope.process = @Html(process.toString());
+				}
+			}]);
+
+			
+		</script>
 	</body>
 </html>

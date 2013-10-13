@@ -6,15 +6,19 @@ import helpers.UtilityHelper;
 import java.util.Calendar;
 import java.util.List;
 
+import org.codehaus.jackson.JsonNode;
+
 import models.BetaUser;
 import models.ServiceNodeInfo;
 import models.User;
-
 import play.data.DynamicForm;
 import play.data.Form;
+import play.libs.Json;
+import play.libs.WS;
+import play.libs.F.Promise;
+import play.libs.WS.Response;
 import play.mvc.Controller;
 import play.mvc.Result;
-
 import views.html.*;
 
 public class UserController extends Controller {
@@ -95,8 +99,11 @@ public class UserController extends Controller {
 		if(user==null)
 			return redirect(routes.Application.index());
 		
+		Promise<Response> response = WS.url(routes.ProcessController.getAllProcessesForUser(user.getUserId()).absoluteURL(request())).get();
+		JsonNode allProcesses = Json.parse(response.get().getBody());
+		
 		List<ServiceNodeInfo> list = user.getAllNodes();
-		return ok(user_home.render(list));
+		return ok(user_home.render(list, allProcesses));
 	}
 	
 	

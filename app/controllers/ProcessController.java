@@ -14,39 +14,42 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.ObjectNode;
 
 import models.Process;
-import models.User;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
-import views.html.error_page;
 
 public class ProcessController extends Controller {
-
-	public static Result getAllProcessesForUser() {
-		User user = User.getCurrentUser();
-		List<Process> list = Process.getProcessesForUser(user.getUserId());
-		List<JsonNode> jsonList = new ArrayList<JsonNode>();
-		for(Process process : list) {
-			ObjectNode json = Json.newObject();
+	
+	private static ObjectNode getProcessJson(Process process) {
+		ObjectNode json = Json.newObject();
+		if (process!=null) {
 			json.put("processId", process.getProcessId());
 			json.put("createTimestamp", process.getCreateTimestamp().toString());
+			json.put("paused", process.isPaused());
 			json.put("data", Json.parse(process.getProcessData()));
-			jsonList.add(json);
 		}
+		return json;
+	}
+
+	
+	public static Result getAllProcessesForUser(String userId) {
+		List<Process> list = Process.getProcessesForUser(userId);
+		List<JsonNode> jsonList = new ArrayList<JsonNode>();
+		for(Process process : list)
+			jsonList.add(getProcessJson(process));
 
 		return ok(Json.toJson(jsonList));
 	}
 	
 	
-	public static Result saveProcess() {
-		User user = User.getCurrentUser();		
+	public static Result saveProcess(String userId) {
+				
 		Form<Process> form = Form.form(Process.class).bindFromRequest();
 		Process process = form.get();
 
-		if(user==null || UtilityHelper.isEmptyString(process.getProcessData())) {
-    		return internalServerError(error_page.render());
-		}
+		if(userId==null || UtilityHelper.isEmptyString(process.getProcessData()))
+    		return badRequest();
 
 		JsonNode json = Json.parse(process.getProcessData());
 		Iterator<JsonNode> iterator = json.getElements();
@@ -57,28 +60,42 @@ public class ProcessController extends Controller {
 			process.setTriggerType(node.getTriggerType());
 			
 			process.setProcessId(UtilityHelper.getUniqueId());
-			process.setUserId(user.getUserId());
+			process.setUserId(userId);
 			process.setCreateTimestamp(Calendar.getInstance().getTime());
 			process.save();
-			return redirect(routes.UserController.home());
+			return ok(getProcessJson(process));
 		} else {
-    		return internalServerError(error_page.render());
+    		return badRequest();
 		}
-		
+
 	}
 	
 	
 	public static Result getProcess(String processId) {
 		Process process = Process.getProcess(processId);
-		return ok(Json.parse(process.getProcessData()));
+		return ok(getProcessJson(process));
 	}
 	
 	
-	public static Result deleteProcess(String processId) {
+	public static Result pauseProcess(String processId, String callerUserId) {
 		Process process = Process.getProcess(processId);
-		User user = User.getCurrentUser();
-		if(process.isUserOwner(user.getUserId()))
+		if(process.isUserOwner(callerUserId)) {
+			process.setPaused(!process.isPaused());
+			process.save();
+			return ok(getProcessJson(process));
+		} else {
+			return badRequest();
+		}
+	}
+	
+	
+	public static Result deleteProcess(String processId, String callerUserId) {
+		Process process = Process.getProcess(processId);
+		if(process.isUserOwner(callerUserId)) {
 			process.delete();
-		return redirect(routes.UserController.home());
+			return ok();
+		} else {
+			return badRequest();
+		}
 	}
 }

@@ -9,7 +9,6 @@ import java.util.HashSet;
 import org.codehaus.jackson.JsonNode;
 
 import models.ServiceAccessToken;
-import models.User;
 import nodes.Node;
 import nodes.Node.AccessType;
 import play.Play;
@@ -22,11 +21,11 @@ public class ServiceNodeHelper {
 	
 	
 	public static String getRedirectURI(String nodeId) {
-		return controllers.routes.OAuthController.tokenCallback(nodeId).absoluteURL(Controller.request());
+		return controllers.routes.Application.oauth2TokenCallback(nodeId).absoluteURL(Controller.request());
 	}
 	
 	
-	public static String getAccess(String nodeId, String clientId, String clientSecret, 
+	public static String getAccess(String userId, String nodeId, String clientId, String clientSecret, 
 			AccessType accessType, String data, String authorizeURL, String tokenURL) {
 		
 		String accessToken = null;
@@ -54,8 +53,8 @@ public class ServiceNodeHelper {
 				Calendar calendar = Calendar.getInstance();
 				calendar.add(Calendar.SECOND, expiresIn);
 				
-				ServiceAccessToken sat = new ServiceAccessToken(User.getCurrentUser().getUserId(), 
-						nodeId, accessToken, refreshToken, calendar.getTime(), Calendar.getInstance().getTime());
+				ServiceAccessToken sat = new ServiceAccessToken(userId, nodeId, accessToken, 
+						refreshToken, calendar.getTime(), Calendar.getInstance().getTime());
 				sat.save();
 				
 				return accessToken;
@@ -82,8 +81,8 @@ public class ServiceNodeHelper {
 				calendar = Calendar.getInstance();
 				calendar.add(Calendar.SECOND, expiresIn);
 				
-				sat = new ServiceAccessToken(User.getCurrentUser().getUserId(), 
-						nodeId, accessToken, refreshToken, calendar.getTime(), Calendar.getInstance().getTime());
+				sat = new ServiceAccessToken(userId, nodeId, accessToken, refreshToken, 
+						calendar.getTime(), Calendar.getInstance().getTime());
 				sat.save();
 				
 				return accessToken;

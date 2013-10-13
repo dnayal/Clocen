@@ -18,6 +18,9 @@ import play.libs.WS;
 import play.libs.WS.Response;
 import play.mvc.Controller;
 
+/*
+ * TODO Update Asana application and callback URL
+ */
 public class Asana implements Node {
 
 	private static final String CLIENT_ID = "7169780706601"; // API Key
@@ -27,8 +30,8 @@ public class Asana implements Node {
 	private static final String NODE_ID = "asana";
 
 	@Override
-	public String authorize(AccessType accessType, String data) {
-		return ServiceNodeHelper.getAccess(NODE_ID, CLIENT_ID, CLIENT_SECRET, 
+	public String authorize(String userId, AccessType accessType, String data) {
+		return ServiceNodeHelper.getAccess(userId, NODE_ID, CLIENT_ID, CLIENT_SECRET, 
 				accessType, data, OAUTH_AUTHORIZE_URL, OAUTH_TOKEN_URL);
 	}
 	

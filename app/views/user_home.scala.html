@@ -1,4 +1,4 @@
-@(infoList: List[ServiceNodeInfo])
+@(infoList: List[ServiceNodeInfo], allProcesses: org.codehaus.jackson.JsonNode)
 
 <!DOCTYPE html>
 <html>
@@ -75,7 +75,7 @@
 			<!-- Processes Tab Start -->
 			<div id="processes" class="tab-pane fade" ng-app="AllProcessesApp">
 				<br/>
-				<div class="row" ng-controller="AllProcessController" ng-init="getAllProcesses()">
+				<div class="row" ng-controller="AllProcessController" ng-init="initialize()">
 					<div class="row" ng-repeat="process in processes">
 						<div class="panel panel-info">
 							<div class="panel-body">
@@ -91,9 +91,16 @@
 								</div>
 							</div>
 							<div class="panel-footer">
-								<a ng-href="/process/view/{{process.processId}}" class="btn btn-success btn-lg"><span class="glyphicon glyphicon-zoom-in"></span>&nbsp;View</a>
+								<a ng-href="{{viewProcess(process.processId)}}" class="btn btn-success btn-lg"><span class="glyphicon glyphicon-zoom-in"></span>&nbsp;View</a>
 								&nbsp;
-								<button ng-click="pauseProcess(process.processId)" class="btn btn-warning btn-lg"><span class="glyphicon glyphicon-pause"></span>&nbsp;Pause</button>
+								<button ng-click="pauseProcess(process)" class="btn btn-warning btn-lg">
+									<span ng-if="!process.paused">
+										<span class="glyphicon glyphicon-pause"></span>&nbsp;Pause
+									</span>
+									<span ng-if="process.paused">
+										<span class="glyphicon glyphicon-play"></span>&nbsp;Start
+									</span>
+								</button>
 								&nbsp;
 								<button ng-click="deleteProcess(process.processId)" class="btn btn-danger btn-lg"><span class="glyphicon glyphicon-trash"></span>&nbsp;Delete</button>
 							</div>
@@ -110,6 +117,42 @@
 		<script type="text/javascript" src="@routes.Assets.at("javascripts/angular.min.js")"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
-		<script src="@routes.Assets.at("javascripts/process_info.js")"></script>
+		<script>
+			angular.module('AllProcessesApp', []).controller('AllProcessController', ['$scope', '$http', function($scope, $http){
+				$scope.initialize = function() {
+					$scope.processes = @Html(allProcesses.toString());
+				}
+				
+				$scope.deleteProcess = function(processId) {
+					$http.get('/app/process/delete/'+processId)
+					.success(function(responseData){
+						angular.forEach($scope.processes, function(process, index){
+							if(process.processId==processId){
+								$scope.processes.splice(index,1);
+							}
+						});
+					}).error(function(errorData){
+						$scope.error = errorData;
+					});
+				}
+				
+				$scope.viewProcess = function(processId) {
+					return '/app/process/view/'+processId;
+				}
+
+				
+				$scope.pauseProcess = function(process) {
+					$http.get('/app/process/pause/'+process.processId)
+					.success(function(responseData){
+						process.paused=!process.paused;
+					}).error(function(errorData){
+						$scope.error = errorData;
+					});
+				}
+				
+			}]);
+
+			
+		</script>
 	</body>
 </html>

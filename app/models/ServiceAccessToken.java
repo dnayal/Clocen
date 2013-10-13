@@ -117,7 +117,7 @@ public class ServiceAccessToken extends Model {
 		if(!UtilityHelper.isEmptyString(refreshToken)) {
 			Node node = ServiceNodeHelper.getNode(key.getNodeId());
 			try {
-				if(node.authorize(AccessType.OAUTH_RENEW, refreshToken)!=null)
+				if(node.authorize(key.getUserId(), AccessType.OAUTH_RENEW, refreshToken)!=null)
 					success = true;
 				else {
 					throw new RuntimeException();

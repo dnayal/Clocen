@@ -32,17 +32,19 @@ public class Process extends Model {
 	private String triggerType;
 	@Column(columnDefinition="text")
 	private String processData;
+	private Boolean paused = false;
 	private Date createTimestamp;
 	private static Finder<String, Process> find = new Finder<String, Process>(String.class, Process.class);
 
 	
 	public Process(String processId, String userId, String triggerNode,
-			String triggerType, String processData, Date createTimestamp) {
+			String triggerType, String processData, Boolean paused, Date createTimestamp) {
 		this.processId = processId;
 		this.userId = userId;
 		this.triggerNode = triggerNode;
 		this.triggerType = triggerType;
 		this.processData = processData;
+		this.paused = paused;
 		this.createTimestamp = createTimestamp;
 	}
 
@@ -97,6 +99,19 @@ public class Process extends Model {
 	}
 
 	
+	public Boolean isPaused() {
+		if(paused==null)
+			return false;
+		
+		return paused;
+	}
+
+
+	public void setPaused(Boolean paused) {
+		this.paused = paused;
+	}
+
+
 	public Date getCreateTimestamp() {
 		return createTimestamp;
 	}

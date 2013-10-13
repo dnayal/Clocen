@@ -6,36 +6,39 @@ import models.ServiceAccessToken;
 import models.ServiceAccessTokenKey;
 import nodes.Node;
 import nodes.Node.AccessType;
+import play.data.DynamicForm;
 import play.mvc.*;
 
-public class OAuthController extends Controller {
+public class OAuth2Controller extends Controller {
 	
-	private static final String COMPONENT_NAME = "OAuth Controller";
+	private static final String COMPONENT_NAME = "OAuth2 Controller";
 
-	public static Result authorizeCall(String nodeId) {
+	public static Result authorizeCall(String userId, String nodeId) {
 		Node node = ServiceNodeHelper.getNode(nodeId);
-    	return redirect(node.authorize(AccessType.OAUTH_AUTHORIZE, null));
+    	return ok(node.authorize(userId, AccessType.OAUTH_AUTHORIZE, null));
     }
     
     
-    public static Result tokenCallback(String nodeId) {
-    	String code = request().getQueryString("code");
+    public static Result tokenCallback(String userId, String nodeId) {
+    	DynamicForm form = DynamicForm.form().bindFromRequest();
+    	String code = form.get("code");
+
     	if (UtilityHelper.isEmptyString(code)) {
         	String error = request().getQueryString("error");
         	String errorDescription = request().getQueryString("error_description");
     		UtilityHelper.logError(COMPONENT_NAME, "tokenCallback", "Code not received for Node Id - " + nodeId + " Error - " + error, new RuntimeException(errorDescription));
-    		return TODO;
+    		return badRequest();
     	} else {
     		UtilityHelper.logMessage(COMPONENT_NAME, "tokenCallback", "Code Received - " + code);
     		Node node = ServiceNodeHelper.getNode(nodeId);
-    		node.authorize(AccessType.OAUTH_TOKEN, code);
-			return redirect(routes.UserController.home());
+    		node.authorize(userId, AccessType.OAUTH_TOKEN, code);
+			return ok();
     	}
     }
     
     
-    public static Result refreshToken(String nodeId) {
-    	ServiceAccessTokenKey key = new ServiceAccessTokenKey(session("user_id"), nodeId);
+    public static Result refreshToken(String userId, String nodeId) {
+    	ServiceAccessTokenKey key = new ServiceAccessTokenKey(userId, nodeId);
     	ServiceAccessToken token = ServiceAccessToken.getServiceAccessToken(key);
     	token.refreshToken();
     	UtilityHelper.logMessage(COMPONENT_NAME, "refreshToken", "Refresh token - " + token);

@@ -1,6 +1,7 @@
 package helpers;
 
 import java.util.Calendar;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -28,6 +29,18 @@ public class UtilityHelper {
 			return true;
 		else
 			return false;
+	}
+	
+	
+	/**
+	 * Used to convert Map to a HTTP POST request string 
+	 */
+	public static String convertMapToRequestString(Map<String, String[]> map) {
+		StringBuffer requestString = new StringBuffer();
+		for(String key: map.keySet())
+			for(String value: map.get(key)) 
+				requestString.append(key+"="+value+"&");
+		return requestString.toString().substring(0, requestString.length()-1);
 	}
 	
 	

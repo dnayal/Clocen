@@ -1,18 +1,36 @@
 package controllers;
 
-import java.util.Map;
-
 import helpers.SecurityHelper;
 import helpers.UtilityHelper;
+
+import java.util.List;
+import java.util.Map;
+
 import models.BetaUser;
+import models.Process;
+import models.ServiceNodeInfo;
 import models.User;
 import nodes.box.Box;
+
+import org.codehaus.jackson.JsonNode;
+
+import play.Logger;
+import play.Play;
 import play.data.DynamicForm;
 import play.data.Form;
+import play.libs.F.Promise;
+import play.libs.WS;
+import play.libs.WS.Response;
 import play.mvc.Controller;
 import play.mvc.Result;
-
-import views.html.*;
+import views.html.create_process;
+import views.html.error_page;
+import views.html.forgot_password;
+import views.html.index;
+import views.html.register;
+import views.html.user_home;
+import views.html.user_profile;
+import views.html.view_process;
 
 public class Application extends Controller {
 
@@ -27,14 +45,6 @@ public class Application extends Controller {
     }
     
 
-    public static Result getCreateProcessPage() {
-        if(!User.isLoggedIn())
-        	return redirect(routes.Application.index());
-
-        return ok(create_process.render());
-    }
-    
-    
     public static Result getRegistrationForm() {
     	String encryptedEmail = request().getQueryString("key");
     	String email = SecurityHelper.decrypt(encryptedEmail);
@@ -98,11 +108,140 @@ public class Application extends Controller {
 		}
 	}
 	
-	
-	public static Result getProcessViewPage(String processId) {
-		return ok(view_process.render(processId));
+/***************
+ * PROCESS CALLS 	
+ **/
+    public static Result viewCreateProcess() {
+        if(!User.isLoggedIn())
+        	return redirect(routes.Application.index());
+
+        return ok(create_process.render());
+    }
+    
+    
+	public static Result viewProcess(String processId) {
+		Promise<Response> response = WS.url(routes.ProcessController.getProcess(processId).absoluteURL(request())).get();
+		JsonNode processJSON = response.get().asJson();
+		return ok(view_process.render(processJSON));
 	}
 	
+    public static Result saveProcess() {
+		User user = User.getCurrentUser();
+		
+		Form<Process> form = Form.form(Process.class).bindFromRequest();
+		Process process = form.get();
+		
+		if(user==null || UtilityHelper.isEmptyString(process.getProcessData()))
+			return internalServerError(error_page.render());
+
+		StringBuffer formData = new StringBuffer();
+		formData.append("processData="+process.getProcessData());
+		formData.append("&triggerNode="+process.getTriggerNode());
+		Promise<Response> response = WS.url(routes.ProcessController.saveProcess(user.getUserId()).absoluteURL(request()))
+				.setHeader("Content-Type", Play.application().configuration().getString("application.services.POST.contentType"))
+				.post(formData.toString());
+		if (response.get().getStatus()==OK)
+			return redirect(routes.Application.index());
+		else
+			return internalServerError(error_page.render());
+    }
+    
+    
+	public static Result viewAllProcesses() {
+		User user = User.getCurrentUser();
+		Promise<Response> response = WS.url(routes.ProcessController.getAllProcessesForUser(user.getUserId()).absoluteURL(request())).get();
+		JsonNode allProcessesJSON = response.get().asJson();
+		
+		List<ServiceNodeInfo> list = user.getAllNodes();
+		return ok(user_home.render(list, allProcessesJSON));
+	}
+	
+	
+	public static Result deleteProcess(String processId) {
+		User user = User.getCurrentUser();
+		Promise<Response> response = WS.url(routes.ProcessController.deleteProcess(processId, user.getUserId()).absoluteURL(request())).post(processId);
+		if (response.get().getStatus()==OK)
+			return ok();
+		else
+			return internalServerError(error_page.render());
+	}
+	
+	
+	public static Result pauseProcess(String processId) {
+		User user = User.getCurrentUser();
+		Promise<Response> response = WS.url(routes.ProcessController.pauseProcess(processId, user.getUserId()).absoluteURL(request())).post(processId);
+		if (response.get().getStatus()==OK)
+			return ok();
+		else
+			return internalServerError(error_page.render());
+	}
+	
+
+/***************
+ * NODE CALLS 	
+ **/
+	public static Result getAllNodes() {
+		User user = User.getCurrentUser();
+		Promise<Response> response = WS.url(routes.NodeController.getAllNodes(user.getUserId()).absoluteURL(request())).get();
+    	return ok(response.get().asJson());
+    }
+
+	
+	public static Result getNode(String nodeId) {
+		Promise<Response> response = WS.url(routes.NodeController.getNodeConfiguration(nodeId).absoluteURL(request())).get();
+    	return ok(response.get().asJson());
+    }
+
+	
+	public static Result getNodeService(String nodeId, String service) {
+		User user = User.getCurrentUser();
+		
+		Promise<Response> response = WS.url(routes.NodeController.callNodeInfoService(user.getUserId(), nodeId, service).absoluteURL(request())).get();
+    	return ok(response.get().asJson());
+    }
+
+	
+/***************
+ * OAUTH 2 CALLS 	
+ **/
+	public static Result authorizeOauth2Call(String nodeId) {
+		User user = User.getCurrentUser();
+		Promise<Response> response = WS.url(routes.OAuth2Controller.authorizeCall(user.getUserId(), nodeId).absoluteURL(request())).get();
+		Logger.info(response.get().getBody());
+    	return redirect(response.get().getBody());
+    }
+    
+    
+    public static Result oauth2TokenCallback(String nodeId) {
+		User user = User.getCurrentUser();
+		String requestString = UtilityHelper.convertMapToRequestString(request().queryString());
+
+		Promise<Response> response = WS.url(routes.OAuth2Controller.tokenCallback(user.getUserId(), nodeId).absoluteURL(request()))
+				.setHeader("Content-Type", Play.application().configuration().getString("application.services.POST.contentType"))
+				.post(requestString);
+		if (response.get().getStatus()==OK)
+			return redirect(routes.Application.index());
+		else
+			return internalServerError(error_page.render());
+    }
+    
+
+    public static Result refreshOauth2Token(String nodeId) {
+		User user = User.getCurrentUser();
+    	
+		Promise<Response> response = WS.url(routes.OAuth2Controller.refreshToken(user.getUserId(), nodeId).absoluteURL(request()))
+				.setHeader("Content-Type", Play.application().configuration().getString("application.services.POST.contentType"))
+				.post(nodeId);
+
+		if (response.get().getStatus()==OK)
+			return redirect(routes.Application.index());
+		else
+			return internalServerError(error_page.render());
+    }
+    
+/***************
+ * TEMP STUFF 	
+ **/
 	public static Result callTriggerListener(String nodeId) {
 		DynamicForm form = DynamicForm.form().bindFromRequest();
     	UtilityHelper.logMessage(COMPONENT_NAME, "callTriggerListener", "Item Id : " + form.get("item_id"));

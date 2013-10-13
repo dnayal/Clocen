@@ -19,7 +19,7 @@
 			</div>
 
 <!-- -------------->
-		<form name="processform">
+		<form name="processform" novalidate>
 			<div class="row">
 				<div class="row" ng-repeat="counter in count">
 					<span class="text-primary col-md-12" ng-switch on="counter.index">
@@ -101,7 +101,7 @@
 				<br/>
 			</div>
 		</form>	
-		@form(routes.ProcessController.saveProcess(), 'id -> "save_process_form"){
+		@form(routes.Application.saveProcess, 'id -> "save_process_form"){
 			<input name="processData" id="processData" type="hidden">
 			<input name="triggerNode" id="triggerNode" type="hidden">
 		}

@@ -17,6 +17,7 @@ create table process (
   trigger_node              varchar(25),
   trigger_type              varchar(10),
   process_data              text,
+  paused                    tinyint(1) default 0,
   create_timestamp          datetime,
   constraint pk_process primary key (process_id))
 ;

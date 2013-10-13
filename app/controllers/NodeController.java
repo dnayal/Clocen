@@ -20,8 +20,8 @@ public class NodeController extends Controller {
 
 	private static final String COMPONENT_NAME = "Node Controller";
 
-    public static Result getAllNodes() {
-    	User user = User.getCurrentUser();
+    public static Result getAllNodes(String userId) {
+    	User user = User.getUser(userId);
     	JsonNode json = Json.toJson(user.getAllNodes());
     	return ok(json);
     }
@@ -40,8 +40,8 @@ public class NodeController extends Controller {
     }
     
 	
-	public static Result callInfoService(String nodeId, String service) {
-		User user = User.getCurrentUser();
+	public static Result callNodeInfoService(String userId, String nodeId, String service) {
+		User user = User.getUser(userId);
 		Node node = ServiceNodeHelper.getNode(nodeId);
 		return ok(node.callInfoService(user, service));
 	}

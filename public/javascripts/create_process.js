@@ -8,7 +8,7 @@ app.controller('ProcessController', ['$scope', '$http', function($scope, $http){
 	$scope.count = [{"index":0}];
 	
 	
-	$http.get('/nodes/all')
+	$http.get('/app/nodes/all')
 	.success(function(responseData){
 		$scope.nodes = responseData;
 	}).error(function(errorData){
@@ -22,7 +22,7 @@ app.controller('ProcessController', ['$scope', '$http', function($scope, $http){
 
 
 	$scope.updateActivities = function(index) {
-		$http.get('/nodes/reflection/' + $scope.node[index].nodeId)
+		$http.get('/app/node/' + $scope.node[index].nodeId)
 		.success(function(responseData){
 			if(index==0) {
 				$scope.activities[index] = responseData.triggers;
@@ -51,7 +51,7 @@ app.controller('ProcessController', ['$scope', '$http', function($scope, $http){
 	
 	$scope.getData = function(data, node, source) {
 		data.showWorking = true;
-		$http.get('/nodes/reflection/' + node + '/info/' + source)
+		$http.get('/app/node/' + node + '/' + source)
 		.success(function(responseData){
 			data.data = responseData;
 			data.showData = true;
