@@ -42,7 +42,7 @@ public class OAuth2Controller extends Controller {
     	ServiceAccessToken token = ServiceAccessToken.getServiceAccessToken(key);
     	token.refreshToken();
     	UtilityHelper.logMessage(COMPONENT_NAME, "refreshToken", "Refresh token - " + token);
-		return redirect(routes.UserController.home());
+		return redirect(routes.Application.index());
     }
 
 }

@@ -4,22 +4,18 @@ import helpers.SecurityHelper;
 import helpers.UtilityHelper;
 
 import java.util.Calendar;
-import java.util.List;
-
-import org.codehaus.jackson.JsonNode;
 
 import models.BetaUser;
-import models.ServiceNodeInfo;
 import models.User;
 import play.data.DynamicForm;
 import play.data.Form;
-import play.libs.Json;
-import play.libs.WS;
-import play.libs.F.Promise;
-import play.libs.WS.Response;
 import play.mvc.Controller;
 import play.mvc.Result;
-import views.html.*;
+import views.html.betauser_thanks;
+import views.html.error_page;
+import views.html.forgot_password;
+import views.html.index;
+import views.html.register;
 
 public class UserController extends Controller {
 	
@@ -32,7 +28,7 @@ public class UserController extends Controller {
 		User user = userForm.get();
 		
 		if(User.login(user.getEmail(), user.getPassword())) {
-			return redirect(routes.UserController.home());
+			return redirect(routes.Application.index());
 		} else {
 			userForm.reject("login_error", "Incorrect email id or password. Please enter correct information.");
 			return badRequest(index.render(userForm));
@@ -85,7 +81,7 @@ public class UserController extends Controller {
 				return badRequest(register.render(userForm));
 			}
 			
-			return redirect(routes.UserController.home());
+			return redirect(routes.Application.index());
 		} catch (Exception exception) {
 			UtilityHelper.logError(COMPONENT_NAME, "register()", "Error while registering user", exception);
     		return internalServerError(error_page.render());
@@ -93,20 +89,6 @@ public class UserController extends Controller {
 	}
 	
 
-	public static Result home() {
-		User user = User.getCurrentUser();
-		
-		if(user==null)
-			return redirect(routes.Application.index());
-		
-		Promise<Response> response = WS.url(routes.ProcessController.getAllProcessesForUser(user.getUserId()).absoluteURL(request())).get();
-		JsonNode allProcesses = Json.parse(response.get().getBody());
-		
-		List<ServiceNodeInfo> list = user.getAllNodes();
-		return ok(user_home.render(list, allProcesses));
-	}
-	
-	
 	public static Result updateProfile(String userId) {
 		try {
 			Form<User> userForm = Form.form(User.class).bindFromRequest();
@@ -169,7 +151,7 @@ public class UserController extends Controller {
 		user.setPassword(SecurityHelper.generateHash(user.getUserId(), formUser.getPassword()));
 		user.save();
 		
-		return redirect(routes.UserController.home());
+		return redirect(routes.Application.index());
 	}
 	
 }

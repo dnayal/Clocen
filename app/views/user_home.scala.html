@@ -1,4 +1,4 @@
-@(infoList: List[ServiceNodeInfo], allProcesses: org.codehaus.jackson.JsonNode)
+@(appList: org.codehaus.jackson.JsonNode, allProcesses: org.codehaus.jackson.JsonNode)
 
 <!DOCTYPE html>
 <html>
@@ -11,71 +11,84 @@
 	</head>
 	<body>
 		@navbar()
-		<div class="container">
+		<div class="container" ng-app="NodesApp">
 			<br/>
 			<div class="row text-primary" style="font-size: 1.5em;">
 				<ul id="tabHeader" class="nav nav-tabs">
-					<li class="active"><a href="#apps" data-toggle="tab"><span class="glyphicon glyphicon-th"></span>&nbsp;Apps</a></li>
-					<li><a href="#processes" data-toggle="tab"><span class="glyphicon glyphicon-link"></span>&nbsp;Processes</a></li>
+					<li class="active"><a href="#processes" data-toggle="tab"><span class="glyphicon glyphicon-link"></span>&nbsp;Processes</a></li>
+					<li><a href="#apps" data-toggle="tab"><span class="glyphicon glyphicon-th"></span>&nbsp;Apps</a></li>
 				</ul>
 			</div>
 			<!-- Tab Content Start -->
 			<div id="tabContent" class="tab-content">
 
 			<!-- Apps Tab End -->
-			<div id="apps" class="tab-pane fade in active">
+			<div id="apps" class="tab-pane fade" >
+				<div ng-controller="AppsController" ng-init="appsInitialize()">
 				<div class="row">
 					<span class="col-md-3">
-					<h3 class="text-muted page-header">My Apps</h3>
+					<h3 class="text-muted">My Apps</h3>
 					</span>
 				</div>
 				<div class="row">
-					<div class="col-md-8">
-						@for(node <- infoList) {
-							@if(node.isAuthorized) {
-							<div class="row">
-								<div class="col-md-3" style="text-align: center;">
-									<img class="cc-node-medium-logo" src="@node.getNodeLogo" style="padding-bottom: 5px;border-bottom: 1px solid lightgray;">
-									<p class="text-info">@node.getNodeName</p>
-								</div>
-								<div class="col-md-7 cc-node-description">@node.getNodeDescription</div>
-								<div class="col-md-2"><a class="btn btn-warning" href="@node.getURL" target="_new_"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Refresh</a></div>
-							</div>
-							<br/>
-							}
-						}
+					<div class="col-md-12">
+						<div class="row" ng-show="!hasApps">
+							<p class="lead text-danger"><span class="glyphicon glyphicon-hand-down"></span>&nbsp;You have not authorized any apps yet!</p>
+						</div>
+						<div class="table-responsive">
+							<table class="table table-hover">
+							<tr ng-repeat="node in apps|filter:isAuthorized">
+								<td style="text-align: center;">
+									<img class="cc-node-medium-logo" ng-src="{{node.nodeLogo}}" style="padding-bottom: 5px;border-bottom: 1px solid lightgray;">
+									<p class="text-info">{{node.nodeName}}</p>
+								</td>
+								<td colspan="2" class="cc-node-description">{{node.nodeDescription}}</td>
+								<td><a class="btn btn-lg btn-default" ng-href="{{node.authURL}}" target="_new_"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Refresh</a></td>
+								<td><a class="btn btn-lg btn-default" ng-href="{{node.launchURL}}" target="_new_"><span class="glyphicon glyphicon-new-window"></span>&nbsp;Launch</a></td>
+							</tr>
+							</table>
+						</div>
+						<br/>
 					</div>
 				</div>
 				
 				<div class="row">
 					<span class="col-md-3">
-					<h3 class="text-muted page-header">All Apps</h3>
+					<h3 class="text-muted">All Apps</h3>
 					</span>
 				</div>
 				<div class="row">
-					<div class="col-md-8">
-						@for(node <- infoList) {
-							@if(!node.isAuthorized) {
-							<div class="row">
-								<div class="col-md-3" style="text-align: center;">
-									<img class="cc-node-medium-logo" src="@node.getNodeLogo" style="padding-bottom: 5px;border-bottom: 1px solid lightgray;">
-									<p class="text-info">@node.getNodeName</p>
-								</div>
-								<div class="col-md-7 cc-node-description">@node.getNodeDescription</div>
-								<div class="col-md-2"><a class="btn btn-success" href="@node.getURL" target="_new_">Authorize</a></div>
-							</div>
-							<br/>
-							}
-						}
+					<div class="col-md-12">
+						<div class="table-responsive">
+							<table class="table table-hover">
+							<tr ng-repeat="node in apps|filter:isNotAuthorized">
+								<td style="text-align: center;">
+									<img class="cc-node-medium-logo" ng-src="{{node.nodeLogo}}" style="padding-bottom: 5px;border-bottom: 1px solid lightgray;">
+									<p class="text-info">{{node.nodeName}}</p>
+								</td>
+								<td colspan="2" class="cc-node-description">{{node.nodeDescription}}</td>
+								<td><a class="btn btn-lg btn-success" ng-href="{{node.authURL}}" target="_new_"><span class="glyphicon glyphicon-bookmark"></span>&nbsp;Authorize</a></td>
+								<td>&nbsp;</td>
+							</tr>
+							</table>
+						</div>
+						<br/>
 					</div>
+				</div>
 				</div>
 			</div>
 			<!-- Apps Tab End -->
 			
 			<!-- Processes Tab Start -->
-			<div id="processes" class="tab-pane fade" ng-app="AllProcessesApp">
+			<div id="processes" class="tab-pane fade in active">
 				<br/>
-				<div class="row" ng-controller="AllProcessController" ng-init="initialize()">
+				<div class="row" ng-controller="AllProcessController" ng-init="processesInitialize()">
+					<div class="row" ng-if="processes.length<=0">
+						<br/><br/>
+						<div class="col-md-offset-4 col-md-4">
+							<a class="btn btn-lg btn-primary" href="@routes.Application.viewCreateProcess"><span class="glyphicon glyphicon-link"></span>&nbsp;Create Your First Process</a>
+						</div>
+					</div>
 					<div class="row" ng-repeat="process in processes">
 						<div class="panel panel-info">
 							<div class="panel-body">
@@ -91,9 +104,9 @@
 								</div>
 							</div>
 							<div class="panel-footer">
-								<a ng-href="{{viewProcess(process.processId)}}" class="btn btn-success btn-lg"><span class="glyphicon glyphicon-zoom-in"></span>&nbsp;View</a>
+								<a ng-href="{{viewProcess(process.processId)}}" class="btn btn-default btn-lg"><span class="glyphicon glyphicon-zoom-in"></span>&nbsp;View</a>
 								&nbsp;
-								<button ng-click="pauseProcess(process)" class="btn btn-warning btn-lg">
+								<button ng-click="pauseProcess(process)" class="btn btn-default btn-lg">
 									<span ng-if="!process.paused">
 										<span class="glyphicon glyphicon-pause"></span>&nbsp;Pause
 									</span>
@@ -102,7 +115,7 @@
 									</span>
 								</button>
 								&nbsp;
-								<button ng-click="deleteProcess(process.processId)" class="btn btn-danger btn-lg"><span class="glyphicon glyphicon-trash"></span>&nbsp;Delete</button>
+								<button ng-click="deleteProcess(process.processId)" class="btn btn-default btn-lg"><span class="glyphicon glyphicon-trash"></span>&nbsp;Delete</button>
 							</div>
 						</div>
 					</div>
@@ -118,8 +131,26 @@
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
 		<script>
-			angular.module('AllProcessesApp', []).controller('AllProcessController', ['$scope', '$http', function($scope, $http){
-				$scope.initialize = function() {
+			var app = angular.module('NodesApp', []);
+			
+			app.controller('AppsController', ['$scope', '$http', function($scope, $http){
+				$scope.appsInitialize = function() {
+					$scope.apps = @Html(appList.toString());
+				}
+				
+				$scope.isAuthorized = function(node) {
+					if(node.authorized)
+						$scope.hasApps = true;
+					return node.authorized;
+				}
+
+				$scope.isNotAuthorized = function(node) {
+					return !node.authorized;
+				}
+			}]);
+
+			app.controller('AllProcessController', ['$scope', '$http', function($scope, $http){
+				$scope.processesInitialize = function() {
 					$scope.processes = @Html(allProcesses.toString());
 				}
 				

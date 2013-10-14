@@ -14,6 +14,7 @@ create table beta_user (
 create table process (
   process_id                varchar(100) not null,
   user_id                   varchar(100),
+  version                   varchar(10),
   trigger_node              varchar(25),
   trigger_type              varchar(10),
   process_data              text,

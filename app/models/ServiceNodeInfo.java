@@ -6,16 +6,19 @@ public class ServiceNodeInfo {
 	private String nodeName;
 	private String nodeLogo;
 	private String nodeDescription;
-	private String URL;
+	private String authURL;
+	private String launchURL;
 	private Boolean authorized=false;
 	
 	
-	public ServiceNodeInfo(String nodeId, String nodeName, String nodeLogo, String nodeDescription, String URL, Boolean authorized) {
+	public ServiceNodeInfo(String nodeId, String nodeName, String nodeLogo, String nodeDescription, 
+			String authURL, String launchURL, Boolean authorized) {
 		this.nodeId = nodeId;
 		this.nodeName = nodeName;
 		this.nodeLogo = nodeLogo;
 		this.nodeDescription = nodeDescription;
-		this.URL = URL;
+		this.authURL = authURL;
+		this.launchURL = launchURL;
 		this.authorized = authorized;
 	}
 	
@@ -50,13 +53,23 @@ public class ServiceNodeInfo {
 	}
 	
 	
-	public String getURL() {
-		return URL;
+	public String getAuthURL() {
+		return authURL;
 	}
 	
 	
-	public void setURL(String URL) {
-		this.URL = URL;
+	public void setAuthURL(String authURL) {
+		this.authURL = authURL;
+	}
+	
+	
+	public String getLaunchURL() {
+		return launchURL;
+	}
+	
+	
+	public void setLaunchURL(String launchURL) {
+		this.launchURL = launchURL;
 	}
 	
 	
@@ -83,8 +96,8 @@ public class ServiceNodeInfo {
 	@Override
 	public String toString() {
 		return "ServiceNodeInfo [nodeId=" + nodeId + ", nodeName=" + nodeName
-				+ ", nodeDescription=" + nodeDescription + ", URL=" + URL
-				+ ", authorized=" + authorized + "]";
+				+ ", nodeDescription=" + nodeDescription + ", authURL=" + authURL
+				+ ", launchURL=" + launchURL + ", authorized=" + authorized + "]";
 	}
 
 }

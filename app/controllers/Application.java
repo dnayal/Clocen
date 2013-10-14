@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import models.BetaUser;
-import models.Process;
 import models.ServiceNodeInfo;
 import models.User;
 import nodes.box.Box;
@@ -19,6 +18,7 @@ import play.Play;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.F.Promise;
+import play.libs.Json;
 import play.libs.WS;
 import play.libs.WS.Response;
 import play.mvc.Controller;
@@ -37,14 +37,22 @@ public class Application extends Controller {
 	private static final String COMPONENT_NAME = "Application Controller";
 
 	public static Result index() {
-        Form<User> userForm = Form.form(User.class);
-		if(User.isLoggedIn())
-        	return redirect(routes.UserController.home());
-        
-		return ok(index.render(userForm));
-    }
-    
+		User user = User.getCurrentUser();
+		Form<User> userForm = Form.form(User.class);
 
+		if(user!=null) {
+			Promise<Response> response = WS.url(routes.ProcessController.getAllProcessesForUser(user.getUserId()).absoluteURL(request())).get();
+			JsonNode allProcesses = Json.parse(response.get().getBody());
+			
+			List<ServiceNodeInfo> list = user.getAllNodes();
+			return ok(user_home.render(Json.toJson(list), allProcesses));
+		} else {
+			return ok(index.render(userForm));
+		}
+        
+    }
+    	
+	
     public static Result getRegistrationForm() {
     	String encryptedEmail = request().getQueryString("key");
     	String email = SecurityHelper.decrypt(encryptedEmail);
@@ -128,18 +136,14 @@ public class Application extends Controller {
     public static Result saveProcess() {
 		User user = User.getCurrentUser();
 		
-		Form<Process> form = Form.form(Process.class).bindFromRequest();
-		Process process = form.get();
+		String requestBody = UtilityHelper.convertMapToRequestString(request().body().asFormUrlEncoded());
 		
-		if(user==null || UtilityHelper.isEmptyString(process.getProcessData()))
+		if(user==null || UtilityHelper.isEmptyString(requestBody))
 			return internalServerError(error_page.render());
 
-		StringBuffer formData = new StringBuffer();
-		formData.append("processData="+process.getProcessData());
-		formData.append("&triggerNode="+process.getTriggerNode());
 		Promise<Response> response = WS.url(routes.ProcessController.saveProcess(user.getUserId()).absoluteURL(request()))
 				.setHeader("Content-Type", Play.application().configuration().getString("application.services.POST.contentType"))
-				.post(formData.toString());
+				.post(requestBody);
 		if (response.get().getStatus()==OK)
 			return redirect(routes.Application.index());
 		else
@@ -147,16 +151,6 @@ public class Application extends Controller {
     }
     
     
-	public static Result viewAllProcesses() {
-		User user = User.getCurrentUser();
-		Promise<Response> response = WS.url(routes.ProcessController.getAllProcessesForUser(user.getUserId()).absoluteURL(request())).get();
-		JsonNode allProcessesJSON = response.get().asJson();
-		
-		List<ServiceNodeInfo> list = user.getAllNodes();
-		return ok(user_home.render(list, allProcessesJSON));
-	}
-	
-	
 	public static Result deleteProcess(String processId) {
 		User user = User.getCurrentUser();
 		Promise<Response> response = WS.url(routes.ProcessController.deleteProcess(processId, user.getUserId()).absoluteURL(request())).post(processId);

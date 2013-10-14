@@ -35,11 +35,12 @@ body {
 	font-size: 0.75em;
 }
 
-.text-danger, .text-error {
+.text-error {
 	color: red;
 	font-size: 0.8em;
 }
 
 .cc-node-description {
 	font-size: 1.25em;
+	color: gray;
 }

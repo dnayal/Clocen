@@ -35,6 +35,7 @@ public class Box implements Node {
 	private static final String CLIENT_SECRET = "I9AtREMVttIl7exrfJ5FIEoE43U5uB6j";
 	private static final String OAUTH_AUTHORIZE_URL = "https://www.box.com/api/oauth2/authorize";
 	private static final String OAUTH_TOKEN_URL = "https://www.box.com/api/oauth2/token";
+	private static final String APP_URL = "https://www.box.com";
 	private static final String NODE_ID = "box";
 	
 
@@ -133,4 +134,9 @@ public class Box implements Node {
 		return Node.TRIGGER_TYPE_HOOK;
 	}
 
+
+	@Override
+	public String getAppURL() {
+		return APP_URL;
+	}
 }

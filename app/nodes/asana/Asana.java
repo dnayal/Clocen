@@ -27,6 +27,7 @@ public class Asana implements Node {
 	private static final String CLIENT_SECRET = "3f230584e30bcffa7f9149a3c5332319";
 	private static final String OAUTH_AUTHORIZE_URL = "https://app.asana.com/-/oauth_authorize";
 	private static final String OAUTH_TOKEN_URL = "https://app.asana.com/-/oauth_token";
+	private static final String APP_URL = "https://app.asana.com";
 	private static final String NODE_ID = "asana";
 
 	@Override
@@ -108,6 +109,12 @@ public class Asana implements Node {
 	@Override
 	public String getTriggerType() {
 		return Node.TRIGGER_TYPE_POLL;
+	}
+
+
+	@Override
+	public String getAppURL() {
+		return APP_URL;
 	}
 
 }

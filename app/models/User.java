@@ -309,7 +309,8 @@ public class User extends Model {
 			ServiceNodeInfo serviceNode = new ServiceNodeInfo(nodeId, node.getName(), node.getLogo(), node.getDescription(), 
 					isAuthorized
 					?controllers.routes.Application.refreshOauth2Token(node.getNodeId()).toString()	
-					:controllers.routes.Application.authorizeOauth2Call(node.getNodeId()).toString(), 
+					:controllers.routes.Application.authorizeOauth2Call(node.getNodeId()).toString(),
+					node.getAppURL(),
 					isAuthorized);
 			nodeList.add(serviceNode);
 		}

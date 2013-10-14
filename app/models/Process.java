@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.PersistenceException;
 
+import play.Play;
 import play.db.ebean.Model;
 
 @Entity
@@ -26,6 +27,8 @@ public class Process extends Model {
 	private String processId;
 	@Column(length=100)
 	private String userId;
+	@Column(length=10)
+	private String version;
 	@Column(length=25)
 	private String triggerNode;
 	@Column(length=10)
@@ -41,6 +44,7 @@ public class Process extends Model {
 			String triggerType, String processData, Boolean paused, Date createTimestamp) {
 		this.processId = processId;
 		this.userId = userId;
+		this.version = Play.application().configuration().getString("process.version");
 		this.triggerNode = triggerNode;
 		this.triggerType = triggerType;
 		this.processData = processData;
@@ -69,6 +73,16 @@ public class Process extends Model {
 	}
 
 	
+	public String getVersion() {
+		return version;
+	}
+
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+
 	public String getTriggerNode() {
 		return triggerNode;
 	}
@@ -146,7 +160,7 @@ public class Process extends Model {
 	public void save() {
 		try {
 			Process token = getProcess(processId);
-			
+			setVersion(Play.application().configuration().getString("process.version"));
 			if(token==null)
 				super.save();
 			else

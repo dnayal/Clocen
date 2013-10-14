@@ -20,6 +20,7 @@ public interface Node {
 	public String getName();
 	public String getTriggerType();
 	public String getLogo();
+	public String getAppURL();
 	public String getDescription();
 	public JsonNode callInfoService(User user, String service);
 
