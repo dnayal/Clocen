@@ -11,7 +11,7 @@
 	</head>
 	<body ng-app="CreateProcessApp">
 		@navbar()
-		<div class="container" ng-controller="ProcessController">
+		<div class="container" id="ProcessController" ng-controller="ProcessController">
 			<div class="row page-header">
 				<div class="col-md-12">
 					<h1><span class="glyphicon glyphicon-link"></span>&nbsp;Create Your Process</h1>
@@ -45,8 +45,16 @@
 						<div class="col-md-offset-1 col-md-3">
 							<select class="form-control input-lg" ng-required="true" ng-model="process[counter.index].data" ng-options="t.name for t in activities[counter.index]"></select>
 						</div>
+						<div ng-if="node[counter.index].authorized" class="col-md-2" style="color:green;font-size: 1.5em;">
+							<span class="glyphicon glyphicon-ok-sign"></span>
+						</div>
+						<div ng-if="node[counter.index] && !node[counter.index].authorized" class="col-md-2">
+							<button ng-click="openAuthorizeWindow(node[counter.index])" target="_new_" class="btn btn-lg btn-success">Authorize</button>
+							<input type="checkbox" ng-model="node[counter.index].authorized" required style="display:none;">
+						</div>
 					</div>
 					<div class="row"><div class="col-md-offset-1 col-md-7"><hr></div></div>
+					<div ng-if="node[counter.index].authorized">
 					<!-- node form starts -->
 					<div class="row" ng-repeat="field in process[counter.index].data.input">
 						<div class="col-md-offset-1 col-md-2">
@@ -82,6 +90,7 @@
 						<br><br>
 					</div>
 				<!-- node form ends -->
+				</div>
 				</div>
 				
 				<br/>

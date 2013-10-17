@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Clocen</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="http://fonts.googleapis.com/css?family=Ubuntu:300" rel="stylesheet" type="text/css">
+	</head>
+	<body ng-app="OAuthCallbackApp" ng-controller="CallbackController">
+		<p>Application authorized successfully!</p>	
+		<script type="text/javascript" src="@routes.Assets.at("javascripts/angular.min.js")"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script>
+		angular.module('OAuthCallbackApp', []).controller('CallbackController', ['$window', function($window) {
+			// calls the oauthCallback of the parent window (the main window 
+			// which user clicked on to authorize the app)
+			$window.opener.oauthCallback();
+			$window.close();
+		}]);
+		</script>
+	</body>
+</html>

@@ -13,7 +13,6 @@ import nodes.box.Box;
 
 import org.codehaus.jackson.JsonNode;
 
-import play.Logger;
 import play.Play;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -27,6 +26,7 @@ import views.html.create_process;
 import views.html.error_page;
 import views.html.forgot_password;
 import views.html.index;
+import views.html.oauth_callback;
 import views.html.register;
 import views.html.user_home;
 import views.html.user_profile;
@@ -201,7 +201,6 @@ public class Application extends Controller {
 	public static Result authorizeOauth2Call(String nodeId) {
 		User user = User.getCurrentUser();
 		Promise<Response> response = WS.url(routes.OAuth2Controller.authorizeCall(user.getUserId(), nodeId).absoluteURL(request())).get();
-		Logger.info(response.get().getBody());
     	return redirect(response.get().getBody());
     }
     
@@ -213,8 +212,12 @@ public class Application extends Controller {
 		Promise<Response> response = WS.url(routes.OAuth2Controller.tokenCallback(user.getUserId(), nodeId).absoluteURL(request()))
 				.setHeader("Content-Type", Play.application().configuration().getString("application.services.POST.contentType"))
 				.post(requestString);
+		/**
+		 * TODO Show appropriate page or response based 
+		 * on approval or rejection of oauth request by user  
+		 */
 		if (response.get().getStatus()==OK)
-			return redirect(routes.Application.index());
+			return ok(oauth_callback.render());
 		else
 			return internalServerError(error_page.render());
     }

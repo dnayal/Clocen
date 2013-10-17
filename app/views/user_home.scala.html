@@ -24,7 +24,7 @@
 
 			<!-- Apps Tab End -->
 			<div id="apps" class="tab-pane fade" >
-				<div ng-controller="AppsController" ng-init="appsInitialize()">
+				<div id="AppsController" ng-controller="AppsController" ng-init="appsInitialize()">
 				<div class="row">
 					<span class="col-md-3">
 					<h3 class="text-muted">My Apps</h3>
@@ -67,7 +67,7 @@
 									<p class="text-info">{{node.nodeName}}</p>
 								</td>
 								<td colspan="2" class="cc-node-description">{{node.nodeDescription}}</td>
-								<td><a class="btn btn-lg btn-success" ng-href="{{node.authURL}}" target="_new_"><span class="glyphicon glyphicon-bookmark"></span>&nbsp;Authorize</a></td>
+								<td><button class="btn btn-lg btn-success" ng-click="openAuthorizeWindow(node)">Authorize</button></td>
 								<td>&nbsp;</td>
 							</tr>
 							</table>
@@ -133,7 +133,8 @@
 		<script>
 			var app = angular.module('NodesApp', []);
 			
-			app.controller('AppsController', ['$scope', '$http', function($scope, $http){
+			app.controller('AppsController', ['$scope', '$window', function($scope, $window){
+				
 				$scope.appsInitialize = function() {
 					$scope.apps = @Html(appList.toString());
 				}
@@ -146,6 +147,15 @@
 
 				$scope.isNotAuthorized = function(node) {
 					return !node.authorized;
+				}
+				
+				$scope.openAuthorizeWindow = function(node) {
+					$scope.currentNode = node;
+					$window.open(node.authURL, '_new_');
+				}
+				
+				$scope.authorizeCurrentNode = function() {
+					$scope.currentNode.authorized = true;
 				}
 			}]);
 
@@ -183,7 +193,14 @@
 				
 			}]);
 
-			
+			/**
+				Callback function thats gets called by the subwindow for oauth authorization
+			**/
+			function oauthCallback() {
+				angular.element($('#AppsController')).scope().$apply(function(scope){
+					scope.authorizeCurrentNode();
+				});
+			}
 		</script>
 	</body>
 </html>

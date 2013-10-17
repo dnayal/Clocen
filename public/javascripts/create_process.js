@@ -1,6 +1,6 @@
 var app = angular.module('CreateProcessApp', []);
 
-app.controller('ProcessController', ['$scope', '$http', function($scope, $http){
+app.controller('ProcessController', ['$scope', '$http', '$window', function($scope, $http, $window){
 	
 	$scope.process = [];
 	$scope.activities = [];
@@ -77,4 +77,22 @@ app.controller('ProcessController', ['$scope', '$http', function($scope, $http){
 			
 	}
 
+	$scope.openAuthorizeWindow = function(node) {
+		$scope.currentNode = node;
+		$window.open(node.authURL, '_new_');
+	}
+	
+	$scope.authorizeCurrentNode = function() {
+		$scope.currentNode.authorized = true;
+	}
+
 }]);
+
+/**
+Callback function thats gets called by the subwindow for oauth authorization
+**/
+function oauthCallback() {
+	angular.element($('#ProcessController')).scope().$apply(function(scope){
+		scope.authorizeCurrentNode();
+	});
+}
