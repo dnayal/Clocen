@@ -1,0 +1,61 @@
+@(userForm: Form[User])
+
+@import helper._
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Login</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="http://fonts.googleapis.com/css?family=Ubuntu:300" rel="stylesheet" type="text/css">
+		<link href="@routes.Assets.at("stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
+		<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" media="screen">
+	</head>
+	<body>
+		@navbar()
+		<div class="container">
+			<div class="row">
+					<h1 class="cc-title-dark">Welcome to Clocen!</h1>
+			</div>
+			<br/>
+			<br/>
+			<div class="row">
+					<div class="col-md-offset-3 col-md-6">
+						@if(userForm.error("login_error")!=null) {
+						<span class="text-error">@userForm.error("login_error").message</span>
+						}
+						
+						@form(routes.UserController.login(), 'class -> "cc-login-form") {
+						<div class="row" style="padding-bottom: 10px;">
+							<div class="col-md-3">
+								<label for="@userForm("email").id">Email</label>
+							</div>
+							<div class="col-md-9">
+								<input class="form-control input-lg" name="@userForm("email").name" id="@userForm("email").id" type="email" placeholder="Email" required>
+							</div>
+						</div>
+						<div class="row" >
+							<div class="col-md-3">
+								<label for="@userForm("password").id">Password</label>
+							</div>
+							<div class="col-md-9">
+								<input class="form-control input-lg" name="@userForm("password").name" id="@userForm("password").id" type="password" placeholder="Password" required>
+							</div>
+						</div>
+						<br/>
+						<div class="row" >
+							<div class="col-md-offset-3 col-md-6">
+								<button class="btn btn-primary btn-lg btn-block" type="submit">Login</button>
+							</div>
+						</div>
+						<div class="row" >
+							<div class="col-md-12">
+								<a class="pull-right" href="@routes.Application.getForgotAndResetPasswordPage("forgot")">Forgot Password?</a>
+							</div>
+						</div>
+						}
+					</div>
+			</div>
+		</div>
+	</body>
+</html>

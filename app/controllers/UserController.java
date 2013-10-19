@@ -15,6 +15,7 @@ import views.html.betauser_thanks;
 import views.html.error_page;
 import views.html.forgot_password;
 import views.html.index;
+import views.html.login;
 import views.html.register;
 
 public class UserController extends Controller {
@@ -25,13 +26,17 @@ public class UserController extends Controller {
 	
 	public static Result login() {
 		Form<User> userForm = Form.form(User.class).bindFromRequest();
+		if(userForm.hasErrors()) {
+			userForm.reject("login_error", "Please enter valid email id and password");
+			return badRequest(login.render(userForm));
+		}
+
 		User user = userForm.get();
-		
 		if(User.login(user.getEmail(), user.getPassword())) {
 			return redirect(routes.Application.index());
 		} else {
-			userForm.reject("login_error", "Incorrect email id or password. Please enter correct information.");
-			return badRequest(index.render(userForm));
+			userForm.reject("login_error", "Please enter valid email id and password");
+			return badRequest(login.render(userForm));
 		}
 
     }

@@ -5,6 +5,7 @@
 # Home page
 GET     /                           	controllers.Application.index()
 GET		/register						controllers.Application.getRegistrationForm()
+GET		/login							controllers.Application.getLoginPage()
 GET		/profile						controllers.Application.getUserProfilePage()
 GET		/password/:requestType			controllers.Application.getForgotAndResetPasswordPage(requestType: String)
 POST	/triggers/:node_id				controllers.Application.callTriggerListener(node_id: String)

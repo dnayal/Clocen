@@ -37,10 +37,34 @@ body {
 
 .text-error {
 	color: red;
-	font-size: 0.8em;
 }
 
 .cc-node-description {
 	font-size: 1.25em;
 	color: gray;
+}
+
+.cc-login-form {
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	background-color:#F0F0F0;
+	padding: 50px;
+	-webkit-box-shadow: #B3B3B3 2px 2px 2px;
+	-moz-box-shadow: #B3B3B3 2px 2px 2px; 
+	box-shadow: #B3B3B3 2px 2px 2px;
+}
+
+.cc-title-light {
+	text-align: center; 
+	font-size: 3.5em; 
+	padding-top: 35px; 
+	color: #F0F8FF;	
+}
+
+.cc-title-dark {
+	text-align: center; 
+	font-size: 3.5em; 
+	padding-top: 35px; 
+	color: #5F9EA0;	
 }

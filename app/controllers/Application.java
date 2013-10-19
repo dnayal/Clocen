@@ -26,6 +26,7 @@ import views.html.create_process;
 import views.html.error_page;
 import views.html.forgot_password;
 import views.html.index;
+import views.html.login;
 import views.html.oauth_callback;
 import views.html.register;
 import views.html.user_home;
@@ -52,6 +53,11 @@ public class Application extends Controller {
         
     }
     	
+	public static Result getLoginPage() {
+		Form<User> form = Form.form(User.class);
+		return ok(login.render(form));
+	}
+	
 	
     public static Result getRegistrationForm() {
     	String encryptedEmail = request().getQueryString("key");
