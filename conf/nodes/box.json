@@ -49,7 +49,7 @@
 				{
 					"id":"filename",
 					"name":"File Name",
-					"type":"user",
+					"type":"string",
 					"required":true
 				},
 				{

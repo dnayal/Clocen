@@ -1,4 +1,4 @@
-@(user: models.User, user_form: Form[models.User])
+@(user: models.User, user_form: Form[models.User], countries: org.codehaus.jackson.JsonNode)
 
 @import helper._
 
@@ -14,7 +14,7 @@
 	</head>
 	<body>
 		@navbar()
-		<div class="container">
+		<div class="container" ng-app="UserProfileApp">
 			<div class="row">
 				<h2 class="page-header text-primary"><span class="glyphicon glyphicon-cog"></span>&nbsp;My Account</h2>
 			</div>
@@ -47,12 +47,14 @@
 					</div>
 				</div>
 				<br/>
-				<div class="row">
+				<div class="row" ng-controller="CountryController">
 					<div class="col-md-offset-1 col-md-2">
 						<label for="@user_form("country").id">Country</label>
 					</div>
-					<div class="col-md-5">
-						<input type="text" class="form-control input-lg" id="@user_form("country").id" name="@user_form("country").name" value="@user_form("country").value" placeholder="Country">
+					<div class="col-md-3">
+						<select class="form-control input-lg" ng-model="userCountry" ng-change="setCountry()" ng-options="country.id as country.name for country in countries">
+						</select>
+						<input type="hidden" name="@user_form("country").name" id="@user_form("country").id" value="@user_form("country").value">
 					</div>
 				</div>
 				<br/>
@@ -65,7 +67,18 @@
 			</div>
 			}
 		</div>	
+		<script type="text/javascript" src="@routes.Assets.at("javascripts/angular.min.js")"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
+		<script>
+			angular.module('UserProfileApp', []).controller('CountryController', ['$scope', function($scope) {
+				$scope.countries = @Html(countries.toString());
+				$scope.userCountry = '@user_form("country").value';
+				
+				$scope.setCountry = function() {
+					$('#@user_form("country").id').val($scope.userCountry);
+				}
+			}]);
+		</script>
 	</body>
 </html>

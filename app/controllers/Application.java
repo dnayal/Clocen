@@ -78,7 +78,7 @@ public class Application extends Controller {
 			return redirect(routes.Application.index());
 
 		Form<User> userForm = Form.form(User.class).fill(user);
-		return ok(user_profile.render(user, userForm));
+		return ok(user_profile.render(user, userForm, UtilityHelper.getCountries()));
 	}
 	
 	
@@ -230,8 +230,12 @@ public class Application extends Controller {
 				.setHeader("Content-Type", Play.application().configuration().getString("application.services.POST.contentType"))
 				.post(nodeId);
 
+		/**
+		 * TODO Show appropriate page or response based 
+		 * on approval or rejection of oauth request by user  
+		 */
 		if (response.get().getStatus()==OK)
-			return redirect(routes.Application.index());
+			return ok(oauth_callback.render());
 		else
 			return internalServerError(error_page.render());
     }

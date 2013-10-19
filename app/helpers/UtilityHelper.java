@@ -13,7 +13,13 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.map.MappingJsonFactory;
+
 import play.Logger;
+import play.api.Play;
 
 public class UtilityHelper {
 	
@@ -29,6 +35,19 @@ public class UtilityHelper {
 			return true;
 		else
 			return false;
+	}
+	
+	
+	public static JsonNode getCountries() {
+		JsonNode result = null;
+		JsonFactory factory = new MappingJsonFactory();
+		try {
+			JsonParser parser = factory.createJsonParser(Play.current().classloader().getResourceAsStream("countries.json"));
+			result = parser.readValueAsTree();
+		} catch (Exception exception) {
+			UtilityHelper.logError(COMPONENT_NAME, "getCountries()", exception.getMessage(), exception);
+		}
+		return result;
 	}
 	
 	

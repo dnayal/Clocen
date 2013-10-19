@@ -28,7 +28,7 @@
 				{
 					"id":"taskdescription",
 					"name":"Task Description",
-					"type":"string"
+					"type":"longstring"
 				},
 				{
 					"id":"attachment",
@@ -64,7 +64,7 @@
 				{
 					"id":"description",
 					"name":"Project Description",
-					"type":"string"
+					"type":"longstring"
 				}
 			]
 		}
@@ -85,13 +85,13 @@
 				{
 					"id":"taskname",
 					"name":"Task Name",
-					"type":"user",
+					"type":"string",
 					"required":true
 				},
 				{
 					"id":"taskdescription",
 					"name":"Task Description",
-					"type":"user"
+					"type":"longstring"
 				}
 			],
 			"output":[

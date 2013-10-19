@@ -63,17 +63,36 @@
 								</select>
 								<!-- service drop down end -->
 							</span>
-							<span ng-switch-when="user">
+							<span ng-switch-when="string">
 								<div class="input-group">
 									<input ng-model="field.value" type="text" class="form-control" readonly>
 									<div class="input-group-btn">
-										<a href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+										<a href="#" class="btn btn-default dropdown-toggle disabled" data-toggle="dropdown">
 											<img class="cc-node-input-logo" ng-src="{{process.data[$parent.$parent.$index-1].logo}}">
 										</a>
 									</div>
 								</div>
 							</span>	
-
+							<span ng-switch-when="longstring">
+								<div class="input-group">
+									<textarea rows="4" ng-model="field.value" ng-required="field.required" class="form-control" readonly></textarea>
+									<div class="input-group-btn">
+										<a href="#" class="btn btn-default dropdown-toggle disabled" data-toggle="dropdown">
+											<img class="cc-node-input-logo" ng-src="{{process.data[$parent.$parent.$index-1].logo}}">
+										</a>
+									</div>
+								</div>
+							</span>	
+							<span ng-switch-when="file">
+								<div class="input-group">
+									<input ng-model="field.value" type="text" class="form-control" readonly>
+									<div class="input-group-btn">
+										<a href="#" class="btn btn-default dropdown-toggle disabled" data-toggle="dropdown">
+											<img class="cc-node-input-logo" ng-src="{{process.data[$parent.$parent.$index-1].logo}}">
+										</a>
+									</div>
+								</div>
+							</span>	
 						</div>
 						<br><br>
 					</div>
