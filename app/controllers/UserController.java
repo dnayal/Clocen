@@ -14,15 +14,28 @@ import play.mvc.Result;
 import views.html.betauser_thanks;
 import views.html.error_page;
 import views.html.forgot_password;
-import views.html.index;
 import views.html.login;
 import views.html.register;
 
 public class UserController extends Controller {
 	
 	
-	private static final String COMPONENT_NAME = "User Controller";	
-
+	private static final String COMPONENT_NAME = "User Controller";
+	
+	
+	private static Boolean rememberUser() {
+		DynamicForm dynaForm = DynamicForm.form().bindFromRequest();
+		Boolean rememberMe = new Boolean(dynaForm.get(UtilityHelper.REMEMBER_ME));
+		if(rememberMe)
+			response().setCookie(UtilityHelper.REMEMBER_ME, SecurityHelper.encrypt(User.getCurrentUser().getUserId()), 60*60*24*180);
+		return rememberMe;
+	}
+	
+	
+	private static void forgetUser() {
+		response().discardCookie(UtilityHelper.REMEMBER_ME);
+	}
+	
 	
 	public static Result login() {
 		Form<User> userForm = Form.form(User.class).bindFromRequest();
@@ -33,6 +46,7 @@ public class UserController extends Controller {
 
 		User user = userForm.get();
 		if(User.login(user.getEmail(), user.getPassword())) {
+			rememberUser();
 			return redirect(routes.Application.index());
 		} else {
 			userForm.reject("login_error", "Please enter valid email id and password");
@@ -44,6 +58,7 @@ public class UserController extends Controller {
 	
 	public static Result logout() {
 		User.logout();
+		forgetUser();
 		return redirect(routes.Application.index());
 	}
 	
@@ -78,6 +93,7 @@ public class UserController extends Controller {
 				
 				user.save();
 				User.login(email, password);
+				rememberUser();
 				
 				betaUser.setRegistered(true);
 				betaUser.save();

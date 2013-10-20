@@ -19,24 +19,23 @@
 			</div>
 			<br/>
 			<br/>
-			<div class="row lead">
-				<div class="col-md-4">
-					<p>Register with us and leverage the power of the cloud!</p>
-				</div>
+			<div class="row">
 				@form(routes.UserController.register()) {
-				<div class="col-md-offset-2 col-md-4">
+				<div class="col-md-offset-3 col-md-6 cc-login-form">
 					@if(userForm.error("register_error")!=null) {
-					<span class="text-danger"><small><i>@userForm.error("register_error").message</i></small></span>
+					<span class="text-danger"><i>@userForm.error("register_error").message</i></span>
 					}
 					<div class="form-group" >
-						<label for="@userForm("email").id">Email</label>
+						<label for="@userForm("email").id" >Email</label>
 						<input class="form-control input-lg" name="@userForm("email").name" id="@userForm("email").id" type="email" value="@userForm("email").value" placeholder="Email" readonly>
 					</div>
 					<div class="form-group" >
 						<label for="@userForm("password").id">Password</label>
 						<input class="form-control input-lg" name="@userForm("password").name" id="@userForm("password").id" type="password" placeholder="Password">
 					</div>
-					<button class="btn btn-info btn-lg" type="submit">Register</button>
+					<button class="btn btn-primary btn-block btn-lg" type="submit">Register</button>
+					<br/>
+					<input type="checkbox" name="rememberMe" value="true" id="rememberMe"> &nbsp;Stay Logged In
 				</div>
 				}
 			</div>

@@ -22,6 +22,7 @@ import play.libs.WS;
 import play.libs.WS.Response;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.Http.Cookie;
 import views.html.create_process;
 import views.html.error_page;
 import views.html.forgot_password;
@@ -37,7 +38,23 @@ public class Application extends Controller {
 
 	private static final String COMPONENT_NAME = "Application Controller";
 
+	private static Boolean isUserRemembered() {
+		Cookie cookie = request().cookie(UtilityHelper.REMEMBER_ME);
+		if (cookie == null)
+			return false;
+		String userId = SecurityHelper.decrypt(cookie.value());
+		User user = User.getUser(userId);
+		if(user == null)
+			return false;
+		else {
+			User.setCurrentUser(user);
+			return true;
+		}
+	}
+
+	
 	public static Result index() {
+		isUserRemembered();
 		User user = User.getCurrentUser();
 		Form<User> userForm = Form.form(User.class);
 

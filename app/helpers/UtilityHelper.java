@@ -24,6 +24,7 @@ import play.api.Play;
 public class UtilityHelper {
 	
 	private static final String COMPONENT_NAME = "Utility Helper";	
+	public static final String REMEMBER_ME = "rememberMe"; // param name to remember user
 
 	public static String getUniqueId() {
 		return UUID.randomUUID().toString().replace("-", "");
