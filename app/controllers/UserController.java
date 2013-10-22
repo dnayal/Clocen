@@ -16,6 +16,8 @@ import views.html.error_page;
 import views.html.forgot_password;
 import views.html.login;
 import views.html.register;
+import views.html.email.signup_betauser;
+
 
 public class UserController extends Controller {
 	
@@ -69,6 +71,8 @@ public class UserController extends Controller {
 			String email = form.get("email");
 			BetaUser user = new BetaUser(email, Calendar.getInstance().getTime(), false, false);
 			user.save();
+			UtilityHelper.sendMail(email, "Thanks for signing up with Clocen!", signup_betauser.render().toString());
+			
 		} catch (Exception exception) {
 			UtilityHelper.logError(COMPONENT_NAME, "signup()", "Error while registering user", exception);
 		}

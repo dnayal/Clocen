@@ -11,7 +11,7 @@
 		<link href="@routes.Assets.at("stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
 		<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" media="screen">
 	</head>
-	<body>
+	<body ng-app>
 		@navbar()
 		<div class="container">
 			<div class="row">
@@ -25,13 +25,14 @@
 						<span class="text-error">@userForm.error("login_error").message</span>
 						}
 						
-						@form(routes.UserController.login()) {
+						@form(routes.UserController.login(), 'name->"loginform") {
 						<div class="row" style="padding-bottom: 10px;">
 							<div class="col-md-3">
 								<label for="@userForm("email").id">Email</label>
 							</div>
 							<div class="col-md-9">
-								<input class="form-control input-lg" name="@userForm("email").name" id="@userForm("email").id" type="email" placeholder="Email" required>
+								<span ng-show="loginform.email.$error.maxlength" class="text-warning">Email id should not be longer than 75 characters</span>
+								<input class="form-control input-lg" ng-model="@userForm("email").name" name="@userForm("email").name" id="@userForm("email").id" type="email" placeholder="Email" ng-maxlength="75" ng-required="true">
 							</div>
 						</div>
 						<div class="row" >
@@ -39,13 +40,14 @@
 								<label for="@userForm("password").id">Password</label>
 							</div>
 							<div class="col-md-9">
-								<input class="form-control input-lg" name="@userForm("password").name" id="@userForm("password").id" type="password" placeholder="Password" required>
+								<span ng-show="loginform.password.$error.maxlength" class="text-warning">Password should not be longer than 75 characters</span>
+								<input class="form-control input-lg" ng-model="@userForm("password").name" name="@userForm("password").name" id="@userForm("password").id" type="password" placeholder="Password" ng-maxlength="75" ng-required="true">
 							</div>
 						</div>
 						<br/>
 						<div class="row" style="padding-bottom: 10px;">
 							<div class="col-md-offset-3 col-md-6">
-								<button class="btn btn-primary btn-lg btn-block" type="submit">Login</button>
+								<button class="btn btn-primary btn-lg btn-block" type="submit" ng-disabled="loginform.$invalid">Login</button>
 							</div>
 						</div>
 						<div class="row" >
@@ -60,5 +62,6 @@
 					</div>
 			</div>
 		</div>
+		<script type="text/javascript" src="@routes.Assets.at("javascripts/angular.min.js")"></script>
 	</body>
 </html>

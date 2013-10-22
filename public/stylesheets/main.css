@@ -68,3 +68,7 @@ body {
 	padding-top: 35px; 
 	color: #5F9EA0;	
 }
+
+input.ng-dirty.ng-invalid {
+	color: red;
+}

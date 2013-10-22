@@ -12,20 +12,21 @@
 		<link href="@routes.Assets.at("stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
 		<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" media="screen">
 	</head>
-	<body>
+	<body ng-app="UserProfileApp">
 		@navbar()
-		<div class="container" ng-app="UserProfileApp">
+		<div class="container" ng-controller="UserProfileController">
 			<div class="row">
 				<h2 class="page-header text-primary"><span class="glyphicon glyphicon-cog"></span>&nbsp;My Account</h2>
 			</div>
-			@form(routes.UserController.updateProfile(user.getUserId)){
+			@form(routes.UserController.updateProfile(user.getUserId), 'name -> "profileform"){
 			<div class="row lead">
 				<div class="row">
 					<div class="col-md-offset-1 col-md-2">
 						<label for="@user_form("name").id">Name</label>
 					</div>
 					<div class="col-md-5">
-						<input type="text" class="form-control input-lg" id="@user_form("name").id" name="@user_form("name").name" value="@user_form("name").value" placeholder="Name">
+						<span ng-show="profileform.name.$error.maxlength" class="text-warning" style="font-size: 0.75em;">Name should not be longer than 75 characters</span>
+						<input type="text" class="form-control input-lg" id="@user_form("name").id" name="@user_form("name").name" value="@user_form("name").value" placeholder="Name" ng-model="name" ng-maxlength="75">
 					</div>
 				</div>
 				<br/>
@@ -34,7 +35,8 @@
 						<label for="@user_form("email").id">Email</label>
 					</div>
 					<div class="col-md-5">
-						<input type="text" class="form-control input-lg" id="@user_form("email").id" name="@user_form("email").name" value="@user_form("email").value" placeholder="Email">
+						<span ng-show="profileform.email.$error.maxlength" class="text-warning" style="font-size: 0.75em;">Email should not be longer than 75 characters</span>
+						<input type="email" class="form-control input-lg" id="@user_form("email").id" name="@user_form("email").name" value="@user_form("email").value" placeholder="Email" ng-model="email" ng-maxlength="75" ng-required="true">
 					</div>
 				</div>
 				<br/>
@@ -43,11 +45,12 @@
 						<label for="@user_form("password").id">Password</label>
 					</div>
 					<div class="col-md-5">
-						<input type="password" class="form-control input-lg" id="@user_form("password").id" name="@user_form("password").name" placeholder="Password">
+						<span ng-show="profileform.password.$error.maxlength" class="text-warning" style="font-size: 0.75em;">Password should not be longer than 75 characters</span>
+						<input type="password" class="form-control input-lg" id="@user_form("password").id" name="@user_form("password").name" placeholder="Password" ng-model="password" ng-maxlength="75" >
 					</div>
 				</div>
 				<br/>
-				<div class="row" ng-controller="CountryController">
+				<div class="row">
 					<div class="col-md-offset-1 col-md-2">
 						<label for="@user_form("country").id">Country</label>
 					</div>
@@ -60,7 +63,7 @@
 				<br/>
 				<div class="row">
 					<div class="col-md-offset-1 col-md-5">
-						<button type="submit" class="btn btn-primary btn-lg">Update Details</button>&nbsp;
+						<button type="submit" class="btn btn-primary btn-lg" ng-disabled="profileform.$invalid">Update Details</button>&nbsp;
 						<a class="btn btn-warning btn-lg" href="@routes.Application.index">Cancel</a>
 					</div>
 				</div>
@@ -71,9 +74,12 @@
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
 		<script>
-			angular.module('UserProfileApp', []).controller('CountryController', ['$scope', function($scope) {
+			angular.module('UserProfileApp', []).controller('UserProfileController', ['$scope', function($scope) {
 				$scope.countries = @Html(countries.toString());
 				$scope.userCountry = '@user_form("country").value';
+				
+				$scope.name = '@user_form("name").value';
+				$scope.email = '@user_form("email").value';
 				
 				$scope.setCountry = function() {
 					$('#@user_form("country").id').val($scope.userCountry);

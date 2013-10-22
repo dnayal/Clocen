@@ -11,7 +11,7 @@
 		<link href="@routes.Assets.at("stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
 		<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" media="screen">
 	</head>
-	<body style="background-image: url('@routes.Assets.at("images/wallpaper.jpeg")')">
+	<body style="background-image: url('@routes.Assets.at("images/wallpaper.jpeg")')" ng-app>
 		@navbar()
 		<div class="container">
 			<div class="row">
@@ -28,18 +28,20 @@
 			</div>
 			<div class="row">
 				<div class="col-md-offset-3 col-md-6">
-					@form(routes.UserController.signup()) {
+					@form(routes.UserController.signup(), 'name -> "signupform") {
+					<span ng-show="signupform.email.$error.maxlength" class="text-warning">Email id should not be longer than 75 characters</span>
 					<div class="input-group">
 						<span class="input-group-addon">@@</span>
-						<input class="form-control input-lg" name="email" id="email" type="email" placeholder="Email" required>
+						<input class="form-control input-lg" name="email" id="email" ng-model="email" ng-maxlength="75" type="email" placeholder="Email" ng-required="true">
 						<span class="input-group-btn">
-							<button class="btn btn-primary btn-lg" type="submit">Sign Up</button>
+							<button class="btn btn-primary btn-lg" type="submit" ng-disabled="signupform.$invalid">Sign Up</button>
 						</span>
 					</div>
 					}
 				</div>
 			</div>
 		</div>
+		<script type="text/javascript" src="@routes.Assets.at("javascripts/angular.min.js")"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
 	</body>
