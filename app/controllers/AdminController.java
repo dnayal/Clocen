@@ -9,7 +9,7 @@ import models.BetaUser;
 import models.User;
 import play.mvc.Controller;
 import play.mvc.Result;
-
+import process.ProcessManager;
 import views.html.admin.*;
 import views.html.email.*;
 
@@ -37,6 +37,21 @@ public class AdminController extends Controller {
 		user.setInviteEmailSent(true);
 		user.save();
 		return redirect(routes.AdminController.showBetaUsers());
+	}
+	
+	
+	public static Result executeProcess() {
+		ProcessManager manager = new ProcessManager();
+		manager.runProcesses();
+		return redirect(routes.AdminController.viewMainAdminPage());
+	}
+	
+	public static Result viewMainAdminPage() {
+		if(!User.isCurrentUserAdmin()) {
+			return redirect(routes.Application.index());
+		} else {
+			return ok(main.render());
+		}
 	}
 
 }

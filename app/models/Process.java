@@ -11,6 +11,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.PersistenceException;
 
+import com.avaje.ebean.Expr;
+
 import play.Play;
 import play.db.ebean.Model;
 
@@ -138,6 +140,11 @@ public class Process extends Model {
 	
 	public static Process getProcess(String processId) {
 		return find.byId(processId);
+	}
+	
+	
+	public static List<Process> getAllActiveProcesses() {
+		return find.where().or(Expr.isNull("paused"), Expr.ne("paused", true)).findList();
 	}
 	
 

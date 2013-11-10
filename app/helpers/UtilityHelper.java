@@ -1,6 +1,8 @@
 package helpers;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -39,6 +41,14 @@ public class UtilityHelper {
 	}
 	
 	
+	public static String getString(String string) {
+		if(string==null)
+			return "";
+		else
+			return string.trim();
+	}
+	
+	
 	public static JsonNode getCountries() {
 		JsonNode result = null;
 		JsonFactory factory = new MappingJsonFactory();
@@ -61,6 +71,52 @@ public class UtilityHelper {
 			for(String value: map.get(key)) 
 				requestString.append(key+"="+value+"&");
 		return requestString.toString().substring(0, requestString.length()-1);
+	}
+	
+	
+	/**
+	 * Method used to get the node config (data node) as string
+	 * Used for debugging purposes
+	 */
+	@SuppressWarnings("unchecked")
+	public static String convertMapObjectToString(Map<String, Object> data) {
+		StringBuffer string = new StringBuffer();
+		
+		String id = (String) data.get("id");
+		if(UtilityHelper.isEmptyString(id))
+			string.append("id:"+id+"..");
+		
+		String name = (String) data.get("name");
+		if(UtilityHelper.isEmptyString(name))
+			string.append("name:"+name+"..");
+
+		ArrayList<Map<String, String>> inputs = (ArrayList<Map<String, String>>)data.get("input");
+		if(inputs!=null) {
+			string.append("..INPUTS..");
+			for(Map<String, String> input : inputs) {
+				Iterator<String> iterator = input.keySet().iterator();
+				while(iterator.hasNext()) {
+					String key = iterator.next();
+					Object value = input.get(key);
+					if(value instanceof String)
+						string.append(key+":"+input.get(key)+"..");
+				}
+			}
+		}
+		
+		ArrayList<Map<String, String>> outputs = (ArrayList<Map<String, String>>)data.get("output");
+		if(inputs!=null) {
+			string.append("..OUTPUTS..");
+			for(Map<String, String> output : outputs) {
+				Iterator<String> iterator = output.keySet().iterator();
+				while(iterator.hasNext()) {
+					String key = iterator.next();
+					string.append(key+":"+output.get(key)+"..");
+				}
+			}
+		}
+
+		return string.toString();
 	}
 	
 	

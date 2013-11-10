@@ -23,6 +23,7 @@ import play.libs.WS.Response;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Http.Cookie;
+import process.ProcessManager;
 import views.html.create_process;
 import views.html.error_page;
 import views.html.forgot_password;
@@ -54,6 +55,7 @@ public class Application extends Controller {
 
 	
 	public static Result index() {
+
 		isUserRemembered();
 		User user = User.getCurrentUser();
 		Form<User> userForm = Form.form(User.class);

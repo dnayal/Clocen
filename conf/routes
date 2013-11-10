@@ -43,8 +43,10 @@ POST	/user/password/reset			controllers.UserController.passwordReset()
 POST	/users/profile/:userId			controllers.UserController.updateProfile(userId: String)
 GET		/users/logout					controllers.UserController.logout()
 
+GET		/admin							controllers.AdminController.viewMainAdminPage()
 GET		/admin/betausers/all			controllers.AdminController.showBetaUsers()
 GET		/admin/betausers/invite/:email	controllers.AdminController.inviteBetaUser(email: String)
+GET		/admin/processes/execute		controllers.AdminController.executeProcess()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               	controllers.Assets.at(path="/public", file)

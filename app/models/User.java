@@ -143,6 +143,9 @@ public class User extends Model {
 
 
 	public static User getUser(String userId) {
+		if(userId==null)
+			return null;
+		
 		return find.byId(userId);	
 	}
 	

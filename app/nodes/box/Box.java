@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 
 import models.IdName;
 import models.ServiceAccessToken;
@@ -139,4 +140,13 @@ public class Box implements Node {
 	public String getAppURL() {
 		return APP_URL;
 	}
+
+
+	@Override
+	public Map<String, Object> executeService(String serviceName, ServiceAccessToken sat, Map<String, Object> nodeData) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
 }

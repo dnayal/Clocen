@@ -4,11 +4,13 @@ import helpers.ServiceNodeHelper;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 
 import models.IdName;
 import models.ServiceAccessToken;
 import models.User;
 import nodes.Node;
+import nodes.asana.services.AsanaServices;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -78,18 +80,6 @@ public class Asana implements Node {
 	}
 
 
-	public void createTask(User user) {
-		ServiceAccessToken sat = user.getServiceAccessToken(NODE_ID);
-		
-		String endPoint = "https://app.asana.com/api/1.0/workspaces/180666096176/tasks";
-		
-		WS.url(endPoint).setHeader("Authorization", "Bearer " + sat.getAccessToken())
-			.setHeader("Content-Type", "application/x-www-form-urlencoded")
-			.post("name=Successful+Task&notes=YYYYYIIIIPPPPEEEE&assignee=177113805935")
-			.get().asJson();
-	}
-
-
 	@Override
 	public JsonNode callInfoService(User user, String service) {
 		if (service.equalsIgnoreCase("getworkspaces")) {
@@ -116,5 +106,19 @@ public class Asana implements Node {
 	public String getAppURL() {
 		return APP_URL;
 	}
+
+
+	@Override
+	public Map<String, Object> executeService(String serviceName, ServiceAccessToken sat, Map<String, Object> nodeData) {
+		AsanaServices services = new AsanaServices(sat);
+		
+		if (serviceName.equalsIgnoreCase("newtaskcreated")) {
+			return services.getNewTaskCreated(nodeData);
+		} else if (serviceName.equalsIgnoreCase("createtask")) {
+			return services.createTask(nodeData);
+		} else
+			return null;
+	}
+
 
 }

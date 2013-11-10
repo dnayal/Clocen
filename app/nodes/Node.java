@@ -1,5 +1,8 @@
 package nodes;
 
+import java.util.Map;
+
+import models.ServiceAccessToken;
 import models.User;
 
 import org.codehaus.jackson.JsonNode;
@@ -23,5 +26,6 @@ public interface Node {
 	public String getAppURL();
 	public String getDescription();
 	public JsonNode callInfoService(User user, String service);
+	public Map<String, Object> executeService(String serviceName, ServiceAccessToken sat, Map<String, Object> nodeData);
 
 }
