@@ -1,22 +1,35 @@
 package nodes.asana.services;
 
+import helpers.FileHelper;
 import helpers.UtilityHelper;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
+import models.ServiceAccessToken;
+import nodes.Node;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import play.Play;
-import play.libs.WS;
 import play.libs.F.Promise;
+import play.libs.WS;
 import play.libs.WS.Response;
-import models.ServiceAccessToken;
 
 public class AsanaServices {
 	
@@ -47,7 +60,7 @@ public class AsanaServices {
 		for(Map<String, Object> input : inputs) {
 			String type = (String) input.get("type");
 			String id = (String) input.get("id");
-			if(type.equalsIgnoreCase("service") && id.equalsIgnoreCase("workspace")) {
+			if(type.equalsIgnoreCase(Node.ATTR_TYPE_SERVICE) && id.equalsIgnoreCase("workspace")) {
 				Map<String, String> value = (Map<String, String>) input.get("value"); 
 				workspaceId = value.get("id");
 			}
@@ -91,16 +104,22 @@ public class AsanaServices {
 				String taskId = taskJson.get("id").asText();
 				String taskName = taskJson.get("name").asText();
 				String taskDescription = taskJson.get("notes").asText();
+				ArrayList<Map<String, Object>> attachments = getAttachments(taskId);
 				
-				ArrayList<Map<String, String>> outputs = (ArrayList<Map<String, String>>)data.get("output");
-				for(Map<String, String> output : outputs) {
-					if(output.get("id").equalsIgnoreCase("taskid")) {
+				
+				ArrayList<Map<String, Object>> outputs = (ArrayList<Map<String, Object>>)data.get("output");
+				for(Map<String, Object> output : outputs) {
+					String id = (String) output.get("id");
+					
+					if(id.equalsIgnoreCase("taskid")) {
 						output.put("value", taskId);
-					} else if(output.get("id").equalsIgnoreCase("taskname")) {
+					} else if(id.equalsIgnoreCase("taskname")) {
 						output.put("value", taskName);
-					} else if(output.get("id").equalsIgnoreCase("taskdescription")) {
+					} else if(id.equalsIgnoreCase("taskdescription")) {
 						output.put("value", taskDescription);
-					} // TODO - need to add output for attachments as well
+					} else if(id.equalsIgnoreCase("attachment")) {
+						output.put("value", attachments);
+					} 
 				}
 				
 				// if you did get a newly created task, and have got its details, 
@@ -123,17 +142,25 @@ public class AsanaServices {
 		ArrayList<Map<String, Object>> inputs = (ArrayList<Map<String, Object>>)data.get("input");
 		String workspaceId = null, taskName = null, taskDescription = null;
 
-		// get the workspace id from the input values
+		// object to store attachments for a task
+		ArrayList<Map<String, Object>> attachments = null;
+
+		// loop through all the input variables for this service
 		for(Map<String, Object> input : inputs) {
 			String type = (String) input.get("type");
 			String id = (String) input.get("id");
-			if(type.equalsIgnoreCase("service") && id.equalsIgnoreCase("workspace")) {
+			
+			// for a variable of type service, get the id paramter from the value
+			if(type.equalsIgnoreCase(Node.ATTR_TYPE_SERVICE) && id.equalsIgnoreCase("workspace")) {
 				Map<String, String> value = (Map<String, String>) input.get("value"); 
 				workspaceId = value.get("id");
 			} else if(id.equalsIgnoreCase("taskname")) {
 				taskName = (String) input.get("value"); 
 			} else if(id.equalsIgnoreCase("taskdescription")) {
 				taskDescription = (String) input.get("value"); 
+			} else if(id.equalsIgnoreCase("attachment")) {
+				// get the attachments
+				attachments = (ArrayList<Map<String, Object>>) input.get("value"); 
 			}
 		}
 		
@@ -148,22 +175,112 @@ public class AsanaServices {
 				.setHeader("Authorization", "Bearer " + sat.getAccessToken())
 				.setHeader("Content-Type", "application/x-www-form-urlencoded")
 				.post("name="+UtilityHelper.getString(taskName)+"&notes="+UtilityHelper.getString(taskDescription)+"&assignee=me");
+
+		// TODO check for error responses
 		JsonNode json = response.get().asJson().path("data");
 
+		// if the task is successfully created, Asana API returns a task id
 		String taskId = json.get("id").asText();
 		
+		// if there are any attachments, add those to the task
+		if(attachments!=null && attachments.size()>0) {
+			// loop through all the attachments
+			for(Map<String, Object> attachment : attachments) {
+				
+				// get the filehelper object
+				FileHelper fileHelper = (FileHelper) attachment.get(Node.ATTR_TYPE_FILE);
+				// get the file
+				File file = fileHelper.getFileFromSource();
+				
+				///////////////////////////////////
+				// TODO - this needs to be replaced with WS.post when Play 
+				// starts supporting multipart file upload for WS api
+				HttpPost postRequest = new HttpPost(BASE_URL+"/tasks/"+taskId+"/attachments");
+				postRequest.setHeader("Authorization", "Bearer " + sat.getAccessToken());
+				MultipartEntityBuilder multipartEntity = MultipartEntityBuilder.create();
+				FileBody fileBody = new FileBody(file);
+				multipartEntity.addPart(Node.ATTR_TYPE_FILE, fileBody);
+				postRequest.setEntity(multipartEntity.build());
+				
+				HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+				CloseableHttpClient httpClient = httpClientBuilder.build();
+				try {
+					HttpResponse httpResponse = httpClient.execute(postRequest);
+					HttpEntity httpEntity = httpResponse.getEntity();
+					ObjectMapper responseMapper = new ObjectMapper();
+					Map<String, Object> map = responseMapper.readValue(httpEntity.getContent(), Map.class);
+					Map<String, Object> dataMap = (Map<String, Object>) map.get("data");
+					Long attachmentId = (Long) dataMap.get("id");
+
+					if(attachmentId != null)
+						fileHelper.deleteFile();
+
+					httpClient.close();
+				} catch (Exception exception) {
+					UtilityHelper.logError(COMPONENT_NAME, "createTask()", exception.getMessage(), exception);
+				}
+				///////////////////////////////////
+
+			}
+		}
+		
 		// add the output values back to the map 
-		ArrayList<Map<String, String>> outputs = (ArrayList<Map<String, String>>)data.get("output");
-		for(Map<String, String> output : outputs) {
-			if(output.get("id").equalsIgnoreCase("taskid")) {
+		ArrayList<Map<String, Object>> outputs = (ArrayList<Map<String, Object>>)data.get("output");
+		for(Map<String, Object> output : outputs) {
+			String id = (String) output.get("id");
+			if(id.equalsIgnoreCase("taskid")) {
 				output.put("value", taskId);
-			} else if(output.get("id").equalsIgnoreCase("taskname")) {
+			} else if(id.equalsIgnoreCase("taskname")) {
 				output.put("value", taskName);
-			} else if(output.get("id").equalsIgnoreCase("taskdescription")) {
+			} else if(id.equalsIgnoreCase("taskdescription")) {
 				output.put("value", taskDescription);
-			} // TODO - need to add output for attachments as well
+			} else if(id.equalsIgnoreCase("attachment")) {
+				output.put("value", attachments);
+			} 
 		}
 		
 		return data;
+	}
+	
+	
+	/**
+	 * This method gets the attachments for a particular task.
+	 * After getting the response from Asana API, it loops all 
+	 * attachments and stores the FileHelper object, which 
+	 * in turn stores the name and download_url 
+	 */
+	private ArrayList<Map<String, Object>> getAttachments(String taskId) {
+		// make the call to web service to get all the attachments for the task 
+		Promise<Response> response = WS.url(BASE_URL+"/tasks/"+taskId+"/attachments")
+				.setQueryParameter("opt_fields", "name,download_url")
+				.setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
+
+		// TODO - check for errors
+		JsonNode json = response.get().asJson().path("data");
+		
+		// initialize the attachments object
+		ArrayList<Map<String, Object>> attachments = new ArrayList<Map<String, Object>>();
+		
+		// parse the webservice response, and go through each task
+		for(JsonNode taskJson : json) {
+			String name = taskJson.get("name").asText();
+			String downloadURL = taskJson.get("download_url").asText();
+
+			// initialize the FileHelper object and store 
+			// the file name and document URL in it
+			FileHelper fileHelper = new FileHelper();
+			fileHelper.setFileSource(name, downloadURL);
+
+			// we are using a Map object here only to comply 
+			// with the ObjectMapper created by parsing a json 
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put(Node.ATTR_TYPE_FILE, fileHelper);
+			
+			// add the file to the attachment list
+			attachments.add(map);
+		}
+		
+		return attachments;
+		
 	}
 }

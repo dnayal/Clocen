@@ -1,21 +1,17 @@
 
 
-import helpers.UtilityHelper;
-
 import java.util.Calendar;
-import java.util.Iterator;
 
 import models.ServiceAccessToken;
-import models.User;
 import models.ServiceAccessTokenKey;
 import nodes.asana.Asana;
-import play.test.FakeApplication;
-import play.test.Helpers;
 
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import play.test.FakeApplication;
+import play.test.Helpers;
 
 public class UserTest {
 	

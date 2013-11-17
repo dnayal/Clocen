@@ -58,6 +58,8 @@ public class Asana implements Node {
 	
 	
 	
+	// TODO move this method (and other info service 
+	// methods) to another class
 	public JsonNode getWorkspaces(User user) {
 		ServiceAccessToken sat = user.getServiceAccessToken(NODE_ID);
 		ArrayList<IdName> list = new ArrayList<IdName>();

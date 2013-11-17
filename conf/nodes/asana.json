@@ -92,6 +92,11 @@
 					"id":"taskdescription",
 					"name":"Task Description",
 					"type":"longstring"
+				},
+				{
+					"id":"attachment",
+					"name":"Attachment",
+					"type":"file"
 				}
 			],
 			"output":[

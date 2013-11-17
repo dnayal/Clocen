@@ -2,7 +2,6 @@ package process;
 
 import java.util.List;
 
-import play.Logger;
 import models.Process;
 
 /**
@@ -10,9 +9,6 @@ import models.Process;
  * and manages all concurrency issues of running multiple processes
  */
 public class ProcessManager {
-	
-	private static final String COMPONENT_NAME = "ProcessManager";
-
 	
 	public ProcessManager() { }
 	
@@ -24,9 +20,7 @@ public class ProcessManager {
 		List<Process> processes = Process.getAllActiveProcesses();
 		
 		for(Process process : processes) {
-			Logger.info("############");
 			ProcessExecutor.executeProcess(process); 
-			Logger.info("############");
 		}
 	}
 

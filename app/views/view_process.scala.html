@@ -51,7 +51,7 @@
 					</div>
 					<div class="row"><div class="col-md-offset-1 col-md-7"><hr></div></div>
 					<!-- node form starts -->
-					<div class="row" ng-repeat="field in node.data.input">
+					<div class="row" ng-repeat="field in node.data.input" style="margin-bottom: 10px;">
 						<div class="col-md-offset-1 col-md-2">
 							<strong>{{field.name}}</strong>
 						</div>
@@ -76,7 +76,7 @@
 							<span ng-switch-when="longstring">
 								<div class="input-group">
 									<textarea rows="4" ng-model="field.value" ng-required="field.required" class="form-control" readonly></textarea>
-									<div class="input-group-btn">
+									<div class="input-group-btn" style="vertical-align: bottom;">
 										<a href="#" class="btn btn-default dropdown-toggle disabled" data-toggle="dropdown">
 											<img class="cc-node-input-logo" ng-src="{{process.data[$parent.$parent.$index-1].logo}}">
 										</a>
@@ -94,7 +94,7 @@
 								</div>
 							</span>	
 						</div>
-						<br><br>
+						<!-- <br><br>  -->
 					</div>
 				<!-- node form ends -->
 				</div>

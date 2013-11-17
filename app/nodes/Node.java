@@ -18,6 +18,13 @@ public interface Node {
 	public static final String TRIGGER_TYPE_POLL = "poll";
 	public static final String TRIGGER_TYPE_HOOK = "hook";
 	
+	// constants for service attributes
+	// MUST be same as the ones given in json config file
+	public static final String ATTR_TYPE_SERVICE = "service";
+	public static final String ATTR_TYPE_STRING = "string";
+	public static final String ATTR_TYPE_LONGSTRING = "longstring";
+	public static final String ATTR_TYPE_FILE = "file";
+	
 	public String authorize(String userId, AccessType accessType, String data);
 	public String getNodeId();
 	public String getName();
