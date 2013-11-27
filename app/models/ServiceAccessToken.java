@@ -17,6 +17,9 @@ import nodes.Node.AccessType;
 
 import play.db.ebean.Model;
 
+/**
+ * Model to save save access tokens for users
+ */
 @SuppressWarnings("serial")
 @Entity
 public class ServiceAccessToken extends Model {

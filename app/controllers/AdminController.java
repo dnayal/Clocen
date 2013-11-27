@@ -16,9 +16,12 @@ import views.html.email.*;
 
 public class AdminController extends Controller {
 
-	//private static final String COMPONENT_NAME = "Admin Controller";	
+	private static final String COMPONENT_NAME = "Admin Controller";	
 	
 
+	/**
+	 * Shows all beta users who have registered for the application
+	 */
 	public static Result showBetaUsers() {
 		if(!User.isCurrentUserAdmin()) {
 			return redirect(routes.Application.index());
@@ -29,23 +32,29 @@ public class AdminController extends Controller {
 	}
 	
 	
+
+	/**
+	 * Send the email invitation to the given beta user
+	 */
 	public static Result inviteBetaUser(String email) {
 		BetaUser user = BetaUser.getBetaUser(email);
 		String passwordResetURL = routes.Application.getRegistrationForm().absoluteURL(
 				request()).concat("?key="+SecurityHelper.encrypt(email));
+		
 		UtilityHelper.sendMail(email, "Welcome to Clocen!", invite_betauser.render(passwordResetURL).toString());
+		
 		user.setInviteEmailSent(true);
+		
+		UtilityHelper.logMessage(COMPONENT_NAME, "inviteBetaUser()", "Registration invite sent to - " + email);
+		
 		user.save();
 		return redirect(routes.AdminController.showBetaUsers());
 	}
 	
 	
-	public static Result executeProcess() {
-		ProcessManager manager = new ProcessManager();
-		manager.runProcesses();
-		return redirect(routes.AdminController.viewMainAdminPage());
-	}
-	
+	/**
+	 * Main admin landing page
+	 */
 	public static Result viewMainAdminPage() {
 		if(!User.isCurrentUserAdmin()) {
 			return redirect(routes.Application.index());
@@ -54,4 +63,15 @@ public class AdminController extends Controller {
 		}
 	}
 
+
+	/**
+	 * Dummy method to execute processes
+	 */
+	public static Result executeProcess() {
+		ProcessManager manager = new ProcessManager();
+		manager.runProcesses();
+		return redirect(routes.AdminController.viewMainAdminPage());
+	}
+	
+	
 }

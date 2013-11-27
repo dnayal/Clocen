@@ -1,5 +1,9 @@
 package models;
 
+/**
+ * Class to transfer information (not storing data) for 
+ * Service nodes. Used for getting nodes for a user
+ */
 public class ServiceNodeInfo {
 
 	private String nodeId;

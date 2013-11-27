@@ -1,5 +1,11 @@
 package models;
 
+/**
+ * Class (not storing data) for managing id-name pairs.
+ * Used by callInfoService() methods of nodes, which 
+ * map their data to this class and then convert it into
+ * JSON before sending it to the calling client
+ */
 public class IdName {
 
 	private String id;

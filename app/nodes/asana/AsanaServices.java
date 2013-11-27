@@ -1,4 +1,4 @@
-package nodes.asana.services;
+package nodes.asana;
 
 import helpers.FileHelper;
 import helpers.UtilityHelper;
@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
+import models.IdName;
 import models.ServiceAccessToken;
 import nodes.Node;
 
@@ -31,18 +33,26 @@ import play.libs.F.Promise;
 import play.libs.WS;
 import play.libs.WS.Response;
 
-public class AsanaServices {
+/**
+ * The main engine class for Asana, powering all its services
+ */
+public class AsanaServices implements AsanaConstants {
 	
 	private static final String COMPONENT_NAME = "AsanaServices";
-	private static final String BASE_URL = "https://app.asana.com/api/1.0";
 
 	private ServiceAccessToken sat;
+	
+	// if you delete this method, the Node initiation can fail
+	// as the ServiceNodeHelper looks for all classes in the  
+	// node.<<node id>> package
+	public AsanaServices() {
+		sat = null;
+	}
 	
 	public AsanaServices(ServiceAccessToken sat) {
 		this.sat = sat;
 	}
 	
-	// TODO Need to add attachments as one of the return parameters
 	// TODO Need to capture cases when more than one tasks are newly created
 	/**
 	 * Method to execute for Asana's "New Task Created" event. It first checks 
@@ -70,7 +80,7 @@ public class AsanaServices {
 			return null;
 		
 		// make the call to web service to get all the tasks 
-		Promise<Response> response = WS.url(BASE_URL+"/workspaces/"+workspaceId+"/tasks")
+		Promise<Response> response = WS.url(API_BASE_URL+"/workspaces/"+workspaceId+"/tasks")
 				.setQueryParameter("opt_fields", "created_at,name,notes")
 				.setQueryParameter("assignee", "me")
 				.setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
@@ -122,6 +132,8 @@ public class AsanaServices {
 					} 
 				}
 				
+				UtilityHelper.logMessage(COMPONENT_NAME, "getNewTaskCreated()", "New Task Event processed for Asana for user [" + sat.getKey().getUserId() + "]");
+				
 				// if you did get a newly created task, and have got its details, 
 				// return the data for the first matching task you get
 				return data;
@@ -171,9 +183,9 @@ public class AsanaServices {
 		
 		// make the call to web service to create new task
 		// with the current user as the assignee
-		Promise<Response> response = WS.url(BASE_URL+"/workspaces/"+workspaceId+"/tasks")
+		Promise<Response> response = WS.url(API_BASE_URL+"/workspaces/"+workspaceId+"/tasks")
 				.setHeader("Authorization", "Bearer " + sat.getAccessToken())
-				.setHeader("Content-Type", "application/x-www-form-urlencoded")
+				.setHeader("Content-Type", Play.application().configuration().getString("application.services.POST.contentType"))
 				.post("name="+UtilityHelper.getString(taskName)+"&notes="+UtilityHelper.getString(taskDescription)+"&assignee=me");
 
 		// TODO check for error responses
@@ -195,7 +207,7 @@ public class AsanaServices {
 				///////////////////////////////////
 				// TODO - this needs to be replaced with WS.post when Play 
 				// starts supporting multipart file upload for WS api
-				HttpPost postRequest = new HttpPost(BASE_URL+"/tasks/"+taskId+"/attachments");
+				HttpPost postRequest = new HttpPost(API_BASE_URL+"/tasks/"+taskId+"/attachments");
 				postRequest.setHeader("Authorization", "Bearer " + sat.getAccessToken());
 				MultipartEntityBuilder multipartEntity = MultipartEntityBuilder.create();
 				FileBody fileBody = new FileBody(file);
@@ -239,6 +251,8 @@ public class AsanaServices {
 			} 
 		}
 		
+		UtilityHelper.logMessage(COMPONENT_NAME, "createTask()", "New Task Created in Asana for user [" + sat.getKey().getUserId() + "]");
+		
 		return data;
 	}
 	
@@ -251,7 +265,7 @@ public class AsanaServices {
 	 */
 	private ArrayList<Map<String, Object>> getAttachments(String taskId) {
 		// make the call to web service to get all the attachments for the task 
-		Promise<Response> response = WS.url(BASE_URL+"/tasks/"+taskId+"/attachments")
+		Promise<Response> response = WS.url(API_BASE_URL+"/tasks/"+taskId+"/attachments")
 				.setQueryParameter("opt_fields", "name,download_url")
 				.setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
 
@@ -283,4 +297,33 @@ public class AsanaServices {
 		return attachments;
 		
 	}
+	
+
+	/**
+	 * Returns all Asana workspaces for the given user
+	 */
+	public JsonNode getWorkspaces() {
+		ArrayList<IdName> list = new ArrayList<IdName>();
+
+		String endPoint = API_BASE_URL + "/workspaces";
+		Promise<Response> response = WS.url(endPoint).setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
+		JsonNode json = response.get().asJson().path("data");
+
+		Iterator<JsonNode> iterator = json.getElements();
+		// map all the workspaces to the ID-Name pair
+		while (iterator.hasNext()){
+			JsonNode node = iterator.next();
+			list.add(new IdName(node.get("id").asText(), node.get("name").asText()));
+		}
+		
+		// and then convert that id-name pair to JSON
+		// so that it an be transferred to the client app
+		json = null;
+		ObjectMapper mapper = new ObjectMapper();
+		json = mapper.valueToTree(list);
+
+		return json;
+	}
+
+
 }

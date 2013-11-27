@@ -10,7 +10,7 @@ import play.Play;
 
 public class FileHelper {
 
-	private static final String COMPONENT_NAME = "FileHelper";
+	private static final String COMPONENT_NAME = "File Helper";
 	
 	private String fileURLorData = null;
 	private String fileName = null;

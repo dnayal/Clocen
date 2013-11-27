@@ -121,7 +121,7 @@ public class UtilityHelper {
 	
 	
 	public static void logMessage(String component, String method, String message) {
-		Logger.info("[" + Calendar.getInstance().getTime() + "] " + "["+ component +"] " + "[" + method + "] " + message);
+		Logger.debug("[" + Calendar.getInstance().getTime() + "] " + "["+ component +"] " + "[" + method + "] " + message);
 	}
 	
 

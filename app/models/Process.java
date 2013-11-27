@@ -16,6 +16,9 @@ import com.avaje.ebean.Expr;
 import play.Play;
 import play.db.ebean.Model;
 
+/**
+ * The process model contains all process related information and operations
+ */
 @Entity
 @SuppressWarnings("serial")
 public class Process extends Model {

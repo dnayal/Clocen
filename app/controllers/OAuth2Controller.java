@@ -13,9 +13,14 @@ public class OAuth2Controller extends Controller {
 	
 	private static final String COMPONENT_NAME = "OAuth2 Controller";
 
+	
 	public static Result authorizeCall(String userId, String nodeId) {
 		Node node = ServiceNodeHelper.getNode(nodeId);
-    	return ok(node.authorize(userId, AccessType.OAUTH_AUTHORIZE, null));
+		String result = node.authorize(userId, AccessType.OAUTH_AUTHORIZE, null);
+		
+		UtilityHelper.logMessage(COMPONENT_NAME, "authorizeCall()", result);
+    	
+		return ok(result);
     }
     
     
@@ -26,10 +31,13 @@ public class OAuth2Controller extends Controller {
     	if (UtilityHelper.isEmptyString(code)) {
         	String error = request().getQueryString("error");
         	String errorDescription = request().getQueryString("error_description");
-    		UtilityHelper.logError(COMPONENT_NAME, "tokenCallback", "Code not received for Node Id - " + nodeId + " Error - " + error, new RuntimeException(errorDescription));
-    		return badRequest();
+    		
+        	UtilityHelper.logError(COMPONENT_NAME, "tokenCallback()", "Code not received for Node Id - " + nodeId + " Error - " + error, new RuntimeException(errorDescription));
+    		
+        	return badRequest();
     	} else {
-    		UtilityHelper.logMessage(COMPONENT_NAME, "tokenCallback", "Code Received - " + code);
+    		UtilityHelper.logMessage(COMPONENT_NAME, "tokenCallback()", "Code Received for User [" + userId + "] Node [" + nodeId + "]");
+    		
     		Node node = ServiceNodeHelper.getNode(nodeId);
     		node.authorize(userId, AccessType.OAUTH_TOKEN, code);
 			return ok();
@@ -41,7 +49,9 @@ public class OAuth2Controller extends Controller {
     	ServiceAccessTokenKey key = new ServiceAccessTokenKey(userId, nodeId);
     	ServiceAccessToken token = ServiceAccessToken.getServiceAccessToken(key);
     	token.refreshToken();
-    	UtilityHelper.logMessage(COMPONENT_NAME, "refreshToken", "Refresh token - " + token);
+    	
+		UtilityHelper.logMessage(COMPONENT_NAME, "refreshToken()", "Refresh token for User [" + userId + "] Node [" + nodeId + "]");
+		
 		return redirect(routes.Application.index());
     }
 

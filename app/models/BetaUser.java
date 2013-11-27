@@ -13,6 +13,9 @@ import javax.persistence.PersistenceException;
 import play.data.validation.Constraints.Email;
 import play.db.ebean.Model;
 
+/**
+ * Data model for beta user
+ */
 @SuppressWarnings("serial")
 @Entity
 public class BetaUser extends Model {

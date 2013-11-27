@@ -12,7 +12,7 @@ import play.Play;
 
 public class SecurityHelper {
 
-	private static final String COMPONENT_NAME = "Utility Helper";	
+	private static final String COMPONENT_NAME = "Security Helper";	
 	private static final String CIPHER_ALGO = "AES";
 	private static final String KEY = "5f8848e7ceb84a8b91c2f3e937d4135f";
 	

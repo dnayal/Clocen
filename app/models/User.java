@@ -23,6 +23,9 @@ import play.data.validation.Constraints.Required;
 import play.db.ebean.Model;
 import play.mvc.Controller;
 
+/**
+ * Model with attributes and operations for User object
+ */
 @SuppressWarnings("serial")
 @Entity
 public class User extends Model {

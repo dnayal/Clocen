@@ -21,10 +21,12 @@ import views.html.email.signup_betauser;
 
 public class UserController extends Controller {
 	
-	
 	private static final String COMPONENT_NAME = "User Controller";
 	
 	
+	/**
+	 * Set the Remember Me cookie for user. Currently, set to expire after 6 months
+	 */
 	private static Boolean rememberUser() {
 		DynamicForm dynaForm = DynamicForm.form().bindFromRequest();
 		Boolean rememberMe = new Boolean(dynaForm.get(UtilityHelper.REMEMBER_ME));
@@ -39,6 +41,9 @@ public class UserController extends Controller {
 	}
 	
 	
+	/**
+	 * Allow the user to login to the application
+	 */
 	public static Result login() {
 		Form<User> userForm = Form.form(User.class).bindFromRequest();
 		if(userForm.hasErrors()) {
@@ -65,12 +70,17 @@ public class UserController extends Controller {
 	}
 	
 	
+	/**
+	 * Allow users to sign up to the application - for Beta stage only,
+	 * as currently users cannot register to the application directly
+	 */
 	public static Result signup() {
 		try {
 			DynamicForm form = DynamicForm.form().bindFromRequest();
 			String email = form.get("email");
 			BetaUser user = new BetaUser(email, Calendar.getInstance().getTime(), false, false);
 			user.save();
+			UtilityHelper.logMessage(COMPONENT_NAME, "signup()", "Beta user [" + email + "] saved");
 			UtilityHelper.sendMail(email, "Thanks for signing up with Clocen!", signup_betauser.render().toString());
 			
 		} catch (Exception exception) {
@@ -80,6 +90,10 @@ public class UserController extends Controller {
 	}
 	
 	
+	/**
+	 * Register the user. Only Beta users can currently register, 
+	 * once they have been sent the registration email
+	 */
 	public static Result register() {
 		try {
 			Form<User> userForm = Form.form(User.class).bindFromRequest();
@@ -101,6 +115,8 @@ public class UserController extends Controller {
 				
 				betaUser.setRegistered(true);
 				betaUser.save();
+				
+				UtilityHelper.logMessage(COMPONENT_NAME, "register()", "Beta user [" + user.getUserId() + "] registered");
 			} else {
 				userForm.reject("register_error", "Please enter valid email and password");
 				return badRequest(register.render(userForm));
@@ -123,6 +139,7 @@ public class UserController extends Controller {
 			user.setUserId(currentUser.getUserId());
 			user.setCreateTimestamp(currentUser.getCreateTimestamp());
 
+			// Password is only updated if the user has enetered any value for it
 			if(!UtilityHelper.isEmptyString(user.getPassword()))
 				user.setPassword(SecurityHelper.generateHash(user.getUserId(), user.getPassword()));
 			else
@@ -138,6 +155,11 @@ public class UserController extends Controller {
 	}
 	
 	
+	/**
+	 * Process user's request for forgot password, by sending 
+	 * an email with a link to allow the user to reset the password 
+	 * on its own
+	 */
 	public static Result forgotPassword() {
 		Form<User> form = Form.form(User.class).bindFromRequest();
 		User formUser = form.get();
@@ -151,6 +173,9 @@ public class UserController extends Controller {
 				form.reject("reset_error", "This email id is not registered with us. Please enter a valid email id.");
 				return badRequest(forgot_password.render(form, User.PASSWORD_FORGOT_VIEW));
 			} else {
+				// Prepare the URL for user to reset the password. Add the user id and 
+				// current timestamp to the URL, in order to be able to identify it and 
+				// identify whether the password reset request has expired
 				StringBuffer url = new StringBuffer(controllers.routes.Application.getForgotAndResetPasswordPage("reset").absoluteURL(Controller.request()));
 				url.append("?key1=" + SecurityHelper.encrypt(user.getUserId()));
 				url.append("&key2=" + SecurityHelper.encrypt(String.valueOf(System.currentTimeMillis())));
@@ -163,6 +188,9 @@ public class UserController extends Controller {
 	}
 	
 	
+	/**
+	 * Allow the user to reset the password
+	 */
 	public static Result passwordReset() {
 		Form<User> form = Form.form(User.class).bindFromRequest();
 		User formUser = form.get();
@@ -172,6 +200,9 @@ public class UserController extends Controller {
 			return badRequest(forgot_password.render(form, User.PASSWORD_RESET_VIEW));
 		}
 		
+		// the link to show the form already puts the user
+		// in the session, so that we only have to change 
+		// the password of the current user
 		User user = User.getCurrentUser();
 		user.setPassword(SecurityHelper.generateHash(user.getUserId(), formUser.getPassword()));
 		user.save();

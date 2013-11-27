@@ -74,6 +74,9 @@ public class ProcessExecutor {
 				
 				arrayIndex++;
 			}
+			
+			UtilityHelper.logMessage(COMPONENT_NAME, "executeProcess()", "Executed process [" + process.getProcessId() + "]");
+			
 		} catch (Exception exception) {
 			UtilityHelper.logError(COMPONENT_NAME, "executeProcess()", exception.getMessage(), exception);
 		}
