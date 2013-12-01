@@ -1,6 +1,7 @@
 package nodes.asana;
 
 import helpers.ServiceNodeHelper;
+import helpers.UtilityHelper;
 
 import java.util.Map;
 
@@ -18,6 +19,7 @@ import play.mvc.Controller;
  */
 public class Asana implements Node, AsanaConstants {
 
+	private static final String COMPONENT_NAME = "Asana Node";
 
 	@Override
 	public String authorize(String userId, AccessType accessType, String data) {
@@ -87,9 +89,56 @@ public class Asana implements Node, AsanaConstants {
 		// service to create a new task
 		} else if (serviceName.equalsIgnoreCase("createtask")) {
 			return services.createTask(nodeData);
+		// service to create a new project
+		} else if (serviceName.equalsIgnoreCase("newprojectcreated")) {
+			return services.getNewProjectCreated(nodeData);
 		} else
 			return null;
 	}
 
+
+	@Override
+	public Boolean serviceResponseHasError(String serviceName, Integer statusCode, 
+			JsonNode responseJSON, ServiceAccessToken serviceToken) {
+		
+		Boolean serviceHasErrors = true; 
+		
+		switch(statusCode) {
+			case 200: case 201:
+				serviceHasErrors = false;
+				break;
+			case 400: // Invalid request
+				serviceHasErrors = true;
+				break;
+			case 401: // No authorization
+				serviceHasErrors = true;
+				break;
+			case 403: // Forbidden
+				serviceHasErrors = true;
+				break;
+			case 404: // Not Found
+				serviceHasErrors = true;
+				break;
+			case 429: // Rate Limit Enforced
+				serviceHasErrors = true;
+				break;
+			case 500: // Server error
+				serviceHasErrors = true;
+				break;
+			default: // Unknown status/error
+				serviceHasErrors = true;
+				break;
+		}
+
+		if(serviceHasErrors) {
+			JsonNode errors = responseJSON.path("errors");
+
+			UtilityHelper.logMessage(COMPONENT_NAME, "serviceResponseHasError()", "Service error for user [" + 
+					serviceToken.getKey().getUserId() + "] & node [" + serviceToken.getKey().getNodeId() + 
+					"] - (" + serviceName + ")" + errors.get("message").asText() + " [" + statusCode + "]");
+		}
+
+		return serviceHasErrors;
+	}
 
 }

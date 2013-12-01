@@ -36,23 +36,76 @@ import play.libs.WS.Response;
 /**
  * The main engine class for Asana, powering all its services
  */
+@SuppressWarnings("unchecked")
 public class AsanaServices implements AsanaConstants {
 	
-	private static final String COMPONENT_NAME = "AsanaServices";
+	private static final String COMPONENT_NAME = "Asana Services";
 
 	private ServiceAccessToken sat;
 	
 	// if you delete this method, the Node initiation can fail
 	// as the ServiceNodeHelper looks for all classes in the  
-	// node.<<node id>> package
+	// node.<<node id>> package and initializes using the  
+	// default constructor
 	public AsanaServices() {
 		sat = null;
 	}
 	
+	
 	public AsanaServices(ServiceAccessToken sat) {
 		this.sat = sat;
 	}
+
+
+	/**
+	 * This method gets the attachments for a particular task.
+	 * After getting the response from Asana API, it loops all 
+	 * attachments and stores the FileHelper object, which 
+	 * in turn stores the name and download_url 
+	 */
+	private ArrayList<Map<String, Object>> getAttachments(String taskId) {
+		// make the call to web service to get all the attachments for the task 
+		Promise<Response> response = WS.url(API_BASE_URL+"/tasks/"+taskId+"/attachments")
+				.setQueryParameter("opt_fields", "name,download_url")
+				.setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
 	
+		JsonNode json = null;
+		Response result = response.get();
+		
+		// check for errors, and if found, process those
+		Asana asana = new Asana();
+		if(asana.serviceResponseHasError(SERVICE_GET_ATTACHMENTS, result.getStatus(), result.asJson(), sat))
+			return null;
+		else
+			json = result.asJson().path("data");
+		
+		// initialize the attachments object
+		ArrayList<Map<String, Object>> attachments = new ArrayList<Map<String, Object>>();
+		
+		// parse the webservice response, and go through each task
+		for(JsonNode taskJson : json) {
+			String name = taskJson.get("name").asText();
+			String downloadURL = taskJson.get("download_url").asText();
+	
+			// initialize the FileHelper object and store 
+			// the file name and document URL in it
+			FileHelper fileHelper = new FileHelper();
+			fileHelper.setFileSource(name, downloadURL);
+	
+			// we are using a Map object here only to comply 
+			// with the ObjectMapper created by parsing a json 
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put(Node.ATTR_TYPE_FILE, fileHelper);
+			
+			// add the file to the attachment list
+			attachments.add(map);
+		}
+		
+		return attachments;
+		
+	}
+	
+
 	// TODO Need to capture cases when more than one tasks are newly created
 	/**
 	 * Method to execute for Asana's "New Task Created" event. It first checks 
@@ -60,7 +113,6 @@ public class AsanaServices implements AsanaConstants {
 	 * the call to Asana. Once it gets the result, output values are stored in 
 	 * the map object 
 	 */
-	@SuppressWarnings("unchecked")
 	public Map<String, Object> getNewTaskCreated(Map<String, Object> data) {
 		// get the input variables
 		ArrayList<Map<String, Object>> inputs = (ArrayList<Map<String, Object>>)data.get("input");
@@ -79,14 +131,22 @@ public class AsanaServices implements AsanaConstants {
 		if(workspaceId==null)
 			return null;
 		
-		// make the call to web service to get all the tasks 
+		// make the call to web service to get all the tasks
+		// Returns only the tasks assigned to the current user
 		Promise<Response> response = WS.url(API_BASE_URL+"/workspaces/"+workspaceId+"/tasks")
 				.setQueryParameter("opt_fields", "created_at,name,notes")
 				.setQueryParameter("assignee", "me")
 				.setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
 
-		// TODO - check for errors
-		JsonNode json = response.get().asJson().path("data");
+		JsonNode json = null;
+		Response result = response.get();
+		
+		// check for errors, and if found, process those
+		Asana asana = new Asana();
+		if(asana.serviceResponseHasError(SERVICE_NEW_TASK_CREATED, result.getStatus(), result.asJson(), sat))
+			return null;
+		else
+			json = result.asJson().path("data");
 		
 		// parse the webservice response, and go through each task
 		for(JsonNode taskJson : json) {
@@ -144,11 +204,101 @@ public class AsanaServices implements AsanaConstants {
 		return null;
 	}
 	
+	
+	/**
+	 * Checks whether a new project is created. If so, it will 
+	 * extract its properties to pass to the next activity in 
+	 * the process  
+	 */
+	public Map<String, Object> getNewProjectCreated(Map<String, Object> data) {
+		// get the input variables
+		ArrayList<Map<String, Object>> inputs = (ArrayList<Map<String, Object>>) data.get("input");
+		String workspaceId = null;
+		
+		// get the workspace id from the input values
+		for(Map<String, Object> input : inputs) {
+			String type = (String) input.get("type");
+			String id = (String) input.get("id");
+			if(type.equalsIgnoreCase(Node.ATTR_TYPE_SERVICE) && id.equalsIgnoreCase("workspace")) {
+				Map<String, String> value = (Map<String, String>) input.get("value"); 
+				workspaceId = value.get("id");
+			}
+		}
+		
+		if(workspaceId==null)
+			return null;
+		
+		// make the call to web service to get all the projects in workspace 
+		Promise<Response> response = WS.url(API_BASE_URL+"/workspaces/"+workspaceId+"/projects")
+				.setQueryParameter("opt_fields", "created_at,name,notes")
+				.setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
+
+		JsonNode json = null;
+		Response result = response.get();
+		
+		// check for errors, and if found, process those
+		Asana asana = new Asana();
+		if(asana.serviceResponseHasError(SERVICE_NEW_PROJECT_CREATED, result.getStatus(), result.asJson(), sat))
+			return null;
+		else
+			json = result.asJson().path("data");
+		
+		// parse the webservice response, and go through each task
+		for(JsonNode projectJSON : json) {
+			// get the create date of the task from webservice response
+			String createDate = projectJSON.get("created_at").asText();
+			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+			Date date = null;
+			try {
+				date = dateFormat.parse(createDate);
+			} catch (ParseException exception) {
+				UtilityHelper.logError(COMPONENT_NAME, "getNewProjectCreated()", exception.getMessage(), exception);
+				return null;
+			}
+
+			// get the current time minus the polling interval - to get the last time we polled (approximately)
+			Calendar calendar = Calendar.getInstance();
+			Integer pollerInterval = Play.application().configuration().getInt("process.poller.interval");
+			calendar.add(Calendar.MINUTE, -pollerInterval);
+			Date intervalDate = calendar.getTime();
+			
+			// check whether a project was created since the last time we polled
+			// if a new project was created, populate the output variables with 
+			// the project details
+			if(date.after(intervalDate)) {
+				String projectId = projectJSON.get("id").asText();
+				String projectName = projectJSON.get("name").asText();
+				String projectDescription = projectJSON.get("notes").asText();
+				
+				
+				ArrayList<Map<String, Object>> outputs = (ArrayList<Map<String, Object>>)data.get("output");
+				for(Map<String, Object> output : outputs) {
+					String id = (String) output.get("id");
+					
+					if(id.equalsIgnoreCase("projectid")) {
+						output.put("value", projectId);
+					} else if(id.equalsIgnoreCase("projectname")) {
+						output.put("value", projectName);
+					} else if(id.equalsIgnoreCase("projectdescription")) {
+						output.put("value", projectDescription);
+					} 
+				}
+				
+				UtilityHelper.logMessage(COMPONENT_NAME, "getNewProjectCreated()", "New Project Event processed for Asana for user [" + sat.getKey().getUserId() + "]");
+				
+				// if you did get a newly created task, and have got its details, 
+				// return the data for the first matching task you get
+				return data;
+			}
+		}
+		
+		return null;
+	}
+	
 
 	/**
 	 * Create new task with the assignee as the user who created the process
 	 */
-	@SuppressWarnings("unchecked")
 	public Map<String, Object> createTask(Map<String, Object> data) {
 		// get the input variables
 		ArrayList<Map<String, Object>> inputs = (ArrayList<Map<String, Object>>)data.get("input");
@@ -188,8 +338,15 @@ public class AsanaServices implements AsanaConstants {
 				.setHeader("Content-Type", Play.application().configuration().getString("application.services.POST.contentType"))
 				.post("name="+UtilityHelper.getString(taskName)+"&notes="+UtilityHelper.getString(taskDescription)+"&assignee=me");
 
-		// TODO check for error responses
-		JsonNode json = response.get().asJson().path("data");
+		JsonNode json = null;
+		Response result = response.get();
+		
+		// check for errors, and if found, process those
+		Asana asana = new Asana();
+		if(asana.serviceResponseHasError(SERVICE_CREATE_TASK, result.getStatus(), result.asJson(), sat))
+			return null;
+		else
+			json = result.asJson().path("data");
 
 		// if the task is successfully created, Asana API returns a task id
 		String taskId = json.get("id").asText();
@@ -229,6 +386,7 @@ public class AsanaServices implements AsanaConstants {
 
 					httpClient.close();
 				} catch (Exception exception) {
+					fileHelper.deleteFile();
 					UtilityHelper.logError(COMPONENT_NAME, "createTask()", exception.getMessage(), exception);
 				}
 				///////////////////////////////////
@@ -258,48 +416,6 @@ public class AsanaServices implements AsanaConstants {
 	
 	
 	/**
-	 * This method gets the attachments for a particular task.
-	 * After getting the response from Asana API, it loops all 
-	 * attachments and stores the FileHelper object, which 
-	 * in turn stores the name and download_url 
-	 */
-	private ArrayList<Map<String, Object>> getAttachments(String taskId) {
-		// make the call to web service to get all the attachments for the task 
-		Promise<Response> response = WS.url(API_BASE_URL+"/tasks/"+taskId+"/attachments")
-				.setQueryParameter("opt_fields", "name,download_url")
-				.setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
-
-		// TODO - check for errors
-		JsonNode json = response.get().asJson().path("data");
-		
-		// initialize the attachments object
-		ArrayList<Map<String, Object>> attachments = new ArrayList<Map<String, Object>>();
-		
-		// parse the webservice response, and go through each task
-		for(JsonNode taskJson : json) {
-			String name = taskJson.get("name").asText();
-			String downloadURL = taskJson.get("download_url").asText();
-
-			// initialize the FileHelper object and store 
-			// the file name and document URL in it
-			FileHelper fileHelper = new FileHelper();
-			fileHelper.setFileSource(name, downloadURL);
-
-			// we are using a Map object here only to comply 
-			// with the ObjectMapper created by parsing a json 
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put(Node.ATTR_TYPE_FILE, fileHelper);
-			
-			// add the file to the attachment list
-			attachments.add(map);
-		}
-		
-		return attachments;
-		
-	}
-	
-
-	/**
 	 * Returns all Asana workspaces for the given user
 	 */
 	public JsonNode getWorkspaces() {
@@ -307,7 +423,16 @@ public class AsanaServices implements AsanaConstants {
 
 		String endPoint = API_BASE_URL + "/workspaces";
 		Promise<Response> response = WS.url(endPoint).setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
-		JsonNode json = response.get().asJson().path("data");
+
+		JsonNode json = null;
+		Response result = response.get();
+		
+		// check for errors, and if found, process those
+		Asana asana = new Asana();
+		if(asana.serviceResponseHasError(SERVICE_GET_WORKSPACES, result.getStatus(), result.asJson(), sat))
+			return null;
+		else
+			json = result.asJson().path("data");
 
 		Iterator<JsonNode> iterator = json.getElements();
 		// map all the workspaces to the ID-Name pair

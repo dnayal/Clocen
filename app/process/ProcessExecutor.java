@@ -24,7 +24,7 @@ import play.libs.Json;
 // Read this article - http://wiki.fasterxml.com/JacksonInFiveMinutes
 public class ProcessExecutor {
 	
-	private static final String COMPONENT_NAME = "ProcessExecutor";
+	private static final String COMPONENT_NAME = "Process Executor";
 
 	
 	public ProcessExecutor() {}
@@ -35,6 +35,7 @@ public class ProcessExecutor {
 	 */
 	@SuppressWarnings("unchecked")
 	public static void executeProcess(Process process) {
+		
 		Map<String, Object> previousNode = null;
 		ObjectMapper mapper = new ObjectMapper();
 

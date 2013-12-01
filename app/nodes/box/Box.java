@@ -149,4 +149,12 @@ public class Box implements Node {
 	}
 
 
+	@Override
+	public Boolean serviceResponseHasError(String serviceName, Integer statusCode, 
+			JsonNode responseJSON, ServiceAccessToken serviceToken) {
+
+		return false;
+	}
+
+
 }

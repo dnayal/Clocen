@@ -23,4 +23,9 @@ interface AsanaConstants {
 	
 	static final String API_BASE_URL = "https://app.asana.com/api/1.0";
 	
+	static final String SERVICE_NEW_TASK_CREATED = "newtaskcreated";
+	static final String SERVICE_NEW_PROJECT_CREATED = "newprojectcreated";
+	static final String SERVICE_CREATE_TASK = "createtask";
+	static final String SERVICE_GET_WORKSPACES = "getworkspaces";
+	static final String SERVICE_GET_ATTACHMENTS = "getattachments";
 }

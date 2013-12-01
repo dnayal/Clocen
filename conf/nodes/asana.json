@@ -52,17 +52,17 @@
 			],
 			"output":[
 				{
-					"id":"id",
+					"id":"projectid",
 					"name":"Project Id",
 					"type":"string"
 				},
 				{
-					"id":"name",
+					"id":"projectname",
 					"name":"Project Name",
 					"type":"string"
 				},
 				{
-					"id":"description",
+					"id":"projectdescription",
 					"name":"Project Description",
 					"type":"longstring"
 				}
