@@ -61,7 +61,7 @@ public class SecurityHelper {
 			byte[] bytes = cipher.doFinal(Base64.decodeBase64(encryptedString));
 			return new String(bytes);
 		} catch (Exception exception) {
-			UtilityHelper.logError(COMPONENT_NAME, "encrypt()", "Error while decrypting string", exception);
+			UtilityHelper.logError(COMPONENT_NAME, "decrypt()", "Error while decrypting string", exception);
 			return null;
 		}
 	}

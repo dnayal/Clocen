@@ -1,6 +1,6 @@
 package nodes.box;
 
-import helpers.ServiceNodeHelper;
+import helpers.OAuth2Helper;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -42,7 +42,7 @@ public class Box implements Node {
 
 	@Override
 	public String authorize(String userId, AccessType accessType, String data) {
-		return ServiceNodeHelper.getAccess(userId, NODE_ID, CLIENT_ID, CLIENT_SECRET, 
+		return OAuth2Helper.getAccess(userId, NODE_ID, CLIENT_ID, CLIENT_SECRET, 
 				accessType, data, OAUTH_AUTHORIZE_URL, OAUTH_TOKEN_URL);
 	}
 	

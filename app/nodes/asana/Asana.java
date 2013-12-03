@@ -1,6 +1,6 @@
 package nodes.asana;
 
-import helpers.ServiceNodeHelper;
+import helpers.OAuth2Helper;
 import helpers.UtilityHelper;
 
 import java.util.Map;
@@ -23,7 +23,7 @@ public class Asana implements Node, AsanaConstants {
 
 	@Override
 	public String authorize(String userId, AccessType accessType, String data) {
-		return ServiceNodeHelper.getAccess(userId, NODE_ID, CLIENT_ID, CLIENT_SECRET, 
+		return OAuth2Helper.getAccess(userId, NODE_ID, CLIENT_ID, CLIENT_SECRET, 
 				accessType, data, OAUTH_AUTHORIZE_URL, OAUTH_TOKEN_URL);
 	}
 	

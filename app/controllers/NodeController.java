@@ -1,25 +1,17 @@
 package controllers;
 
 import helpers.ServiceNodeHelper;
-import helpers.UtilityHelper;
-
 import models.User;
 import nodes.Node;
 
-import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.MappingJsonFactory;
 
-import play.api.Play;
+import play.cache.Cache;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 
 public class NodeController extends Controller {
-
-	private static final String COMPONENT_NAME = "Node Controller";
-
 	
     /**
      * Get all the nodes for the user, including information 
@@ -33,20 +25,22 @@ public class NodeController extends Controller {
     
 	
 	/**
-	 * Return the json configuration of the givn node
+	 * Return the json configuration of the given node.
+	 * This is a generic info, so access it from cache whenever possible
 	 */
 	public static Result getNodeConfiguration(String nodeId) {
+		String node = "node." + nodeId + ".config";
 		JsonNode result = null;
-		try {
-			JsonFactory factory = new MappingJsonFactory();
-			JsonParser parser = factory.createJsonParser(Play.current().classloader().getResourceAsStream("nodes/" + nodeId + ".json"));
-			result = parser.readValueAsTree();
-			
-			UtilityHelper.logMessage(COMPONENT_NAME, "getNodeConfiguration()", result.asText());
-			
-		} catch (Exception exception) {
-			UtilityHelper.logError(COMPONENT_NAME, "getNodeConfiguration()", exception.getMessage(), exception);
+		
+		Object object = Cache.get(node);
+		
+		if (object != null) {
+			result = (JsonNode) object;
+		} else {
+			result = ServiceNodeHelper.getNodeConfiguration(nodeId);
+			Cache.set(node, result);
 		}
+		
     	return ok(result);
     }
     

@@ -48,10 +48,13 @@ public class Application extends Controller {
 			UtilityHelper.logMessage(COMPONENT_NAME, "isUserRemembered()", "Remember Me cookie for current user not available");
 			return false;
 		}
+
 		String userId = SecurityHelper.decrypt(cookie.value());
 		User user = User.getUser(userId);
+		
 		if(user == null) {
 			UtilityHelper.logMessage(COMPONENT_NAME, "isUserRemembered()", "Invalid user remembered");
+			response().discardCookie(UtilityHelper.REMEMBER_ME);
 			return false;
 		} else {
 			User.setCurrentUser(user);

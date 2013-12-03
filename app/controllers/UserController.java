@@ -30,8 +30,11 @@ public class UserController extends Controller {
 	private static Boolean rememberUser() {
 		DynamicForm dynaForm = DynamicForm.form().bindFromRequest();
 		Boolean rememberMe = new Boolean(dynaForm.get(UtilityHelper.REMEMBER_ME));
-		if(rememberMe)
+
+		if(rememberMe) {
 			response().setCookie(UtilityHelper.REMEMBER_ME, SecurityHelper.encrypt(User.getCurrentUser().getUserId()), 60*60*24*180);
+			UtilityHelper.logMessage(COMPONENT_NAME, "rememberUser()", "Remember Me cookie set for user [" + User.getCurrentUser().getUserId() + "]");
+		}
 		return rememberMe;
 	}
 	
