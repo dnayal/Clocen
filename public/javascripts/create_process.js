@@ -8,6 +8,7 @@ app.controller('ProcessController', ['$scope', '$http', '$window', function($sco
 	$scope.count = [{"index":0}];
 	
 	
+	// get configuration information of all nodes
 	$http.get('/app/nodes/all')
 	.success(function(responseData){
 		$scope.nodes = responseData;
@@ -16,11 +17,14 @@ app.controller('ProcessController', ['$scope', '$http', '$window', function($sco
 	});
 	
 	
+	// update the count variable when the Next Action button is clicked
 	$scope.nextAction = function() {
 		$scope.count.push({"index":$scope.count.length});
 	}
 
 
+	// update the list of activities and input/output variables
+	// for the given node
 	$scope.updateActivities = function(index) {
 		$http.get('/app/node/' + $scope.node[index].nodeId)
 		.success(function(responseData){
@@ -43,21 +47,30 @@ app.controller('ProcessController', ['$scope', '$http', '$window', function($sco
 						"data":responseData.actions[0]
 				};
 			}
+
+			// update the form view
+			$scope.updateFormView(index);
+			
 		}).error(function(errorData){
 			$scope.error = errorData;
 		});
 	}
 		
 	
+	// get the service data (used for input dropdowns) for the given node
 	$scope.getData = function(data, node, source) {
 		data.showWorking = true;
+		data.disableServiceButton = true;
 		$http.get('/app/node/' + node + '/' + source)
 		.success(function(responseData){
 			data.data = responseData;
 			data.showData = true;
 			data.showWorking = false;
+			data.disableServiceButton = false;
 		}).error(function(errorData){
 			$scope.error = errorData;
+			data.disableServiceButton = false;
+			data.showWorking = false;
 		});
 	}
 	
@@ -69,6 +82,8 @@ app.controller('ProcessController', ['$scope', '$http', '$window', function($sco
 	}
 	
 
+	// add text to the input box on selecting 
+	// the output value from previous node
 	$scope.addText = function(model, nodeIndex, value) {
 		if(model.value)
 			model.value = model.value + ' ##'+nodeIndex+'.'+value+'##';
@@ -84,6 +99,18 @@ app.controller('ProcessController', ['$scope', '$http', '$window', function($sco
 	
 	$scope.authorizeCurrentNode = function() {
 		$scope.currentNode.authorized = true;
+	}
+	
+	// update the form view - removes all next actions and resets input for the current action
+	// used when a user changes the node or activity (for all except last action)
+	$scope.updateFormView = function(index) {
+		var length = $scope.count.length;
+		var pos = index + 1;
+		if(pos < length) {
+			$scope.count.splice(pos, length - pos);
+			$scope.process.splice(pos, length - pos);
+			$scope.node.splice(pos, length - pos);
+		}
 	}
 
 }]);

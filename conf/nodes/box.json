@@ -16,12 +16,12 @@
 			],
 			"output":[
 				{
-					"id":"id",
+					"id":"fileid",
 					"name":"File Id",
 					"type":"string"
 				},
 				{
-					"id":"name",
+					"id":"filename",
 					"name":"File Name",
 					"type":"string"
 				},
@@ -61,12 +61,12 @@
 			],
 			"output":[
 				{
-					"id":"id",
+					"id":"fileid",
 					"name":"File Id",
 					"type":"string"
 				},
 				{
-					"id":"name",
+					"id":"filename",
 					"name":"File Name",
 					"type":"string"
 				},

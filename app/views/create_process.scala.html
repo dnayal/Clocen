@@ -43,7 +43,7 @@
 							</select>
 						</div>
 						<div class="col-md-offset-1 col-md-3">
-							<select class="form-control input-lg" ng-required="true" ng-model="process[counter.index].data" ng-options="t.name for t in activities[counter.index]"></select>
+							<select class="form-control input-lg" ng-required="true" ng-model="process[counter.index].data" ng-options="t.name for t in activities[counter.index]" ng-change="updateFormView(counter.index)"></select>
 						</div>
 						<div ng-if="node[counter.index].authorized" class="col-md-2" style="color:green;font-size: 1.5em;">
 							<span class="glyphicon glyphicon-ok-sign"></span>
@@ -63,7 +63,7 @@
 						<div class="col-md-5" ng-switch on="field.type">
 							<span ng-switch-when="service">
 								<!-- service drop down start -->
-								<button class="btn btn-default" ng-show="!data.showData" ng-click="getData(data=[], node[counter.index].nodeId, field.source)">
+								<button class="btn btn-default" ng-disabled="data.disableServiceButton" ng-show="!data.showData" ng-click="getData(data=[], node[counter.index].nodeId, field.source)">
 								Get {{field.name}}
 								<img alt="" ng-show="data.showWorking" src="@routes.Assets.at("images/spinner.gif")">
 								</button>
@@ -93,7 +93,7 @@
 											<img class="cc-node-input-logo" ng-src="{{process[counter.index-1].logo}}">
 										</a>
 										<ul class="dropdown-menu" role="menu">
-											<li ng-repeat="param in process[counter.index-1].data.output" ><a href ng-click="addText(field, index=(counter.index-1), param.id)">{{param.name}}</a></li>
+											<li ng-repeat="param in process[counter.index-1].data.output" ><a href="" ng-click="addText(field, index=(counter.index-1), param.id)">{{param.name}}</a></li>
 										</ul>
 									</div>
 								</div>
@@ -106,7 +106,7 @@
 											<img class="cc-node-input-logo" ng-src="{{process[counter.index-1].logo}}">
 										</a>
 										<ul class="dropdown-menu" role="menu">
-											<li ng-repeat="param in process[counter.index-1].data.output" ><a href ng-click="addText(field, index=(counter.index-1), param.id)">{{param.name}}</a></li>
+											<li ng-repeat="param in process[counter.index-1].data.output" ><a href="" ng-click="addText(field, index=(counter.index-1), param.id)">{{param.name}}</a></li>
 										</ul>
 									</div>
 								</div>
@@ -143,7 +143,7 @@
 
 		</div>	
 		<script type="text/javascript" src="@routes.Assets.at("javascripts/angular.min.js")"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 		<script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
 		<script src="@routes.Assets.at("javascripts/create_process.js")"></script>
 	</body>
