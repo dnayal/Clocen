@@ -19,9 +19,13 @@ import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.MappingJsonFactory;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import play.Logger;
-import play.api.Play;
+import play.Play;
 
 public class UtilityHelper {
 	
@@ -53,7 +57,7 @@ public class UtilityHelper {
 		JsonNode result = null;
 		JsonFactory factory = new MappingJsonFactory();
 		try {
-			JsonParser parser = factory.createJsonParser(Play.current().classloader().getResourceAsStream("countries.json"));
+			JsonParser parser = factory.createJsonParser(Play.application().classloader().getResourceAsStream("countries.json"));
 			result = parser.readValueAsTree();
 		} catch (Exception exception) {
 			UtilityHelper.logError(COMPONENT_NAME, "getCountries()", exception.getMessage(), exception);
@@ -168,5 +172,24 @@ public class UtilityHelper {
 		
 		new Thread(mailThread).start();
 	}
+	
 
+	/**
+	 * Converts the dateTime, in the given format, to UTC time
+	 */
+	public static DateTime convertToUTCTime(String dateTime, String format) {
+		DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(format);
+		return dateTimeFormatter.parseDateTime(dateTime).withZone(DateTimeZone.UTC);
+	}
+	
+
+	/**
+	 * Returns the current time in UTC format, minus the poller interval.
+	 * Used for polling for triggers where nodes do not support Webhooks
+	 */
+	public static DateTime getCurrentTimeMinusPollerInterval() {
+		Integer pollerInterval = Play.application().configuration().getInt("process.poller.interval");
+		return DateTime.now(DateTimeZone.UTC).minusMinutes(pollerInterval);
+	}
+	
 }

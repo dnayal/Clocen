@@ -64,39 +64,9 @@ public class Asana implements Node, AsanaConstants {
 	}
 
 
-	@Override
-	public JsonNode callInfoService(User user, String service) {
-		ServiceAccessTokenKey key = new ServiceAccessTokenKey(user.getUserId(), getNodeId());
-		ServiceAccessToken token = ServiceAccessToken.getServiceAccessToken(key);
-		AsanaServices services = new AsanaServices(token);
-		
-		// service to get the list of all workspaces
-		if (service.equalsIgnoreCase("getworkspaces")) {
-			return services.getWorkspaces();
-		} else {
-			return null;
-		}
-	}
-
-
-	@Override
-	public Map<String, Object> executeService(String serviceName, ServiceAccessToken sat, Map<String, Object> nodeData) {
-		AsanaServices services = new AsanaServices(sat);
-		
-		// service to know whether new task was created
-		if (serviceName.equalsIgnoreCase("newtaskcreated")) {
-			return services.getNewTaskCreated(nodeData);
-		// service to create a new task
-		} else if (serviceName.equalsIgnoreCase("createtask")) {
-			return services.createTask(nodeData);
-		// service to create a new project
-		} else if (serviceName.equalsIgnoreCase("newprojectcreated")) {
-			return services.getNewProjectCreated(nodeData);
-		} else
-			return null;
-	}
-
-
+	/**
+	 * API error handler for Asana
+	 */
 	@Override
 	public Boolean serviceResponseHasError(String serviceName, Integer statusCode, 
 			JsonNode responseJSON, ServiceAccessToken serviceToken) {
@@ -121,6 +91,7 @@ public class Asana implements Node, AsanaConstants {
 				break;
 			case 429: // Rate Limit Enforced
 				serviceHasErrors = true;
+				UtilityHelper.logError(COMPONENT_NAME, "serviceResponseHasError()", responseJSON.path("errors").get("message").asText(), new RuntimeException("Rate Limit Enforced"));
 				break;
 			case 500: // Server error
 				serviceHasErrors = true;
@@ -129,16 +100,66 @@ public class Asana implements Node, AsanaConstants {
 				serviceHasErrors = true;
 				break;
 		}
-
+	
 		if(serviceHasErrors) {
 			JsonNode errors = responseJSON.path("errors");
-
-			UtilityHelper.logMessage(COMPONENT_NAME, "serviceResponseHasError()", "Service error for user [" + 
-					serviceToken.getKey().getUserId() + "] & node [" + serviceToken.getKey().getNodeId() + 
-					"] - (" + serviceName + ")" + errors.get("message").asText() + " [" + statusCode + "]");
+			
+			for(JsonNode error : errors) {
+				UtilityHelper.logMessage(COMPONENT_NAME, "serviceResponseHasError()", "Service error for user [" + 
+						serviceToken.getKey().getUserId() + "] & node [" + serviceToken.getKey().getNodeId() + 
+						"] - (" + serviceName + ")" + error.get("message").asText() + " [" + statusCode + "]");
+			}
 		}
-
+	
 		return serviceHasErrors;
+	}
+
+
+	/**
+	 * Asana services to get information for powering process editor
+	 */
+	@Override
+	public JsonNode callInfoService(User user, String service) {
+		ServiceAccessTokenKey key = new ServiceAccessTokenKey(user.getUserId(), getNodeId());
+		ServiceAccessToken token = ServiceAccessToken.getServiceAccessToken(key);
+		AsanaServices services = new AsanaServices(token);
+		
+		// service to get the list of all workspaces
+		if (service.equalsIgnoreCase(SERVICE_INFO_GET_WORKSPACES)) {
+			return services.getWorkspaces();
+		} else {
+			return null;
+		}
+	}
+
+
+	/**
+	 * Asana services exposed to the user
+	 */
+	@Override
+	public Map<String, Object> executeService(String serviceName, ServiceAccessToken sat, Map<String, Object> nodeData) {
+		AsanaServices services = new AsanaServices(sat);
+		
+		// service to know whether new task was created
+		if (serviceName.equalsIgnoreCase(SERVICE_TRIGGER_NEW_TASK_CREATED)) {
+			return services.getNewTaskCreated(nodeData);
+		// service to create a new task
+		} else if (serviceName.equalsIgnoreCase(SERVICE_ACTION_CREATE_TASK)) {
+			return services.createTask(nodeData);
+		// service to create a new project
+		} else if (serviceName.equalsIgnoreCase(SERVICE_TRIGGER_NEW_PROJECT_CREATED)) {
+			return services.getNewProjectCreated(nodeData);
+		} else
+			return null;
+	}
+
+
+	/**
+	 * Asana does not support webhooks for now
+	 */
+	@Override
+	public void executeTrigger(Object object) {
+		return;
 	}
 
 }

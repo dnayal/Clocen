@@ -17,7 +17,7 @@ public class ProcessManager {
 	 * This process gets all the active processes and then executes them one by one
 	 */
 	public void runProcesses() {
-		List<Process> processes = Process.getAllActiveProcesses();
+		List<Process> processes = Process.getAllActivePollableProcesses();
 		
 		for(Process process : processes) {
 			ProcessExecutor.executeProcess(process); 

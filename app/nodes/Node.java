@@ -39,11 +39,13 @@ public interface Node {
 	
 	public String getDescription();
 
+	
 	/**
 	 * Checks whether the service was executed successfully. 
 	 * If there are any errors, the node processes those accordingly
 	 */
 	public Boolean serviceResponseHasError(String serviceName, Integer statusCode, JsonNode responseJSON, ServiceAccessToken serviceToken);
+	
 	
 	/**
 	 * Calls the info service that executes the required node service.
@@ -51,9 +53,17 @@ public interface Node {
 	 */
 	public JsonNode callInfoService(User user, String service);
 	
+
 	/**
 	 * Executes the required service for the node
 	 */
 	public Map<String, Object> executeService(String serviceName, ServiceAccessToken sat, Map<String, Object> nodeData);
+	
+	
+	/**
+	 * Used for node that support webhooks 
+	 * to process event notifications
+	 */
+	public void executeTrigger(Object object);
 
 }

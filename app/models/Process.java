@@ -146,8 +146,20 @@ public class Process extends Model {
 	}
 	
 	
+	/**
+	 * All active processes, including ones with trigger type as poll or hook
+	 */
 	public static List<Process> getAllActiveProcesses() {
 		return find.where().or(Expr.isNull("paused"), Expr.ne("paused", true)).findList();
+	}
+	
+	
+	/**
+	 * All active processes, but only with trigger type as poll
+	 */
+	public static List<Process> getAllActivePollableProcesses() {
+		return find.where().eq("trigger_type",TRIGGER_TYPE_POLL)
+				.or(Expr.isNull("paused"), Expr.ne("paused", true)).findList();
 	}
 	
 

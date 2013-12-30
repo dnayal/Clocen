@@ -2,14 +2,10 @@ package nodes.asana;
 
 import helpers.FileHelper;
 import helpers.UtilityHelper;
+import helpers.WSHelper;
 
 import java.io.File;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -18,15 +14,11 @@ import models.IdName;
 import models.ServiceAccessToken;
 import nodes.Node;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.AbstractContentBody;
 import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.joda.time.DateTime;
 
 import play.Play;
 import play.libs.F.Promise;
@@ -74,7 +66,7 @@ public class AsanaServices implements AsanaConstants {
 		
 		// check for errors, and if found, process those
 		Asana asana = new Asana();
-		if(asana.serviceResponseHasError(SERVICE_GET_ATTACHMENTS, result.getStatus(), result.asJson(), sat))
+		if(asana.serviceResponseHasError(SERVICE_INTERNAL_GET_ATTACHMENTS, result.getStatus(), result.asJson(), sat))
 			return null;
 		else
 			json = result.asJson().path("data");
@@ -143,7 +135,7 @@ public class AsanaServices implements AsanaConstants {
 		
 		// check for errors, and if found, process those
 		Asana asana = new Asana();
-		if(asana.serviceResponseHasError(SERVICE_NEW_TASK_CREATED, result.getStatus(), result.asJson(), sat))
+		if(asana.serviceResponseHasError(SERVICE_TRIGGER_NEW_TASK_CREATED, result.getStatus(), result.asJson(), sat))
 			return null;
 		else
 			json = result.asJson().path("data");
@@ -151,31 +143,19 @@ public class AsanaServices implements AsanaConstants {
 		// parse the webservice response, and go through each task
 		for(JsonNode taskJson : json) {
 			// get the create date of the task from webservice response
-			String createDate = taskJson.get("created_at").asText();
-			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-			Date date = null;
-			try {
-				date = dateFormat.parse(createDate);
-			} catch (ParseException exception) {
-				UtilityHelper.logError(COMPONENT_NAME, "getNewTaskCreated()", exception.getMessage(), exception);
-				return null;
-			}
+			DateTime taskCreateDate = UtilityHelper.convertToUTCTime(taskJson.get("created_at").asText(), "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
 			// get the current time minus the polling interval - to get the last time we polled (approximately)
-			Calendar calendar = Calendar.getInstance();
-			Integer pollerInterval = Play.application().configuration().getInt("process.poller.interval");
-			calendar.add(Calendar.MINUTE, -pollerInterval);
-			Date intervalDate = calendar.getTime();
-			
+			DateTime nowMinusPollerInterval = UtilityHelper.getCurrentTimeMinusPollerInterval();
+						
 			// check whether a task was created since the last time we polled
 			// if a new task was created, populate the output variables with 
 			// the task details
-			if(date.after(intervalDate)) {
+			if(taskCreateDate.isAfter(nowMinusPollerInterval)) {
 				String taskId = taskJson.get("id").asText();
 				String taskName = taskJson.get("name").asText();
 				String taskDescription = taskJson.get("notes").asText();
 				ArrayList<Map<String, Object>> attachments = getAttachments(taskId);
-				
 				
 				ArrayList<Map<String, Object>> outputs = (ArrayList<Map<String, Object>>)data.get("output");
 				for(Map<String, Object> output : outputs) {
@@ -238,7 +218,7 @@ public class AsanaServices implements AsanaConstants {
 		
 		// check for errors, and if found, process those
 		Asana asana = new Asana();
-		if(asana.serviceResponseHasError(SERVICE_NEW_PROJECT_CREATED, result.getStatus(), result.asJson(), sat))
+		if(asana.serviceResponseHasError(SERVICE_TRIGGER_NEW_PROJECT_CREATED, result.getStatus(), result.asJson(), sat))
 			return null;
 		else
 			json = result.asJson().path("data");
@@ -246,26 +226,15 @@ public class AsanaServices implements AsanaConstants {
 		// parse the webservice response, and go through each task
 		for(JsonNode projectJSON : json) {
 			// get the create date of the task from webservice response
-			String createDate = projectJSON.get("created_at").asText();
-			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-			Date date = null;
-			try {
-				date = dateFormat.parse(createDate);
-			} catch (ParseException exception) {
-				UtilityHelper.logError(COMPONENT_NAME, "getNewProjectCreated()", exception.getMessage(), exception);
-				return null;
-			}
+			DateTime projectCreateDate = UtilityHelper.convertToUTCTime(projectJSON.get("created_at").asText(), "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
 			// get the current time minus the polling interval - to get the last time we polled (approximately)
-			Calendar calendar = Calendar.getInstance();
-			Integer pollerInterval = Play.application().configuration().getInt("process.poller.interval");
-			calendar.add(Calendar.MINUTE, -pollerInterval);
-			Date intervalDate = calendar.getTime();
+			DateTime nowMinusPollerInterval = UtilityHelper.getCurrentTimeMinusPollerInterval();
 			
 			// check whether a project was created since the last time we polled
 			// if a new project was created, populate the output variables with 
 			// the project details
-			if(date.after(intervalDate)) {
+			if(projectCreateDate.isAfter(nowMinusPollerInterval)) {
 				String projectId = projectJSON.get("id").asText();
 				String projectName = projectJSON.get("name").asText();
 				String projectDescription = projectJSON.get("notes").asText();
@@ -343,7 +312,7 @@ public class AsanaServices implements AsanaConstants {
 		
 		// check for errors, and if found, process those
 		Asana asana = new Asana();
-		if(asana.serviceResponseHasError(SERVICE_CREATE_TASK, result.getStatus(), result.asJson(), sat))
+		if(asana.serviceResponseHasError(SERVICE_ACTION_CREATE_TASK, result.getStatus(), result.asJson(), sat))
 			return null;
 		else
 			json = result.asJson().path("data");
@@ -356,40 +325,30 @@ public class AsanaServices implements AsanaConstants {
 			// loop through all the attachments
 			for(Map<String, Object> attachment : attachments) {
 				
-				// get the filehelper object
+				// Prepare the objects to be sent to the POST request
+				// get the filehelper object and then get the file
 				FileHelper fileHelper = (FileHelper) attachment.get(Node.ATTR_TYPE_FILE);
-				// get the file
 				File file = fileHelper.getFileFromSource();
-				
-				///////////////////////////////////
-				// TODO - this needs to be replaced with WS.post when Play 
-				// starts supporting multipart file upload for WS api
-				HttpPost postRequest = new HttpPost(API_BASE_URL+"/tasks/"+taskId+"/attachments");
-				postRequest.setHeader("Authorization", "Bearer " + sat.getAccessToken());
-				MultipartEntityBuilder multipartEntity = MultipartEntityBuilder.create();
+				// body part to be sent to the REST POST service
 				FileBody fileBody = new FileBody(file);
-				multipartEntity.addPart(Node.ATTR_TYPE_FILE, fileBody);
-				postRequest.setEntity(multipartEntity.build());
+				// parameters expected by the REST POST service
+				Map<String, AbstractContentBody> bodyPart = new HashMap<String, AbstractContentBody>();
+				bodyPart.put("file", fileBody);
 				
-				HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
-				CloseableHttpClient httpClient = httpClientBuilder.build();
 				try {
-					HttpResponse httpResponse = httpClient.execute(postRequest);
-					HttpEntity httpEntity = httpResponse.getEntity();
-					ObjectMapper responseMapper = new ObjectMapper();
-					Map<String, Object> map = responseMapper.readValue(httpEntity.getContent(), Map.class);
+					
+					// Call the REST POST request with the required parameters
+					Map<String, Object> map = WSHelper.postRequestWithFileUpload(API_BASE_URL+"/tasks/"+taskId+"/attachments", sat, bodyPart);
+
 					Map<String, Object> dataMap = (Map<String, Object>) map.get("data");
 					Long attachmentId = (Long) dataMap.get("id");
-
 					if(attachmentId != null)
 						fileHelper.deleteFile();
 
-					httpClient.close();
 				} catch (Exception exception) {
 					fileHelper.deleteFile();
 					UtilityHelper.logError(COMPONENT_NAME, "createTask()", exception.getMessage(), exception);
 				}
-				///////////////////////////////////
 
 			}
 		}
@@ -427,9 +386,9 @@ public class AsanaServices implements AsanaConstants {
 		JsonNode json = null;
 		Response result = response.get();
 		
-		// check for errors, and if found, process those
+		// check for errors in response
 		Asana asana = new Asana();
-		if(asana.serviceResponseHasError(SERVICE_GET_WORKSPACES, result.getStatus(), result.asJson(), sat))
+		if(asana.serviceResponseHasError(SERVICE_INFO_GET_WORKSPACES, result.getStatus(), result.asJson(), sat))
 			return null;
 		else
 			json = result.asJson().path("data");

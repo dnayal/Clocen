@@ -1,6 +1,7 @@
 package controllers;
 
 import helpers.SecurityHelper;
+import helpers.ServiceNodeHelper;
 import helpers.UtilityHelper;
 
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.Map;
 import models.BetaUser;
 import models.ServiceNodeInfo;
 import models.User;
-import nodes.box.Box;
+import nodes.Node;
 
 import org.codehaus.jackson.JsonNode;
 
@@ -196,7 +197,7 @@ public class Application extends Controller {
     public static Result viewProcess(String processId) {
 		Promise<Response> response = WS.url(routes.ProcessController.getProcess(processId).absoluteURL(request())).get();
 		JsonNode processJSON = response.get().asJson();
-		UtilityHelper.logMessage(COMPONENT_NAME, "viewProcess()", processJSON.asText());
+		UtilityHelper.logMessage(COMPONENT_NAME, "viewProcess()", processJSON.toString());
 		return ok(view_process.render(processJSON));
 	}
 	
@@ -352,19 +353,21 @@ public class Application extends Controller {
     
     
 /***************
- * TEMP STUFF 	
+ * Execute trigger call service 	
  **/
-	public static Result callTriggerListener(String nodeId) {
+	public static Result callNodeTrigger(String nodeId) {
+		
+		if(UtilityHelper.isEmptyString(nodeId))
+			return badRequest();
+		
+		Node node = ServiceNodeHelper.getNode(nodeId);
 		DynamicForm form = DynamicForm.form().bindFromRequest();
-    	UtilityHelper.logMessage(COMPONENT_NAME, "callTriggerListener", "Item Id : " + form.get("item_id"));
-    	UtilityHelper.logMessage(COMPONENT_NAME, "callTriggerListener", "From User Id : " + form.get("from_user_id"));
-    	UtilityHelper.logMessage(COMPONENT_NAME, "callTriggerListener", "Item Name : " + form.get("item_name"));
-    	UtilityHelper.logMessage(COMPONENT_NAME, "callTriggerListener", "Event Type : " + form.get("event_type"));
-    	UtilityHelper.logMessage(COMPONENT_NAME, "callTriggerListener", "Call triggered by - " + nodeId);
-        Box box = new Box();
-        box.getFile(form.get("item_id"));
+		
+		if(form.hasErrors())
+			return badRequest();
+		
+		node.executeTrigger(form);
         return ok();
     }
-    
 
 }

@@ -1,26 +1,19 @@
 package nodes.box;
 
 import helpers.OAuth2Helper;
+import helpers.UtilityHelper;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Map;
 
-import models.IdName;
 import models.ServiceAccessToken;
+import models.ServiceAccessTokenKey;
 import models.User;
 import nodes.Node;
 
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 
-import play.libs.F.Promise;
-import play.libs.WS;
-import play.libs.WS.Response;
+import play.Logger;
+import play.data.DynamicForm;
 import play.mvc.Controller;
 
 /**
@@ -30,15 +23,9 @@ import play.mvc.Controller;
  * BOX API DOC - http://developers.box.com/docs/
  *
  */
-public class Box implements Node {
+public class Box implements Node, BoxConstants {
 
-	private static final String CLIENT_ID = "af8on2xlppewm0m3i0ceng2yxg7rrgms"; // API Key
-	private static final String CLIENT_SECRET = "I9AtREMVttIl7exrfJ5FIEoE43U5uB6j";
-	private static final String OAUTH_AUTHORIZE_URL = "https://www.box.com/api/oauth2/authorize";
-	private static final String OAUTH_TOKEN_URL = "https://www.box.com/api/oauth2/token";
-	private static final String APP_URL = "https://www.box.com";
-	private static final String NODE_ID = "box";
-	
+	private static final String COMPONENT_NAME = "Box Node";	
 
 	@Override
 	public String authorize(String userId, AccessType accessType, String data) {
@@ -55,74 +42,15 @@ public class Box implements Node {
 
 	@Override
 	public String getName() {
-		return "Box";
+		return APP_NAME;
 	}
 	
 
 	@Override
 	public String getDescription() {
-		return "Simple file sharing in the cloud";
+		return APP_DESCRIPTION;
 	}
 	
-
-	public JsonNode getFolders(User user) {
-		ServiceAccessToken sat = user.getServiceAccessToken(NODE_ID);
-		String id = null;
-		String name = null;
-
-		String endPoint = "https://api.box.com/2.0/folders/0";
-		Promise<Response> response = WS.url(endPoint).setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
-		JsonNode json = response.get().asJson();
-		ArrayList<IdName> list = new ArrayList<IdName>();
-		list.add(new IdName(json.path("id").asText(), json.path("name").asText()));
-		JsonNode itemEntries = json.path("item_collection").path("entries");
-		Iterator<JsonNode> iterator = itemEntries.iterator();
-
-		while (iterator.hasNext()){
-			JsonNode node = iterator.next();
-			id = node.path("id").asText();
-			name = node.path("name").asText();
-			list.add(new IdName(id, name));
-		}
-		
-		json = null;
-		ObjectMapper mapper = new ObjectMapper();
-		json = mapper.valueToTree(list);
-		
-		return json;
-	}
-
-
-	public void getFile(String fileId) {
-		String endPoint = "https://api.box.com/2.0/files/" + fileId + "/content";
-		Promise<Response> response = WS.url(endPoint).setHeader("Authorization", "Bearer ZCHHnwVAa3apewaDxFhtGb6CrpQUNglX").get();
-		byte[] buffer = new byte[1024];
-		int bytesRead = 0;
-		FileOutputStream file;
-		try {
-			file = new FileOutputStream("BOX_API_OUTPUT_" + System.currentTimeMillis());
-			InputStream input = response.get().getBodyAsStream();
-			while((bytesRead = input.read(buffer))!=-1)
-				file.write(buffer, 0, bytesRead);
-			file.flush();file.close();
-			input.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-
-	@Override
-	public JsonNode callInfoService(User user, String service) {
-		if (service.equalsIgnoreCase("getfolders")) {
-			return getFolders(user);
-		} else {
-			return null;
-		}
-	}
-
 
 	@Override
 	public String getLogo() {
@@ -142,19 +70,125 @@ public class Box implements Node {
 	}
 
 
-	@Override
-	public Map<String, Object> executeService(String serviceName, ServiceAccessToken sat, Map<String, Object> nodeData) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
+	/**
+	 * API error handler for Box
+	 */
 	@Override
 	public Boolean serviceResponseHasError(String serviceName, Integer statusCode, 
 			JsonNode responseJSON, ServiceAccessToken serviceToken) {
-
-		return false;
+	
+		Boolean serviceHasErrors = true; 
+		
+		switch(statusCode) {
+			case 200: case 201: case 202: case 204:
+				serviceHasErrors = false;
+				break;
+			case 302: // Redirect
+				serviceHasErrors = true;
+				break;
+			case 304: // Not modified
+				serviceHasErrors = true;
+				break;
+			case 400: // Bad request
+				serviceHasErrors = true;
+				break;
+			case 401: // Unauthorized
+				serviceHasErrors = true;
+				break;
+			case 403: // Forbidden
+				serviceHasErrors = true;
+				break;
+			case 404: // Not Found
+				serviceHasErrors = true;
+				break;
+			case 405: // Method not allowed
+				serviceHasErrors = true;
+				break;
+			case 409: // Conflict
+				serviceHasErrors = true;
+				break;
+			case 412: // Precondition failed
+				serviceHasErrors = true;
+				break;
+			case 429: // Too many requests
+				serviceHasErrors = true;
+				UtilityHelper.logError(COMPONENT_NAME, "serviceResponseHasError()", responseJSON.get("message").asText(), new RuntimeException("Too many requests"));
+				break;
+			case 500: // Internal server error
+				serviceHasErrors = true;
+				break;
+			case 507: // Insufficient storage
+				serviceHasErrors = true;
+				break;
+			default: // Unknown status/error
+				serviceHasErrors = true;
+				break;
+		}
+	
+		if(serviceHasErrors) {
+			JsonNode errors = responseJSON;
+	
+			for(JsonNode error : errors) {
+				UtilityHelper.logMessage(COMPONENT_NAME, "serviceResponseHasError()", "Service error for user [" + 
+						serviceToken.getKey().getUserId() + "] & node [" + serviceToken.getKey().getNodeId() + 
+						"] - (" + serviceName + ")" + error.get("message").asText() + " [" + statusCode + "]");
+			}
+		}
+	
+		return serviceHasErrors;
 	}
 
 
+	/**
+	 * Box services to get information for powering process editor
+	 */
+	@Override
+	public JsonNode callInfoService(User user, String service) {
+		ServiceAccessTokenKey key = new ServiceAccessTokenKey(user.getUserId(), getNodeId());
+		ServiceAccessToken token = ServiceAccessToken.getServiceAccessToken(key);
+		BoxServices services = new BoxServices(token);
+		
+		// service to get list of all folders to monitor
+		if (service.equalsIgnoreCase(SERVICE_INFO_GET_FOLDERS)) {
+			return services.getFolders();
+		} else {
+			return null;
+		}
+	}
+
+
+	/**
+	 * Box services exposed to the user
+	 */
+	@Override
+	public Map<String, Object> executeService(String serviceName, ServiceAccessToken sat, Map<String, Object> nodeData) {
+		BoxServices services = new BoxServices(sat);
+		
+		// service to create a new file
+		if(serviceName.equalsIgnoreCase(SERVICE_ACTION_CREATE_FILE)) {
+			return services.createFile(nodeData);
+		} else { 
+			return null;
+		}
+	}
+
+
+	/**
+	 * Box Webhooks event notification handler
+	 */
+	@Override
+	public void executeTrigger(Object object) {
+		DynamicForm form = (DynamicForm) object;
+		Logger.info("********************");
+		Logger.info("item_id : " + form.get("item_id"));
+		Logger.info("item_name : " + form.get("item_name"));
+		Logger.info("item_type : " + form.get("item_type"));
+		Logger.info("event_type : " + form.get("event_type"));
+		Logger.info("item_parent_folder_id : " + form.get("item_parent_folder_id"));
+		Logger.info("item_description : " + form.get("item_description"));
+		Logger.info("new_item_id : " + form.get("new_item_id"));
+		Logger.info("new_item_parent_folder_id : " + form.get("new_item_parent_folder_id"));
+		Logger.info("from_user_id : " + form.get("from_user_id"));
+		Logger.info("********************");
+	}
 }
