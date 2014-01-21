@@ -1,14 +1,14 @@
 {
-	"node":"box",
+    "node":"box",
 	"triggers":[
 		{
-			"id":"newfilecreated",
-			"name":"New File Created",
+			"id":"fileuploaded",
+			"name":"File Created or Updated",
 			"sequence":"1",
 			"input":[
 				{
-					"id":"folder",
-					"name":"Folder",
+					"id":"parentfolder",
+					"name":"Parent Folder",
 					"type":"service",
 					"source":"getfolders",
 					"required":true
@@ -29,6 +29,32 @@
 					"id":"filedata",
 					"name":"File",
 					"type":"file"
+				}
+			]
+		},
+    	{
+			"id":"newfoldercreated",
+			"name":"New Folder Created",
+			"sequence":"2",
+			"input":[
+				{
+					"id":"parentfolder",
+					"name":"Parent Folder",
+					"type":"service",
+					"source":"getfolders",
+					"required":true
+				}
+			],
+			"output":[
+				{
+					"id":"folderid",
+					"name":"Folder Id",
+					"type":"string"
+				},
+				{
+					"id":"foldername",
+					"name":"Folder Name",
+					"type":"string"
 				}
 			]
 		}

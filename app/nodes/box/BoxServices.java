@@ -5,10 +5,6 @@ import helpers.UtilityHelper;
 import helpers.WSHelper;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -192,26 +188,156 @@ public class BoxServices implements BoxConstants {
 
 		return data;
 	}
-
-
-	private void getFile(String fileId) {
-		String endPoint = API_BASE_URL + "/files/" + fileId + "/content";
-		Promise<Response> response = WS.url(endPoint).setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
-		byte[] buffer = new byte[1024];
-		int bytesRead = 0;
-		FileOutputStream file;
-		try {
-			file = new FileOutputStream("BOX_API_OUTPUT_" + System.currentTimeMillis());
-			InputStream input = response.get().getBodyAsStream();
-			while((bytesRead = input.read(buffer))!=-1)
-				file.write(buffer, 0, bytesRead);
-			file.flush();file.close();
-			input.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+	
+	
+	/**
+	 * Returns Box id of the current user
+	 */
+	public String getUserId() {
+		// get the information on the current user
+		Promise<Response> response = WS.url(API_BASE_URL + "/users/me")
+				.setQueryParameter("fields", "login,name")
+				.setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
+		
+		JsonNode json = null; 
+		Response result = response.get();
+		
+		// check for errors in response
+		Box box = new Box();
+		if(box.serviceResponseHasError(SERVICE_INTERNAL_GET_USER_ID, result.getStatus(), result.asJson(), sat))
+			return null;
+		else
+			json = result.asJson();
+		
+		// get the id
+		String userId = json.path("id").asText();
+		
+		if(UtilityHelper.isEmptyString(userId)) 
+			return null;
+		else
+			return userId;
+	}
+	
+	
+	/**
+	 * Checks whether a new file has been uploaded as per the 
+	 * given process and, if so, fills in the output of the 
+	 * process with the required values
+	 */
+	public Map<String, Object> getNewFileUploaded(Map<String, Object> node, String parentFolderId, String fileId, String fileName) {
+		Map<String, Object> data = (Map<String, Object>) node.get("data");
+		ArrayList<Map<String, Object>> inputs = (ArrayList<Map<String, Object>>) data.get("input");
+		
+		// loop through all inputs
+		for(Map<String, Object> input : inputs) {
+			String inputId = (String) input.get("id");
+			
+			// if the input is parent folder id
+			if(inputId.equalsIgnoreCase(INPUT_ID_PARENT_FOLDER)) {
+				// get the folder id mapped as input by the user
+				Map<String, String> value = (Map<String, String>) input.get("value");
+				String inputParentFolderId = (String) value.get("id");
+				// if the folder id set by the user is 
+				// not the same as the folder id of 
+				// the file uploaded then return null
+				if(!inputParentFolderId.equalsIgnoreCase(parentFolderId))
+					return null;
+				
+			}
 		}
+		
+		// get the file content
+		ArrayList<Map<String, Object>> fileData = getFile(fileId, fileName);
+
+		ArrayList<Map<String, Object>> outputs = (ArrayList<Map<String, Object>>) data.get("output");
+		for(Map<String, Object> output : outputs) {
+			String id = (String) output.get("id");
+			
+			if(id.equalsIgnoreCase("fileid")) {
+				output.put("value", fileId);
+			} else if(id.equalsIgnoreCase("filename")) {
+				output.put("value", fileName);
+			} else if(id.equalsIgnoreCase("filedata")) {
+				output.put("value", fileData);
+			} 
+		}
+		
+		// We are return the whole node rather than just the 
+		// data part, so that we can easily leverage a common
+		// ProcessExecutor method to process both, POLL and HOOK,
+		// kind of processes
+		return node;
+	}
+	
+	
+	/**
+	 * Checks whether a new folder has been created as per the 
+	 * given process and, if so, fills in the output of the 
+	 * process with the required values
+	 */
+	public Map<String, Object> getNewFolderCreated(Map<String, Object> node, String parentFolderId, String folderId, String folderName) {
+		Map<String, Object> data = (Map<String, Object>) node.get("data");
+		ArrayList<Map<String, Object>> inputs = (ArrayList<Map<String, Object>>) data.get("input");
+		
+		// loop through all inputs
+		for(Map<String, Object> input : inputs) {
+			String inputId = (String) input.get("id");
+			
+			// if the input is parent folder id
+			if(inputId.equalsIgnoreCase(INPUT_ID_PARENT_FOLDER)) {
+				// get the folder id mapped as input by the user
+				Map<String, String> value = (Map<String, String>) input.get("value");
+				String inputParentFolderId = (String) value.get("id");
+				// if the folder id set by the user is 
+				// not the same as the folder id of 
+				// the file uploaded then return null
+				if(!inputParentFolderId.equalsIgnoreCase(parentFolderId))
+					return null;
+				
+			}
+		}
+		
+		ArrayList<Map<String, Object>> outputs = (ArrayList<Map<String, Object>>) data.get("output");
+		for(Map<String, Object> output : outputs) {
+			String id = (String) output.get("id");
+			
+			if(id.equalsIgnoreCase("folderid")) {
+				output.put("value", folderId);
+			} else if(id.equalsIgnoreCase("foldername")) {
+				output.put("value", folderName);
+			} 
+		}
+		
+		// We are return the whole node rather than just the 
+		// data part, so that we can easily leverage a common
+		// ProcessExecutor method to process both, POLL and HOOK,
+		// kind of processes
+		return node;
+	}
+	
+
+	/**
+	 * Returns the file
+	 */
+	private ArrayList<Map<String, Object>> getFile(String fileId, String fileName) {
+		Promise<Response> response = WS.url(API_BASE_URL + "/files/" + fileId + "/content")
+				.setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
+
+		ArrayList<Map<String, Object>> attachments = new ArrayList<Map<String, Object>>();
+
+		FileHelper fileHelper = new FileHelper();
+		fileHelper.setFileSource(response.get().getBodyAsStream(), fileName);
+
+		// we are using a Map object here only to comply 
+		// with the ObjectMapper created by parsing a json 
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put(Node.ATTR_TYPE_FILE, fileHelper);
+		
+		// add the file to the attachment list
+		attachments.add(map);
+		
+		return attachments;
+		
 	}
 
 

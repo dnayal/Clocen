@@ -13,13 +13,15 @@ public class FileHelper {
 	private static final String COMPONENT_NAME = "File Helper";
 	
 	private String fileURLorData = null;
+	private InputStream inputStream = null;
 	private String fileName = null;
 	private String fileId = null;
 	private SourceFileType sourceType;
 	
 	enum SourceFileType {
 		URL, 
-		DATA
+		TEXT,
+		BINARY
 	};
 	
 	
@@ -42,15 +44,33 @@ public class FileHelper {
 	
 	
 	/**
-	 * Set the file source to the data
+	 * Set the file source to the text
 	 */
 	public String setFileSource(String data) {
 		this.fileURLorData = data;
 		this.fileId = UtilityHelper.getUniqueId();
 		this.fileName = fileId + "_TEXT";
-		this.sourceType = SourceFileType.DATA;
+		this.sourceType = SourceFileType.TEXT;
 		
 		return fileId;
+	}
+	
+	
+	/**
+	 * Set the file source to binary
+	 */
+	public String setFileSource(InputStream inputStream, String name) {
+		this.inputStream = inputStream;
+		this.fileId = UtilityHelper.getUniqueId();
+		this.sourceType = SourceFileType.BINARY;
+				
+		if(UtilityHelper.isEmptyString(name))
+			this.fileName = this.fileId;
+		else
+			this.fileName = name;
+		
+		return fileId;
+		
 	}
 	
 	
@@ -70,10 +90,15 @@ public class FileHelper {
 					
 					FileUtils.copyInputStreamToFile(input, file);
 					input.close();
-
 					break;
-				case DATA:
+					
+				case TEXT:
 					FileUtils.writeStringToFile(file, fileURLorData, Play.application().configuration().getString("application.encoding"));
+					break;
+					
+				case BINARY:
+					FileUtils.copyInputStreamToFile(inputStream, file);
+					inputStream.close();
 					break;
 			}
 		} catch (Exception exception) {
@@ -88,7 +113,7 @@ public class FileHelper {
 		Boolean result = false;
 		
 		switch(sourceType) {
-			case URL: case DATA:
+			case URL: case TEXT: case BINARY:
 				File directory = new File(getFileDirectoryPath());
 				for(File file : directory.listFiles())
 					result = file.delete();
@@ -99,10 +124,12 @@ public class FileHelper {
 		return result;
 	}
 	
+	
 	private String getFilePath() {
 		return getFileDirectoryPath() + "/"+ fileName;
 	}
 
+	
 	private String getFileDirectoryPath() {
 		return FileUtils.getTempDirectoryPath() + "/" + fileId;
 	}

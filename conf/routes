@@ -8,7 +8,7 @@ GET		/register						controllers.Application.getRegistrationForm()
 GET		/login							controllers.Application.getLoginPage()
 GET		/profile						controllers.Application.getUserProfilePage()
 GET		/password/:requestType			controllers.Application.getForgotAndResetPasswordPage(requestType: String)
-POST	/triggers/:nodeId				controllers.Application.callNodeTrigger(nodeId: String)
+POST	/triggers/:nodeId				controllers.NodeController.callNodeTrigger(nodeId: String)
 
 GET		/app/process/new						controllers.Application.viewCreateProcess()
 POST	/app/process/new						controllers.Application.saveProcess()

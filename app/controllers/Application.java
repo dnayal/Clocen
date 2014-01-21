@@ -1,7 +1,6 @@
 package controllers;
 
 import helpers.SecurityHelper;
-import helpers.ServiceNodeHelper;
 import helpers.UtilityHelper;
 
 import java.util.List;
@@ -10,12 +9,10 @@ import java.util.Map;
 import models.BetaUser;
 import models.ServiceNodeInfo;
 import models.User;
-import nodes.Node;
 
 import org.codehaus.jackson.JsonNode;
 
 import play.Play;
-import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.F.Promise;
 import play.libs.Json;
@@ -352,22 +349,4 @@ public class Application extends Controller {
     }
     
     
-/***************
- * Execute trigger call service 	
- **/
-	public static Result callNodeTrigger(String nodeId) {
-		
-		if(UtilityHelper.isEmptyString(nodeId))
-			return badRequest();
-		
-		Node node = ServiceNodeHelper.getNode(nodeId);
-		DynamicForm form = DynamicForm.form().bindFromRequest();
-		
-		if(form.hasErrors())
-			return badRequest();
-		
-		node.executeTrigger(form);
-        return ok();
-    }
-
 }

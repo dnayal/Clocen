@@ -13,10 +13,6 @@ import models.ServiceAccessToken;
 import models.ServiceAccessTokenKey;
 import nodes.Node;
 
-import org.codehaus.jackson.map.ObjectMapper;
-
-import play.libs.Json;
-
 /**
  * This is the main class that parses the process 
  * data and executes the process
@@ -31,52 +27,74 @@ public class ProcessExecutor {
 	
 	
 	/**
+	 * Execute processes only with POLL trigger type
+	 */
+	public static void executePollProcess(Process process) {
+		
+		// Get the nodes in the process (in array format)
+		ArrayList<Map<String, Object>> array = process.getProcessDataAsObject();
+		
+		executeProcess(array, Node.TRIGGER_TYPE_POLL, process.getUserId());
+
+		UtilityHelper.logMessage(COMPONENT_NAME, "executeProcess()", "Executed POLL process [" + process.getProcessId() + "]");
+		
+	}
+	
+	
+	public static void executeHookProcess(ArrayList<Map<String, Object>> array, String userId) {
+
+		executeProcess(array, Node.TRIGGER_TYPE_HOOK, userId);
+	}
+	
+	
+	/**
 	 * This is the main process of this class
 	 */
 	@SuppressWarnings("unchecked")
-	public static void executeProcess(Process process) {
+	private static void executeProcess(ArrayList<Map<String, Object>> array, String triggerType, String userId) {
 		
 		Map<String, Object> previousNode = null;
-		ObjectMapper mapper = new ObjectMapper();
 
 		try {
-			// Get the nodes in the process (in array format)
-			ArrayList<Map<String, Object>> array = mapper.readValue(Json.parse(process.getProcessData()), ArrayList.class);
 			int arrayIndex = 0;
 			
 			// loop through each node in the array
 			for(Map<String, Object> node : array) {
-				String nodeId = (String) node.get("node");
 				
-				Map<String, Object> data = (Map<String, Object>) node.get("data");
-				String operation = (String) data.get("id");
-				
-				// If the node is not the first one, then configure its input 
-				// to be populated by the output of the previous node 
-				// (wherever mapped). The resultant node will have the actual data
-				// mapped in its input variables rather than the mappings
-				// 
-				// If the node is not the first one and the prevousNode variable 
-				// is still null, then either the event did not trigger or there 
-				// was a error executing the last node
-				if(arrayIndex!=0 && previousNode==null) {
-					return;
-				} else if(arrayIndex!=0 && previousNode!=null) {
-					data = mapInputValuesForNode(arrayIndex, data, previousNode);
+				// if it is HOOK type trigger then the first node is already populated
+				if (triggerType.equalsIgnoreCase(Node.TRIGGER_TYPE_HOOK) && arrayIndex==0){
+					previousNode = (Map<String, Object>) node.get("data");
+				} else {
+					String nodeId = (String) node.get("node");
+					
+					Map<String, Object> data = (Map<String, Object>) node.get("data");
+					String operation = (String) data.get("id");
+					
+					// If the node is not the first one, then configure its input 
+					// to be populated by the output of the previous node 
+					// (wherever mapped). The resultant node will have the actual data
+					// mapped in its input variables rather than the mappings
+					// 
+					// If the node is not the first one and the prevousNode variable 
+					// is still null, then either the event did not trigger or there 
+					// was a error executing the last node
+					if(arrayIndex!=0 && previousNode==null) {
+						return;
+					} else if(arrayIndex!=0 && previousNode!=null) {
+						data = mapInputValuesForNode(arrayIndex, data, previousNode);
+					}
+					
+					Node serviceNode = ServiceNodeHelper.getNode(nodeId);
+					
+					// The output (previousNode) will be the same as the input (data)
+					// except that the output variables of the output node will be populated 
+					// with the values retrieved from the operation
+					ServiceAccessToken sat = ServiceAccessToken.getServiceAccessToken(new ServiceAccessTokenKey(userId, serviceNode.getNodeId()));
+					previousNode = serviceNode.executeService(operation, sat, data); 
 				}
-				
-				Node serviceNode = ServiceNodeHelper.getNode(nodeId);
-				
-				// The output (previousNode) will be the same as the input (data)
-				// except that the output variables of the output node will be populated 
-				// with the values retrieved from the operation
-				ServiceAccessToken sat = ServiceAccessToken.getServiceAccessToken(new ServiceAccessTokenKey(process.getUserId(), serviceNode.getNodeId()));
-				previousNode = serviceNode.executeService(operation, sat, data); 
 				
 				arrayIndex++;
 			}
-			
-			UtilityHelper.logMessage(COMPONENT_NAME, "executeProcess()", "Executed process [" + process.getProcessId() + "]");
 			
 		} catch (Exception exception) {
 			UtilityHelper.logError(COMPONENT_NAME, "executeProcess()", exception.getMessage(), exception);
@@ -105,7 +123,13 @@ public class ProcessExecutor {
 			// we do not need to map inputs for input of type 
 			// service, as it is already mapped
 			if(!type.equalsIgnoreCase(Node.ATTR_TYPE_SERVICE)) {
+				
 				String value = (String) input.get("value");
+				// if the user has not mapped a value to an input variable
+				// then do not process further
+				if(UtilityHelper.isEmptyString(value))
+					continue;
+				
 				// boolean variable to check whether a 
 				// file needs to be created out of string 
 				Boolean createFileFromString = false;
@@ -152,6 +176,7 @@ public class ProcessExecutor {
 						// or it can be mapped directly to the file output 
 						// of the previous node
 						else if (output instanceof ArrayList) {
+							
 							input.put("value", output);
 							// creating a new file from string is not required as 
 							// it is mapped to the file of the previous node

@@ -11,6 +11,15 @@ create table beta_user (
   constraint pk_beta_user primary key (email))
 ;
 
+create table node_params (
+  user_id                   varchar(100),
+  node_id                   varchar(20),
+  parameter                 varchar(100),
+  value                     varchar(100),
+  create_timestamp          datetime,
+  constraint pk_node_params primary key (user_id, node_id, parameter))
+;
+
 create table process (
   process_id                varchar(100) not null,
   user_id                   varchar(100),
@@ -53,6 +62,8 @@ create table user (
 SET FOREIGN_KEY_CHECKS=0;
 
 drop table beta_user;
+
+drop table node_params;
 
 drop table process;
 

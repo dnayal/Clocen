@@ -21,9 +21,20 @@ interface BoxConstants {
 	static final String API_BASE_URL = "https://api.box.com/2.0";
 
 	static final String TRIGGER_UPLOADED = "uploaded";
+	static final String TRIGGER_CREATED = "created";
 	static final String TRIGGER_DELETED = "deleted";
+
+	static final String ITEM_TYPE_FILE = "file";
+	static final String ITEM_TYPE_FOLDER = "folder";
 	
 	static final String SERVICE_INFO_GET_FOLDERS = "getfolders";
+	static final String SERVICE_TRIGGER_FILE_UPLOADED = "fileuploaded";
+	static final String SERVICE_TRIGGER_NEW_FOLDER_CREATED = "newfoldercreated";
 	static final String SERVICE_ACTION_CREATE_FILE = "createfile";
+	static final String SERVICE_INTERNAL_GET_USER_ID = "getuserid";
+	
+	static final String INPUT_ID_PARENT_FOLDER = "parentfolder";
+	
+	static final String PARAM_USER_ID = "user_id";
 
 }

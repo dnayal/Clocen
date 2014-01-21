@@ -20,7 +20,7 @@ public class ProcessManager {
 		List<Process> processes = Process.getAllActivePollableProcesses();
 		
 		for(Process process : processes) {
-			ProcessExecutor.executeProcess(process); 
+			ProcessExecutor.executePollProcess(process); 
 		}
 	}
 
