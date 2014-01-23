@@ -121,6 +121,48 @@
 					"type":"file"
 				}
 			]
-		}
+		},
+		{
+			"id":"createproject",
+			"name":"Create Project",
+			"sequence":"2",
+			"input":[
+				{
+					"id":"workspace",
+					"name":"Workspace",
+					"type":"service",
+					"source":"getworkspaces",
+					"required":true
+				},
+				{
+					"id":"projectname",
+					"name":"Project Name",
+					"type":"string",
+					"required":true
+				},
+				{
+					"id":"projectdescription",
+					"name":"Project Description",
+					"type":"longstring"
+				}
+			],
+			"output":[
+				{
+					"id":"projectid",
+					"name":"Project Id",
+					"type":"string"
+				},
+				{
+					"id":"projectname",
+					"name":"Project Name",
+					"type":"string"
+				},
+				{
+					"id":"projectdescription",
+					"name":"Project Description",
+					"type":"longstring"
+				}
+			]
+		}		
 	]
 }

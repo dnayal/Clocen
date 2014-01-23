@@ -160,8 +160,20 @@ public class BoxServices implements BoxConstants {
 				
 				ArrayList<Map<String, Object>> entries = (ArrayList<Map<String, Object>>) map.get("entries");
 				attachmentId = (String) entries.get(0).get("id");
-				if(attachmentId != null)
+
+				// if the file was successfully uploaded
+				if(attachmentId != null) {
 					fileHelper.deleteFile();
+
+					// if the user specified a filename
+					if(!UtilityHelper.isEmptyString(fileName)) {
+						// rename file
+						if(!renameFile(attachmentId, fileName)) {
+							// if rename operation fails, log it
+							UtilityHelper.logMessage(COMPONENT_NAME, "createFile()", "Unable to rename file ["+fileName+"] for user ["+sat.getKey().getUserId()+"]");
+						}
+					}
+				}
 				
 			} catch (Exception exception) {
 				UtilityHelper.logError(COMPONENT_NAME, "createFile()", exception.getMessage(), exception);
@@ -189,6 +201,72 @@ public class BoxServices implements BoxConstants {
 		return data;
 	}
 	
+	
+	/**
+	 * Create new folder
+	 */
+	public Map<String, Object> createFolder(Map<String, Object> data) {
+		// get the input variables
+		ArrayList<Map<String, Object>> inputs = (ArrayList<Map<String, Object>>) data.get("input");
+		String parentFolderId = null, folderName = null;
+
+		// loop through all the input variables for this service
+		for(Map<String, Object> input : inputs) {
+			String type = (String) input.get("type");
+			String id = (String) input.get("id");
+			
+			// for a variable of type service, get the id parameter from the value
+			if(type.equalsIgnoreCase(Node.ATTR_TYPE_SERVICE) && id.equalsIgnoreCase("parentfolder")) {
+				Map<String, String> value = (Map<String, String>) input.get("value"); 
+				parentFolderId = value.get("id");
+			} else if(id.equalsIgnoreCase("foldername")) {
+				folderName = (String) input.get("value"); 
+			}
+		}
+		
+		// we need to have atleast the workspace id to be 
+		// able to create a new task
+		if (parentFolderId==null || folderName==null)
+			return null;
+		
+		
+		// make the call to web service to get all the tasks
+		// Returns only the tasks assigned to the current user
+		Promise<Response> response = WS.url(API_BASE_URL+"/folders")
+				.setQueryParameter("fields", "name")
+				.setHeader("Authorization", "Bearer " + sat.getAccessToken())
+				.post("{\"name\":\"" + folderName + "\",\"parent\":{\"id\":\"" + parentFolderId + "\"}}");
+
+		JsonNode json = null;
+		Response result = response.get();
+		
+		// check for errors, and if found, process those
+		Box box = new Box();
+		if(box.serviceResponseHasError(SERVICE_ACTION_CREATE_FOLDER, result.getStatus(), result.asJson(), sat))
+			return null;
+		else
+			json = result.asJson();
+
+		// if the folder is successfully created, Box API returns a folder id
+		String folderId = json.get("id").asText();
+		
+		// add the output values back to the map 
+		ArrayList<Map<String, Object>> outputs = (ArrayList<Map<String, Object>>) data.get("output");
+		for(Map<String, Object> output : outputs) {
+			String id = (String) output.get("id");
+			
+			if(id.equalsIgnoreCase("folderid")) {
+				output.put("value", folderId);
+			} else if(id.equalsIgnoreCase("foldername")) {
+				output.put("value", folderName);
+			} 
+		}
+		
+		UtilityHelper.logMessage(COMPONENT_NAME, "createFolder()", "New folder created in Box for user [" + sat.getKey().getUserId() + "]");
+
+		return data;
+	}
+
 	
 	/**
 	 * Returns Box id of the current user
@@ -338,6 +416,39 @@ public class BoxServices implements BoxConstants {
 		
 		return attachments;
 		
+	}
+	
+	
+	/**
+	 * Renames the file (with fileId) to the name (fileName)
+	 */
+	private Boolean renameFile(String fileId, String fileName) {
+		Boolean status = false;
+		
+		Promise<Response> response = WS.url(API_BASE_URL + "/files/" + fileId)
+				.setHeader("Authorization", "Bearer " + sat.getAccessToken())
+				.put("{\"name\":\"" + fileName + "\"}");
+
+		JsonNode json = null;
+		Response result = response.get();
+		
+		// check for errors, and if found, process those
+		Box box = new Box();
+		if(box.serviceResponseHasError(SERVICE_INTERNAL_RENAME_FILE, result.getStatus(), result.asJson(), sat))
+			status = false;
+		else
+			json = result.asJson();
+
+		// if the file is successfully renamed, Box API returns a file id
+		String folderId = json.get("id").asText();
+		
+		// if there is no id returned, then the API call failed
+		if(UtilityHelper.isEmptyString(folderId))
+			status = false;
+		else
+			status = true;
+
+		return status;
 	}
 
 

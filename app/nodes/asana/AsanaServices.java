@@ -375,6 +375,75 @@ public class AsanaServices implements AsanaConstants {
 	
 	
 	/**
+	 * Create new project
+	 */
+	public Map<String, Object> createProject(Map<String, Object> data) {
+		// get the input variables
+		ArrayList<Map<String, Object>> inputs = (ArrayList<Map<String, Object>>)data.get("input");
+		String workspaceId = null, projectName = null, projectDescription = null;
+
+		// loop through all the input variables for this service
+		for(Map<String, Object> input : inputs) {
+			String type = (String) input.get("type");
+			String id = (String) input.get("id");
+			
+			// for a variable of type service, get the id parameter from the value
+			if(type.equalsIgnoreCase(Node.ATTR_TYPE_SERVICE) && id.equalsIgnoreCase("workspace")) {
+				Map<String, String> value = (Map<String, String>) input.get("value"); 
+				workspaceId = value.get("id");
+			} else if(id.equalsIgnoreCase("projectname")) {
+				projectName = (String) input.get("value"); 
+			} else if(id.equalsIgnoreCase("projectdescription")) {
+				projectDescription = (String) input.get("value"); 
+			}
+		}
+		
+		// we need to have the workspace id and project name 
+		// to be able to create a new task
+		if(workspaceId==null || projectName==null)
+			return null;
+		
+		// make the call to web service to create new project
+		// with the current user as the assignee
+		Promise<Response> response = WS.url(API_BASE_URL+"/workspaces/" + workspaceId + "/projects")
+				.setHeader("Authorization", "Bearer " + sat.getAccessToken())
+				.setHeader("Content-Type", Play.application().configuration().getString("application.services.POST.contentType"))
+				.post("name="+UtilityHelper.getString(projectName)+"&notes="+UtilityHelper.getString(projectDescription));
+
+		JsonNode json = null;
+		Response result = response.get();
+		
+		// check for errors, and if found, process those
+		Asana asana = new Asana();
+		if(asana.serviceResponseHasError(SERVICE_ACTION_CREATE_PROJECT, result.getStatus(), result.asJson(), sat))
+			return null;
+		else
+			json = result.asJson().path("data");
+
+		// if the project is successfully created, Asana API returns a project id
+		String projectId = json.get("id").asText();
+		
+		
+		// add the output values back to the map 
+		ArrayList<Map<String, Object>> outputs = (ArrayList<Map<String, Object>>)data.get("output");
+		for(Map<String, Object> output : outputs) {
+			String id = (String) output.get("id");
+			if(id.equalsIgnoreCase("projectid")) {
+				output.put("value", projectId);
+			} else if(id.equalsIgnoreCase("projectname")) {
+				output.put("value", projectName);
+			} else if(id.equalsIgnoreCase("projectdescription")) {
+				output.put("value", projectDescription);
+			} 
+		}
+		
+		UtilityHelper.logMessage(COMPONENT_NAME, "createProject()", "New Project Created in Asana for user [" + sat.getKey().getUserId() + "]");
+		
+		return data;
+	}
+
+	
+	/**
 	 * Returns all Asana workspaces for the given user
 	 */
 	public JsonNode getWorkspaces() {

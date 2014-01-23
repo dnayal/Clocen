@@ -12,6 +12,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.PersistenceException;
 
+import nodes.Node;
+
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -29,8 +31,6 @@ import com.avaje.ebean.Expr;
 public class Process extends Model {
 
 	private static final String COMPONENT_NAME = "Process Model";
-	public static final String TRIGGER_TYPE_POLL = "poll";
-	public static final String TRIGGER_TYPE_HOOK = "hook";
 	
 	@Id
 	@Column(length=100)
@@ -180,7 +180,7 @@ public class Process extends Model {
 	 * All active processes, but only with trigger type as poll
 	 */
 	public static List<Process> getAllActivePollableProcesses() {
-		return find.where().eq("trigger_type",TRIGGER_TYPE_POLL)
+		return find.where().eq("trigger_type",Node.TRIGGER_TYPE_POLL)
 				.or(Expr.isNull("paused"), Expr.ne("paused", true)).findList();
 	}
 	
@@ -201,7 +201,8 @@ public class Process extends Model {
 	public static List<Process> getProcessesForTrigger(ServiceAccessTokenKey key, String operationId) {
 		List<Process> processList = find.where()
 				.eq("user_id", key.getUserId())
-				.eq("trigger_node", key.getNodeId()).findList();
+				.eq("trigger_node", key.getNodeId())
+				.or(Expr.isNull("paused"), Expr.ne("paused", true)).findList();
 		
 		// list carrying all the process that do match the criteria
 		List<Process> removalList = new ArrayList<Process>();

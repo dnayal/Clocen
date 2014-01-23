@@ -31,7 +31,9 @@ interface BoxConstants {
 	static final String SERVICE_TRIGGER_FILE_UPLOADED = "fileuploaded";
 	static final String SERVICE_TRIGGER_NEW_FOLDER_CREATED = "newfoldercreated";
 	static final String SERVICE_ACTION_CREATE_FILE = "createfile";
+	static final String SERVICE_ACTION_CREATE_FOLDER = "createfolder";
 	static final String SERVICE_INTERNAL_GET_USER_ID = "getuserid";
+	static final String SERVICE_INTERNAL_RENAME_FILE = "renamefile";
 	
 	static final String INPUT_ID_PARENT_FOLDER = "parentfolder";
 	

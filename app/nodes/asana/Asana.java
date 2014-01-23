@@ -147,6 +147,9 @@ public class Asana implements Node, AsanaConstants {
 		} else if (serviceName.equalsIgnoreCase(SERVICE_ACTION_CREATE_TASK)) {
 			return services.createTask(nodeData);
 		// service to create a new project
+		} else if (serviceName.equalsIgnoreCase(SERVICE_ACTION_CREATE_PROJECT)) {
+			return services.createProject(nodeData);
+		// service to know whether new project was created
 		} else if (serviceName.equalsIgnoreCase(SERVICE_TRIGGER_NEW_PROJECT_CREATED)) {
 			return services.getNewProjectCreated(nodeData);
 		} else

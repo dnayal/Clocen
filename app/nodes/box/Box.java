@@ -18,7 +18,6 @@ import nodes.Node;
 
 import org.codehaus.jackson.JsonNode;
 
-import play.Logger;
 import play.data.DynamicForm;
 import play.mvc.Controller;
 import process.ProcessExecutor;
@@ -193,6 +192,9 @@ public class Box implements Node, BoxConstants {
 		// service to create a new file
 		if(serviceName.equalsIgnoreCase(SERVICE_ACTION_CREATE_FILE)) {
 			return services.createFile(nodeData);
+		// service to create a new folder	
+		} if(serviceName.equalsIgnoreCase(SERVICE_ACTION_CREATE_FOLDER)) {
+			return services.createFolder(nodeData);
 		} else { 
 			return null;
 		}
@@ -268,17 +270,5 @@ public class Box implements Node, BoxConstants {
 				}
 			}
 		}
-
-		Logger.info("********************");
-		Logger.info("item_id : " + form.get("item_id"));
-		Logger.info("item_name : " + form.get("item_name"));
-		Logger.info("item_type : " + form.get("item_type"));
-		Logger.info("event_type : " + form.get("event_type"));
-		Logger.info("item_parent_folder_id : " + form.get("item_parent_folder_id"));
-		Logger.info("item_description : " + form.get("item_description"));
-		Logger.info("new_item_id : " + form.get("new_item_id"));
-		Logger.info("new_item_parent_folder_id : " + form.get("new_item_parent_folder_id"));
-		Logger.info("from_user_id : " + form.get("from_user_id"));
-		Logger.info("********************");
 	}
 }

@@ -26,6 +26,7 @@ interface AsanaConstants {
 	static final String SERVICE_TRIGGER_NEW_TASK_CREATED = "newtaskcreated";
 	static final String SERVICE_TRIGGER_NEW_PROJECT_CREATED = "newprojectcreated";
 	static final String SERVICE_ACTION_CREATE_TASK = "createtask";
+	static final String SERVICE_ACTION_CREATE_PROJECT = "createproject";
 	static final String SERVICE_INFO_GET_WORKSPACES = "getworkspaces";
 	static final String SERVICE_INTERNAL_GET_ATTACHMENTS = "getattachments";
 }

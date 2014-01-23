@@ -102,6 +102,38 @@
 					"type":"file"
 				}
 			]
+		},
+		{
+			"id":"createfolder",
+			"name":"Create Folder",
+			"sequence":"2",
+			"input":[
+				{
+					"id":"parentfolder",
+					"name":"Parent Folder",
+					"type":"service",
+					"source":"getfolders",
+					"required":true
+				},
+				{
+					"id":"foldername",
+					"name":"Folder Name",
+					"type":"string",
+					"required":true
+				}
+			],
+			"output":[
+				{
+					"id":"folderid",
+					"name":"File Id",
+					"type":"string"
+				},
+				{
+					"id":"foldername",
+					"name":"Folder Name",
+					"type":"string"
+				}
+			]
 		}
 	]
 }
