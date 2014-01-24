@@ -80,7 +80,9 @@
 											<img class="cc-node-input-logo" ng-src="{{process[counter.index-1].logo}}">
 										</a>
 										<ul class="dropdown-menu" role="menu">
-											<li ng-repeat="param in process[counter.index-1].data.output" ><a href ng-click="addText(field, index=(counter.index-1), param.id)">{{param.name}}</a></li>
+											<li role="" class="dropdown-header">{{process[counter.index-1].name}} - {{process[counter.index-1].data.name}}</li>
+											<li role="" class="divider"></li>
+											<li ng-repeat="param in process[counter.index-1].data.output | filter: ({type:'string'} || {type:'longstring'})" ><a href="" ng-click="addText(field, index=(counter.index-1), param.id)">{{param.name}}</a></li>
 										</ul>
 									</div>
 								</div>
@@ -93,7 +95,9 @@
 											<img class="cc-node-input-logo" ng-src="{{process[counter.index-1].logo}}">
 										</a>
 										<ul class="dropdown-menu" role="menu">
-											<li ng-repeat="param in process[counter.index-1].data.output" ><a href="" ng-click="addText(field, index=(counter.index-1), param.id)">{{param.name}}</a></li>
+											<li role="" class="dropdown-header">{{process[counter.index-1].name}} - {{process[counter.index-1].data.name}}</li>
+											<li role="" class="divider"></li>
+											<li ng-repeat="param in process[counter.index-1].data.output | filter: ({type:'string'} || {type:'longstring'})" ><a href="" ng-click="addText(field, index=(counter.index-1), param.id)">{{param.name}}</a></li>
 										</ul>
 									</div>
 								</div>
@@ -106,6 +110,8 @@
 											<img class="cc-node-input-logo" ng-src="{{process[counter.index-1].logo}}">
 										</a>
 										<ul class="dropdown-menu" role="menu">
+											<li role="" class="dropdown-header">{{process[counter.index-1].name}} - {{process[counter.index-1].data.name}}</li>
+											<li role="" class="divider"></li>
 											<li ng-repeat="param in process[counter.index-1].data.output" ><a href="" ng-click="addText(field, index=(counter.index-1), param.id)">{{param.name}}</a></li>
 										</ul>
 									</div>

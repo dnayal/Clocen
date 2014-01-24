@@ -449,8 +449,7 @@ public class AsanaServices implements AsanaConstants {
 	public JsonNode getWorkspaces() {
 		ArrayList<IdName> list = new ArrayList<IdName>();
 
-		String endPoint = API_BASE_URL + "/workspaces";
-		Promise<Response> response = WS.url(endPoint).setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
+		Promise<Response> response = WS.url(API_BASE_URL + "/workspaces").setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
 
 		JsonNode json = null;
 		Response result = response.get();
