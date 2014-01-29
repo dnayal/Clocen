@@ -36,8 +36,6 @@ public class ProcessExecutor {
 		
 		executeProcess(array, Node.TRIGGER_TYPE_POLL, process.getUserId());
 
-		UtilityHelper.logMessage(COMPONENT_NAME, "executeProcess()", "Executed POLL process [" + process.getProcessId() + "]");
-		
 	}
 	
 	

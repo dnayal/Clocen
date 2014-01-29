@@ -271,13 +271,9 @@ public class User extends Model {
 	public List<ServiceAccessToken> getAllServiceTokens() {
 		List<ServiceAccessToken> tokenList = ServiceAccessToken.getAllServiceAccessTokensForUser(userId);
 		for(ServiceAccessToken token: tokenList) {
-			if(token.getExpirationTime().before(Calendar.getInstance().getTime())) {
-				UtilityHelper.logMessage(COMPONENT_NAME, "getAllServiceTokens()", "Token Expired - user:" + token.getKey().getUserId() + " node:" + token.getKey().getNodeId());
-				if(!token.refreshToken()) {
-					UtilityHelper.logMessage(COMPONENT_NAME, "getAllServiceTokens()", "Removing Token - user:" + token.getKey().getUserId() + " node:" + token.getKey().getNodeId());
-					tokenList.remove(token);
-				}
-			}
+			// access token will be null for invalid or expired ServiceAccessTokens
+			if(token.getAccessToken() == null)
+				tokenList.remove(token);
 		}
 		return tokenList;
 	}

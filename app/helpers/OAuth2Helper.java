@@ -21,7 +21,20 @@ public class OAuth2Helper {
 	 * the node id, used for OAuth callback
 	 */
 	private static String getRedirectURI(String nodeId) {
-		return controllers.routes.Application.oauth2TokenCallback(nodeId).absoluteURL(Controller.request());
+		String URI = null;
+		try {
+			URI = controllers.routes.Application.oauth2TokenCallback(nodeId).absoluteURL(Controller.request());
+		}catch (Exception exception) {
+			if(Play.isProd()) {
+				URI = Play.application().configuration().getString("application.URL.PROD") + 
+						"/app/oauth2/callback/" + nodeId;
+			} else {
+				URI = Play.application().configuration().getString("application.URL.DEV") + 
+						"/app/oauth2/callback/" + nodeId;
+			}
+		}
+		
+		return URI;
 	}
 	
 	
