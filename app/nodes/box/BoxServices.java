@@ -165,8 +165,10 @@ public class BoxServices implements BoxConstants {
 				if(attachmentId != null) {
 					fileHelper.deleteFile();
 
-					// if the user specified a filename
-					if(!UtilityHelper.isEmptyString(fileName)) {
+					// if the user specified a filename 
+					// and there is only one attachment
+					// then rename the file
+					if(!UtilityHelper.isEmptyString(fileName) && (attachments.size()==1)) {
 						// rename file
 						if(!renameFile(attachmentId, fileName)) {
 							// if rename operation fails, log it

@@ -111,14 +111,17 @@ public class FileHelper {
 	
 	public Boolean deleteFile() {
 		Boolean result = false;
-		
-		switch(sourceType) {
-			case URL: case TEXT: case BINARY:
-				File directory = new File(getFileDirectoryPath());
-				for(File file : directory.listFiles())
-					result = file.delete();
-				result = directory.delete();
-				break;
+		try {
+			switch(sourceType) {
+				case URL: case TEXT: case BINARY:
+					File directory = new File(getFileDirectoryPath());
+					for(File file : directory.listFiles())
+						result = file.delete();
+					result = directory.delete();
+					break;
+			}
+		} catch(Exception exception) {
+			UtilityHelper.logError(COMPONENT_NAME, "deleteFile()", exception.getMessage(), exception);
 		}
 
 		return result;
