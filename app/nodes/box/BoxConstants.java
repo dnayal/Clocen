@@ -8,9 +8,9 @@ interface BoxConstants {
 	
 	static final String APP_DESCRIPTION = "Simple file sharing in the cloud";
 
-	static final String CLIENT_ID = "af8on2xlppewm0m3i0ceng2yxg7rrgms"; // API Key
+	static final String CLIENT_ID = "e5ndffixdomcndl6s9o5uiz5eo137gvf"; // API Key
 	
-	static final String CLIENT_SECRET = "I9AtREMVttIl7exrfJ5FIEoE43U5uB6j";
+	static final String CLIENT_SECRET = "wB4t6mCLchPz9AqhaHFlgsyvfaLzijzz";
 	
 	static final String OAUTH_AUTHORIZE_URL = "https://www.box.com/api/oauth2/authorize";
 	

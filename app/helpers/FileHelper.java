@@ -30,6 +30,11 @@ public class FileHelper {
 	}
 	
 	
+	public void setFileName(String newFileName) {
+		fileName = newFileName;
+	}
+	
+	
 	/**
 	 * Set the file source to a URL
 	 */

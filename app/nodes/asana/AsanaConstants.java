@@ -11,9 +11,9 @@ interface AsanaConstants {
 	
 	static final String APP_DESCRIPTION = "Task management for teams";
 
-	static final String CLIENT_ID = "7169780706601"; // API Key
+	static final String CLIENT_ID = "10083524829090"; // API Key
 	
-	static final String CLIENT_SECRET = "3f230584e30bcffa7f9149a3c5332319";
+	static final String CLIENT_SECRET = "03036fa4f9c94d66b97ff87e16e9a4d5";
 	
 	static final String OAUTH_AUTHORIZE_URL = "https://app.asana.com/-/oauth_authorize";
 	

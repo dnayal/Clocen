@@ -148,12 +148,13 @@ public class ProcessExecutor {
 					
 					// get the output for the attribute
 					Object output = getOutputForAttribute(mappedAttribute, source);
+					// replace the mapping with the actual output,
+					// if it is not an empty string or null
+					if((output instanceof String) && (UtilityHelper.isEmptyString(((String)output)))) {
+						output = "";
+					}
 	
 					if(type.equalsIgnoreCase(Node.ATTR_TYPE_STRING) || type.equalsIgnoreCase(Node.ATTR_TYPE_LONGSTRING)) {
-						// replace the mapping with the actual output,
-						// if it is not an empty string or null
-						if(UtilityHelper.isEmptyString(((String)output)))
-							output = "";
 						value = value.replace("##"+(indexOfTargetNode-1)+"."+mappedAttribute+"##", (String)output);
 						input.put("value", value);
 					}
@@ -164,12 +165,10 @@ public class ProcessExecutor {
 						// or file description in which case we need to map it 
 						// to the string and then create a file out of that string...
 						if (output instanceof String) {
-							if(!UtilityHelper.isEmptyString(((String)output))) {
-								value = value.replace("##"+(indexOfTargetNode-1)+"."+mappedAttribute+"##", (String)output);
-								input.put("value", value);
-								// we will need to create a file with the string
-								createFileFromString = true;
-							}
+							value = value.replace("##"+(indexOfTargetNode-1)+"."+mappedAttribute+"##", (String)output);
+							input.put("value", value);
+							// we will need to create a file with the string
+							createFileFromString = true;
 						} 
 						// or it can be mapped directly to the file output 
 						// of the previous node

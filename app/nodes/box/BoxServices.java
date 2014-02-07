@@ -140,10 +140,17 @@ public class BoxServices implements BoxConstants {
 		
 		// loop through all the attachments
 		for(Map<String, Object> attachment : attachments) {
-			
+
 			// Prepare the objects to be sent to the POST request
 			// get the filehelper object and then get the file
 			FileHelper fileHelper = (FileHelper) attachment.get(Node.ATTR_TYPE_FILE);
+
+			// if the user specified a filename 
+			// and there is only one attachment
+			// then rename the file
+			if(!UtilityHelper.isEmptyString(fileName) && (attachments.size()==1)) {
+				fileHelper.setFileName(fileName);
+			}
 			File file = fileHelper.getFileFromSource();
 			// body parts to be sent to the REST POST service
 			FileBody fileBody = new FileBody(file);
@@ -164,17 +171,6 @@ public class BoxServices implements BoxConstants {
 				// if the file was successfully uploaded
 				if(attachmentId != null) {
 					fileHelper.deleteFile();
-
-					// if the user specified a filename 
-					// and there is only one attachment
-					// then rename the file
-					if(!UtilityHelper.isEmptyString(fileName) && (attachments.size()==1)) {
-						// rename file
-						if(!renameFile(attachmentId, fileName)) {
-							// if rename operation fails, log it
-							UtilityHelper.logMessage(COMPONENT_NAME, "createFile()", "Unable to rename file ["+fileName+"] for user ["+sat.getKey().getUserId()+"]");
-						}
-					}
 				}
 				
 			} catch (Exception exception) {
@@ -325,7 +321,7 @@ public class BoxServices implements BoxConstants {
 				
 			}
 		}
-		
+
 		// get the file content
 		ArrayList<Map<String, Object>> fileData = getFile(fileId, fileName);
 

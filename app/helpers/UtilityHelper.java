@@ -139,14 +139,15 @@ public class UtilityHelper {
 			@Override
 			public void run() {
 				try {
-					final String EMAIL_USER = "info@shadence.com";
-					final String EMAIL_PASSWORD = "myn$3007";
-					final String EMAIL_HOST = "smtpout.secureserver.net";
+					final String EMAIL_USER = "dnayal@clocen.com";
+					final String EMAIL_PASSWORD = "NetNayal";
+					final String EMAIL_HOST = "smtp-mail.outlook.com"; // for outlook.com - http://windows.microsoft.com/en-us/windows/outlook/send-receive-from-app
 			
 					Properties props = new Properties();
 					props.setProperty("mail.smtp.starttls.enable","true");
 					props.setProperty("mail.smtp.auth","true");
 					props.setProperty("mail.transport.protocol", "smtp");
+					props.put("mail.smtp.port", "25");
 					props.setProperty("mail.host", EMAIL_HOST);
 			
 					Session mailSession = Session.getInstance(props, new Authenticator() {

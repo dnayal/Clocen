@@ -89,8 +89,7 @@ public class OAuth2Helper {
 				.get().asJson();
 				
 				if (json.get("error")!=null) {
-					UtilityHelper.logError(COMPONENT_NAME, "getAccess()", json.get("error_description").asText(), new RuntimeException(json.get("error_description").asText()));
-					return null;
+					throw new RuntimeException(json.get("error_description").asText());
 				}
 				
 				accessToken = json.get("access_token").asText();
