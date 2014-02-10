@@ -47,6 +47,8 @@ create table user (
   name                      varchar(100),
   email                     varchar(100),
   password                  varchar(100),
+  company                   varchar(100),
+  website                   varchar(200),
   country                   varchar(100),
   role                      varchar(20),
   create_timestamp          datetime,

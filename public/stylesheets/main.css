@@ -59,7 +59,9 @@ body {
 	text-align: center; 
 	font-size: 3.5em; 
 	padding-top: 35px; 
+	padding-bottom: 35px; 
 	color: #F0F8FF;	
+	text-shadow: black 0.1em 0.1em 0.2em;
 }
 
 .cc-title-dark {

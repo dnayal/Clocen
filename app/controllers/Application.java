@@ -109,7 +109,7 @@ public class Application extends Controller {
     		UtilityHelper.logMessage(COMPONENT_NAME, "getRegistrationForm()", "Beta user not available for given email");
             return internalServerError(error_page.render());
     	} else {
-    		User user = new User(null, null, betaUser.getEmail(), null, null, null, null);
+    		User user = new User(null, null, betaUser.getEmail(), null, null, null, null, null, null);
     		Form<User> form = Form.form(User.class).fill(user);
     		UtilityHelper.logMessage(COMPONENT_NAME, "getRegistrationForm()", "Beta user retrieved for registration");
     		return ok(register.render(form));

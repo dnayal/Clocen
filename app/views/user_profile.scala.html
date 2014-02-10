@@ -25,8 +25,8 @@
 						<label for="@user_form("name").id">Name</label>
 					</div>
 					<div class="col-md-5">
-						<span ng-show="profileform.name.$error.maxlength" class="text-warning" style="font-size: 0.75em;">Name should not be longer than 75 characters</span>
-						<input type="text" class="form-control input-lg" id="@user_form("name").id" name="@user_form("name").name" value="@user_form("name").value" placeholder="Name" ng-model="name" ng-maxlength="75">
+						<span ng-show="profileform.name.$error.maxlength" class="text-warning" style="font-size: 0.75em;">Name should not be longer than 100 characters</span>
+						<input type="text" class="form-control input-lg" id="@user_form("name").id" name="@user_form("name").name" value="@user_form("name").value" placeholder="Name" ng-model="name" ng-maxlength="100">
 					</div>
 				</div>
 				<br/>
@@ -35,8 +35,8 @@
 						<label for="@user_form("email").id">Email</label>
 					</div>
 					<div class="col-md-5">
-						<span ng-show="profileform.email.$error.maxlength" class="text-warning" style="font-size: 0.75em;">Email should not be longer than 75 characters</span>
-						<input type="email" class="form-control input-lg" id="@user_form("email").id" name="@user_form("email").name" value="@user_form("email").value" placeholder="Email" ng-model="email" ng-maxlength="75" ng-required="true">
+						<span ng-show="profileform.email.$error.maxlength" class="text-warning" style="font-size: 0.75em;">Email should not be longer than 100 characters</span>
+						<input type="email" class="form-control input-lg" id="@user_form("email").id" name="@user_form("email").name" value="@user_form("email").value" placeholder="Email" ng-model="email" ng-maxlength="100" ng-required="true">
 					</div>
 				</div>
 				<br/>
@@ -45,8 +45,28 @@
 						<label for="@user_form("password").id">Password</label>
 					</div>
 					<div class="col-md-5">
-						<span ng-show="profileform.password.$error.maxlength" class="text-warning" style="font-size: 0.75em;">Password should not be longer than 75 characters</span>
-						<input type="password" class="form-control input-lg" id="@user_form("password").id" name="@user_form("password").name" placeholder="Password" ng-model="password" ng-maxlength="75" >
+						<span ng-show="profileform.password.$error.maxlength" class="text-warning" style="font-size: 0.75em;">Password should not be longer than 100 characters</span>
+						<input type="password" class="form-control input-lg" id="@user_form("password").id" name="@user_form("password").name" placeholder="Password" ng-model="password" ng-maxlength="100" >
+					</div>
+				</div>
+				<br/>
+				<div class="row">
+					<div class="col-md-offset-1 col-md-2">
+						<label for="@user_form("company").id">Company</label>
+					</div>
+					<div class="col-md-5">
+						<span ng-show="profileform.company.$error.maxlength" class="text-warning" style="font-size: 0.75em;">Company should not be longer than 100 characters</span>
+						<input type="text" class="form-control input-lg" id="@user_form("company").id" name="@user_form("company").name" placeholder="Company" ng-model="company" ng-maxlength="100" >
+					</div>
+				</div>
+				<br/>
+				<div class="row">
+					<div class="col-md-offset-1 col-md-2">
+						<label for="@user_form("website").id">Website</label>
+					</div>
+					<div class="col-md-5">
+						<span ng-show="profileform.website.$error.maxlength" class="text-warning" style="font-size: 0.75em;">Website should not be longer than 200 characters</span>
+						<input type="url" class="form-control input-lg" id="@user_form("website").id" name="@user_form("website").name" placeholder="Website" ng-model="website" ng-maxlength="200" >
 					</div>
 				</div>
 				<br/>
@@ -64,7 +84,7 @@
 				<div class="row">
 					<div class="col-md-offset-1 col-md-5">
 						<button type="submit" class="btn btn-primary btn-lg" ng-disabled="profileform.$invalid">Update Details</button>&nbsp;
-						<a class="btn btn-warning btn-lg" href="@routes.Application.index">Cancel</a>
+						<a class="btn btn-warning btn-lg" href="@routes.Application.index"><span class="glyphicon glyphicon-circle-arrow-left"></span>&nbsp;Back</a>
 					</div>
 				</div>
 			</div>
@@ -80,6 +100,8 @@
 				
 				$scope.name = '@user_form("name").value';
 				$scope.email = '@user_form("email").value';
+				$scope.company = '@user_form("company").value';
+				$scope.website = '@user_form("website").value';
 				
 				$scope.setCountry = function() {
 					$('#@user_form("country").id').val($scope.userCountry);

@@ -17,7 +17,6 @@ import javax.persistence.Id;
 import javax.persistence.PersistenceException;
 
 import nodes.Node;
-
 import play.data.validation.Constraints.Email;
 import play.data.validation.Constraints.Required;
 import play.db.ebean.Model;
@@ -49,6 +48,10 @@ public class User extends Model {
 	@Column(length=100)
 	private String password;
 	@Column(length=100)
+	private String company;
+	@Column(length=200)
+	private String website;
+	@Column(length=100)
 	private String country;
 	@Column(length=20)
 	private String role;
@@ -56,12 +59,14 @@ public class User extends Model {
 	private static Finder<String, User> find = new Finder<String, User>(String.class, User.class);
 	
 	
-	public User(String userId, String name, String email, String password, String country, 
-			String role, Date createTimestamp) {
+	public User(String userId, String name, String email, String password, String company, String website, 
+			String country, String role, Date createTimestamp) {
 		this.userId = userId;
 		this.name = name;
 		this.email = email;
 		this.password = password;
+		this.company = company;
+		this.website = website;
 		this.country = country;
 		this.role = role;
 		this.createTimestamp = createTimestamp;
@@ -108,6 +113,26 @@ public class User extends Model {
 	}
 
 
+	public String getCompany() {
+		return company;
+	}
+
+
+	public void setCompany(String company) {
+		this.company = company;
+	}
+
+
+	public String getWebsite() {
+		return website;
+	}
+
+
+	public void setWebsite(String website) {
+		this.website = website;
+	}
+
+
 	public String getCountry() {
 		return country;
 	}
@@ -141,7 +166,9 @@ public class User extends Model {
 	@Override
 	public String toString() {
 		return "User [userId=" + userId + ", name=" + name + ", email=" + email
-				+ ", country=" + country + ", role=" + role + ", createTimestamp=" + createTimestamp + "]";
+				+ ", password=" + password + ", company=" + company
+				+ ", website=" + website + ", country=" + country + ", role="
+				+ role + ", createTimestamp=" + createTimestamp + "]";
 	}
 
 
