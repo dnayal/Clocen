@@ -9,9 +9,11 @@
 		<link href="@helpers.UtilityHelper.getAsset("/stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
 		<link href="@helpers.UtilityHelper.getAsset("/stylesheets/main.css")" rel="stylesheet" media="screen">
 	</head>
-	<body ng-app="CreateProcessApp">
+	<body id="ng-app" ng-app="CreateProcessApp">
 		@navbar()
-		<div class="container" id="ProcessController" ng-controller="ProcessController">
+		<img id="page_load_waiting" src="@helpers.UtilityHelper.getAsset("/images/page_load_waiting.gif")" class="cc-page-loader">
+		
+		<div class="container" id="ProcessController" ng-controller="ProcessController" style="display:none;">
 			<div class="row page-header">
 				<div class="col-md-12">
 					<h1><span class="glyphicon glyphicon-link"></span>&nbsp;Create Your Process</h1>
@@ -152,5 +154,11 @@
 		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 		<script src="@helpers.UtilityHelper.getAsset("/javascripts/bootstrap.min.js")"></script>
 		<script src="@helpers.UtilityHelper.getAsset("/javascripts/create_process.js")"></script>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$('#page_load_waiting').hide();
+				$('#ProcessController').show();  // container html id
+			});
+		</script>
 	</body>
 </html>

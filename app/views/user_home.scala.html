@@ -11,7 +11,9 @@
 	</head>
 	<body>
 		@navbar()
-		<div class="container" ng-app="NodesApp">
+		<img id="page_load_waiting" src="@helpers.UtilityHelper.getAsset("/images/page_load_waiting.gif")" class="cc-page-loader">
+     		
+		<div class="container" id="ng-app" ng-app="NodesApp" style="display:none;">
 			<br/>
 			<div class="row text-primary" style="font-size: 1.5em;">
 				<ul id="tabHeader" class="nav nav-tabs">
@@ -132,6 +134,11 @@
 		<script src="@helpers.UtilityHelper.getAsset("/javascripts/bootstrap.min.js")"></script>
 		<script>
 			var app = angular.module('NodesApp', []);
+			
+			$(document).ready(function() {
+				$('#page_load_waiting').hide();
+				$('#ng-app').show(); // container html id
+			});
 			
 			app.controller('AppsController', ['$scope', '$window', function($scope, $window){
 				
