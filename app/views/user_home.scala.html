@@ -5,9 +5,9 @@
 	<head>
 		<title>Clocen</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link href="http://fonts.googleapis.com/css?family=Ubuntu:300" rel="stylesheet" type="text/css">
-		<link href="@routes.Assets.at("stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
-		<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" media="screen">
+		<link href="//fonts.googleapis.com/css?family=Ubuntu:300" rel="stylesheet" type="text/css">
+		<link href="@helpers.UtilityHelper.getAsset("/stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
+		<link href="@helpers.UtilityHelper.getAsset("/stylesheets/main.css")" rel="stylesheet" media="screen">
 	</head>
 	<body>
 		@navbar()
@@ -23,7 +23,7 @@
 			<div id="tabContent" class="tab-content">
 
 			<!-- Apps Tab End -->
-			<div id="apps" class="tab-pane fade" >
+			<div id="apps" class="tab-pane" >
 				<div id="AppsController" ng-controller="AppsController" ng-init="appsInitialize()">
 				<div class="row">
 					<span class="col-md-3">
@@ -80,7 +80,7 @@
 			<!-- Apps Tab End -->
 			
 			<!-- Processes Tab Start -->
-			<div id="processes" class="tab-pane fade in active">
+			<div id="processes" class="tab-pane in active">
 				<br/>
 				<div class="row" ng-controller="AllProcessController" ng-init="processesInitialize()">
 					<div class="row" ng-if="processes.length<=0">
@@ -127,9 +127,9 @@
 			<!-- Tab Content End -->
 			
 		</div>
-		<script type="text/javascript" src="@routes.Assets.at("javascripts/angular.min.js")"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-		<script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.4/angular.min.js"></script>
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script src="@helpers.UtilityHelper.getAsset("/javascripts/bootstrap.min.js")"></script>
 		<script>
 			var app = angular.module('NodesApp', []);
 			

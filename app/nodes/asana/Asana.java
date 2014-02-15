@@ -12,8 +12,6 @@ import nodes.Node;
 
 import org.codehaus.jackson.JsonNode;
 
-import play.mvc.Controller;
-
 /**
  * Node interface for Asana
  */
@@ -48,7 +46,7 @@ public class Asana implements Node, AsanaConstants {
 	
 	@Override
 	public String getLogo() {
-		return controllers.routes.Assets.at("images/nodes/asana.png").absoluteURL(Controller.request());
+		return UtilityHelper.getAsset("/images/nodes/asana.png");
 	}
 
 

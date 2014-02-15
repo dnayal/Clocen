@@ -7,9 +7,9 @@
 	<head>
 		<title>Process</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link href="http://fonts.googleapis.com/css?family=Ubuntu:300" rel="stylesheet" type="text/css">
-		<link href="@routes.Assets.at("stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
-		<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" media="screen">
+		<link href="//fonts.googleapis.com/css?family=Ubuntu:300" rel="stylesheet" type="text/css">
+		<link href="@helpers.UtilityHelper.getAsset("/stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
+		<link href="@helpers.UtilityHelper.getAsset("/stylesheets/main.css")" rel="stylesheet" media="screen">
 	</head>
 	<body ng-app="ViewProcessApp">
 		@navbar()
@@ -108,9 +108,9 @@
 <!-- -------------->
 
 		</div>	
-		<script type="text/javascript" src="@routes.Assets.at("javascripts/angular.min.js")"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-		<script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.4/angular.min.js"></script>
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+		<script src="@helpers.UtilityHelper.getAsset("/javascripts/bootstrap.min.js")"></script>
 		<script>
 			angular.module('ViewProcessApp', []).controller('ProcessController', ['$scope', function($scope){
 				$scope.initialize = function() {

@@ -139,8 +139,8 @@ public class UtilityHelper {
 			@Override
 			public void run() {
 				try {
-					final String EMAIL_USER = "dnayal@clocen.com";
-					final String EMAIL_PASSWORD = "NetNayal";
+					final String EMAIL_USER = "info@clocen.com";
+					final String EMAIL_PASSWORD = "windows@2000";
 					final String EMAIL_HOST = "smtp-mail.outlook.com"; // for outlook.com - http://windows.microsoft.com/en-us/windows/outlook/send-receive-from-app
 			
 					Properties props = new Properties();
@@ -191,6 +191,15 @@ public class UtilityHelper {
 	public static DateTime getCurrentTimeMinusPollerInterval() {
 		Integer pollerInterval = Play.application().configuration().getInt("process.poller.interval");
 		return DateTime.now(DateTimeZone.UTC).minusMinutes(pollerInterval);
+	}
+	
+	
+	/**
+	 * Returns the asset (javascript, image, stylesheet, etc.) for the application
+	 */
+	public static String getAsset(String path) {
+		return Play.application().configuration().getString("application.URL.assets") + path;
+		// return controllers.routes.Assets.at("images/nodes/asana.png").absoluteURL(Controller.request());
 	}
 	
 }

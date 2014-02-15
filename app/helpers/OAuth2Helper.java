@@ -9,7 +9,6 @@ import org.codehaus.jackson.JsonNode;
 
 import play.Play;
 import play.libs.WS;
-import play.mvc.Controller;
 
 public class OAuth2Helper {
 
@@ -22,18 +21,15 @@ public class OAuth2Helper {
 	 */
 	private static String getRedirectURI(String nodeId) {
 		String URI = null;
-		try {
-			URI = controllers.routes.Application.oauth2TokenCallback(nodeId).absoluteURL(Controller.request());
-		}catch (Exception exception) {
-			if(Play.isProd()) {
-				URI = Play.application().configuration().getString("application.URL.PROD") + 
-						"/app/oauth2/callback/" + nodeId;
-			} else {
-				URI = Play.application().configuration().getString("application.URL.DEV") + 
-						"/app/oauth2/callback/" + nodeId;
-			}
-		}
 		
+		if(Play.isProd()) {
+			URI = Play.application().configuration().getString("application.URL.PROD") + 
+					"/app/oauth2/callback/" + nodeId;
+		} else {
+			URI = Play.application().configuration().getString("application.URL.DEV") + 
+					"/app/oauth2/callback/" + nodeId;
+		}
+
 		return URI;
 	}
 	

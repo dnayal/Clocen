@@ -7,9 +7,9 @@
 	<head>
 		<title>Login</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link href="http://fonts.googleapis.com/css?family=Ubuntu:300" rel="stylesheet" type="text/css">
-		<link href="@routes.Assets.at("stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
-		<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" media="screen">
+		<link href="//fonts.googleapis.com/css?family=Ubuntu:300" rel="stylesheet" type="text/css">
+		<link href="@helpers.UtilityHelper.getAsset("/stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
+		<link href="@helpers.UtilityHelper.getAsset("/stylesheets/main.css")" rel="stylesheet" media="screen">
 	</head>
 	<body ng-app>
 		@navbar()
@@ -45,11 +45,6 @@
 							</div>
 						</div>
 						<br/>
-						<div class="row" style="padding-bottom: 10px;">
-							<div class="col-md-offset-3 col-md-6">
-								<button class="btn btn-primary btn-lg btn-block" type="submit" ng-disabled="loginform.$invalid">Login</button>
-							</div>
-						</div>
 						<div class="row" >
 							<div class="col-md-offset-3 col-md-4">
 								<input type="checkbox" name="rememberMe" value="true" id="rememberMe"> &nbsp;Stay Logged In
@@ -58,10 +53,16 @@
 								<a class="pull-right" href="@routes.Application.getForgotAndResetPasswordPage("forgot")">Forgot Password?</a>
 							</div>
 						</div>
+						<br/>
+						<div class="row" style="padding-bottom: 10px;">
+							<div class="col-md-offset-3 col-md-6">
+								<button class="btn btn-primary btn-lg btn-block" type="submit" ng-disabled="loginform.$invalid">Login</button>
+							</div>
+						</div>
 						}
 					</div>
 			</div>
 		</div>
-		<script type="text/javascript" src="@routes.Assets.at("javascripts/angular.min.js")"></script>
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.4/angular.min.js"></script>
 	</body>
 </html>

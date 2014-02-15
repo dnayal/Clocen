@@ -19,7 +19,6 @@ import nodes.Node;
 import org.codehaus.jackson.JsonNode;
 
 import play.data.DynamicForm;
-import play.mvc.Controller;
 import process.ProcessExecutor;
 
 /**
@@ -79,7 +78,7 @@ public class Box implements Node, BoxConstants {
 
 	@Override
 	public String getLogo() {
-		return controllers.routes.Assets.at("images/nodes/box.png").absoluteURL(Controller.request());
+		return UtilityHelper.getAsset("/images/nodes/box.png");
 	}
 
 
