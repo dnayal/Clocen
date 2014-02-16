@@ -152,7 +152,8 @@ public class ServiceAccessToken extends Model {
 				}
 			} catch (Exception exception) {
 				UtilityHelper.logError(COMPONENT_NAME, "refreshToken()", "Unable to refresh token for userId:" + key.getUserId() + " nodeId:"+ key.getNodeId(), exception);
-				delete();
+				// TODO come back to see if token should be deleted if refresh failed
+				// delete();
 				success = false;
 			}
 		}

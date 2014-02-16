@@ -19,6 +19,8 @@ import akka.routing.RoundRobinRouter;
 /**
  * This class that runs all processes created by users, 
  * and manages all concurrency issues of running multiple processes
+ * 
+ * Akka Getting Started - http://doc.akka.io/docs/akka/2.0.2/intro/getting-started-first-java.html
  */
 @SuppressWarnings("serial")
 public class ProcessManager {

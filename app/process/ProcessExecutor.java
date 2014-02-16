@@ -34,14 +34,21 @@ public class ProcessExecutor {
 		// Get the nodes in the process (in array format)
 		ArrayList<Map<String, Object>> array = process.getProcessDataAsObject();
 		
-		executeProcess(array, Node.TRIGGER_TYPE_POLL, process.getUserId());
+		try {
+			executeProcess(array, Node.TRIGGER_TYPE_POLL, process.getUserId());
+		} catch (Exception exception) {
+			UtilityHelper.logError(COMPONENT_NAME, "executePollProcess()", "Process # " + process.getProcessId() + " - "+ exception.getMessage(), exception);
+		}
 
 	}
 	
 	
 	public static void executeHookProcess(ArrayList<Map<String, Object>> array, String userId) {
-
-		executeProcess(array, Node.TRIGGER_TYPE_HOOK, userId);
+		try {
+			executeProcess(array, Node.TRIGGER_TYPE_HOOK, userId);
+		} catch (Exception exception) {
+			UtilityHelper.logError(COMPONENT_NAME, "executeHookProcess()", "User # " + userId + " - "+ exception.getMessage(), exception);
+		}
 	}
 	
 	
@@ -88,6 +95,11 @@ public class ProcessExecutor {
 					// except that the output variables of the output node will be populated 
 					// with the values retrieved from the operation
 					ServiceAccessToken sat = ServiceAccessToken.getServiceAccessToken(new ServiceAccessTokenKey(userId, serviceNode.getNodeId()));
+					// if the service token is null then the user might have   
+					// revoked the rights (or the token would have been deleted) 
+					// and there is no point in executing the rest of the process
+					if(sat == null)
+						return;
 					previousNode = serviceNode.executeService(operation, sat, data); 
 				}
 				
