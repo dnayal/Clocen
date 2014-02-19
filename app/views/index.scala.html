@@ -11,33 +11,69 @@
 		<link href="@helpers.UtilityHelper.getAsset("/stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
 		<link href="@helpers.UtilityHelper.getAsset("/stylesheets/main.css")" rel="stylesheet" media="screen">
 	</head>
-	<body style="background: url('@helpers.UtilityHelper.getAsset("/images/wallpaper.jpeg")') no-repeat center center fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover;" ng-app>
+	<body ng-app style="background: url('@helpers.UtilityHelper.getAsset("/images/blue-background.png")') repeat center center;" >
 		@navbar()
-		<div class="container">
-			<div class="row">
-				<div class="col-md-12">
-					<h1 class="cc-title-light">Connect your business applications</h1>
-				</div>
-			</div>
-			<div class="row" style="padding-bottom: 50px; color: #F0F8FF; text-shadow: black 0.1em 0.1em 0.2em;">
-				<div class="col-md-offset-3 col-md-7">
-					<h3><span class="glyphicon glyphicon-cloud text-info"></span>&nbsp;&nbsp;Integrate Internet applications that you use for work</h3>
-					<h3><span class="glyphicon glyphicon-cloud text-info"></span>&nbsp;&nbsp;Automate your business processes free of cost</h3>
-					<h3><span class="glyphicon glyphicon-cloud text-info"></span>&nbsp;&nbsp;Get rid of data copying hassles</h3>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-md-offset-3 col-md-6">
-					@form(routes.UserController.signup(), 'name -> "signupform") {
-					<span ng-show="signupform.email.$error.maxlength" class="text-warning">Email id should not be longer than 75 characters</span>
-					<div class="input-group">
-						<span class="input-group-addon">@@</span>
-						<input class="form-control input-lg" name="email" id="email" ng-model="email" ng-maxlength="75" type="email" placeholder="Email" ng-required="true">
-						<span class="input-group-btn">
-							<button class="btn btn-primary btn-lg" type="submit" ng-disabled="signupform.$invalid">Sign Up</button>
-						</span>
+		<div class="jumbotron" style="background: url('@helpers.UtilityHelper.getAsset("/images/wallpaper.jpeg")') no-repeat center center fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover;" >
+			<div class="container" style="padding-bottom: 50px;">
+				<div class="row">
+					<div class="col-md-12">
+						<h1 class="cc-title-light" style="color: #F0F8FF;">Connect your business applications</h1>
 					</div>
-					}
+				</div>
+				<div class="row" style="padding-bottom: 50px; color: #F0F8FF; text-shadow: black 0.1em 0.1em 0.2em;">
+					<div class="col-md-offset-3 col-md-7">
+						<h3><span class="glyphicon glyphicon-cloud text-info"></span>&nbsp;&nbsp;Integrate Internet applications that you use for work</h3>
+						<h3><span class="glyphicon glyphicon-cloud text-info"></span>&nbsp;&nbsp;Automate your business processes free of cost</h3>
+						<h3><span class="glyphicon glyphicon-cloud text-info"></span>&nbsp;&nbsp;Get rid of data copying hassles</h3>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-offset-3 col-md-6">
+						@form(routes.UserController.signup(), 'name -> "signupform") {
+						<span ng-show="signupform.email.$error.maxlength" class="text-warning">Email id should not be longer than 75 characters</span>
+						<div class="input-group">
+							<span class="input-group-addon">@@</span>
+							<input class="form-control input-lg" name="email" id="email" ng-model="email" ng-maxlength="75" type="email" placeholder="Email" ng-required="true">
+							<span class="input-group-btn">
+								<button class="btn btn-primary btn-lg" type="submit" ng-disabled="signupform.$invalid">Sign Up</button>
+							</span>
+						</div>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="container" style="padding-bottom: 50px; color: #F0F8FF;">
+			<div class="row">
+				<div class="col-md-offset-4 col-md-4" style="text-align: center;">
+					<h1 style="color: orange;" class="page-header">Control the Cloud</h1>
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-5">
+					<img src="@helpers.UtilityHelper.getAsset("/images/process-create.png")" class="img-thumbnail" style="width: 450px;" alt="Create process">
+					<div class="caption">
+						<h2 style="color: orange;">Create Processes</h2>
+						<p class="lead">Connect your CRM, finance, marketing and other Internet applications, and automate your business processes.</p>
+					</div>
+				</div>
+				
+				<div class="col-md-offset-2 col-md-5">
+					<img src="@helpers.UtilityHelper.getAsset("/images/process-view.png")" class="img-thumbnail" style="width: 450px;" alt="View process">
+					<div class="caption">
+						<h2 style="color: orange;">Manage Processes</h2>
+						<p class="lead">View all your processes and business applications. Take control of the cloud.</p>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-offset-4 col-md-4" style="text-align: center;">
+					<img src="@helpers.UtilityHelper.getAsset("/images/secure.png")" class="img-circle" style="width: 200px;" alt="Secure">
+					<div class="caption">
+						<h2 style="color: orange;">Secure and Safe</h2>
+						<p class="lead">Clocen is secure. Your passwords are encrypted, and communication is done on SSL.</p>
+					</div>
 				</div>
 			</div>
 		</div>
