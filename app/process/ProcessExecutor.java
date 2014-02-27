@@ -35,17 +35,31 @@ public class ProcessExecutor {
 		ArrayList<Map<String, Object>> array = process.getProcessDataAsObject();
 		
 		try {
-			executeProcess(array, Node.TRIGGER_TYPE_POLL, process.getUserId());
+			executeProcess(process.getProcessId(), array, Node.TRIGGER_TYPE_POLL, process.getUserId());
 		} catch (Exception exception) {
-			UtilityHelper.logError(COMPONENT_NAME, "executePollProcess()", "Process # " + process.getProcessId() + " - "+ exception.getMessage(), exception);
+			UtilityHelper.logError(COMPONENT_NAME, "executePollProcess(Process)", "Process # " + process.getProcessId() + " - "+ exception.getMessage(), exception);
 		}
 
 	}
 	
 	
-	public static void executeHookProcess(ArrayList<Map<String, Object>> array, String userId) {
+	/**
+	 * Executes poll processes called by Node triggers
+	 */
+	public static void executePollProcess(String processId, ArrayList<Map<String, Object>> array, String userId) {
+		
 		try {
-			executeProcess(array, Node.TRIGGER_TYPE_HOOK, userId);
+			executeProcess(processId, array, Node.TRIGGER_TYPE_POLL_CALLED_BY_NODE, userId);
+		} catch (Exception exception) {
+			UtilityHelper.logError(COMPONENT_NAME, "executePollProcess(ArrayList)", "Process # " + processId + " - "+ exception.getMessage(), exception);
+		}
+
+	}
+
+	
+	public static void executeHookProcess(String processId, ArrayList<Map<String, Object>> array, String userId) {
+		try {
+			executeProcess(processId, array, Node.TRIGGER_TYPE_HOOK, userId);
 		} catch (Exception exception) {
 			UtilityHelper.logError(COMPONENT_NAME, "executeHookProcess()", "User # " + userId + " - "+ exception.getMessage(), exception);
 		}
@@ -56,7 +70,7 @@ public class ProcessExecutor {
 	 * This is the main process of this class
 	 */
 	@SuppressWarnings("unchecked")
-	private static void executeProcess(ArrayList<Map<String, Object>> array, String triggerType, String userId) {
+	private static void executeProcess(String processId, ArrayList<Map<String, Object>> array, String triggerType, String userId) {
 		
 		Map<String, Object> previousNode = null;
 
@@ -67,8 +81,12 @@ public class ProcessExecutor {
 			for(Map<String, Object> node : array) {
 				
 				// if it is HOOK type trigger then the first node is already populated
-				if (triggerType.equalsIgnoreCase(Node.TRIGGER_TYPE_HOOK) && arrayIndex==0){
+				if ((triggerType.equalsIgnoreCase(Node.TRIGGER_TYPE_HOOK) 
+						|| triggerType.equalsIgnoreCase(Node.TRIGGER_TYPE_POLL_CALLED_BY_NODE)) 
+							&& arrayIndex==0) {
+
 					previousNode = (Map<String, Object>) node.get("data");
+					
 				} else {
 					String nodeId = (String) node.get("node");
 					
@@ -100,7 +118,7 @@ public class ProcessExecutor {
 					// and there is no point in executing the rest of the process
 					if(sat == null)
 						return;
-					previousNode = serviceNode.executeService(operation, sat, data); 
+					previousNode = serviceNode.executeService(processId, arrayIndex, operation, sat, data); 
 				}
 				
 				arrayIndex++;

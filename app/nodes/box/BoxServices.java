@@ -106,7 +106,7 @@ public class BoxServices implements BoxConstants {
 	 * TODO - If there are multiple files to be attached, for now 
 	 * this method only returns the information of the last file created
 	 */
-	public Map<String, Object> createFile(Map<String, Object> data) {
+	public Map<String, Object> createFile(String processId, Integer nodeIndex, Map<String, Object> data) {
 		// get the input variables
 		ArrayList<Map<String, Object>> inputs = (ArrayList<Map<String, Object>>) data.get("input");
 		String parentFolderId = null, fileName = null;
@@ -203,7 +203,7 @@ public class BoxServices implements BoxConstants {
 	/**
 	 * Create new folder
 	 */
-	public Map<String, Object> createFolder(Map<String, Object> data) {
+	public Map<String, Object> createFolder(String processId, Integer nodeIndex, Map<String, Object> data) {
 		// get the input variables
 		ArrayList<Map<String, Object>> inputs = (ArrayList<Map<String, Object>>) data.get("input");
 		String parentFolderId = null, folderName = null;

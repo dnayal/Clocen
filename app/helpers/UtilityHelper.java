@@ -1,8 +1,6 @@
 package helpers;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -19,6 +17,7 @@ import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.MappingJsonFactory;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -27,6 +26,7 @@ import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
 import play.Play;
 
+@SuppressWarnings("unchecked")
 public class UtilityHelper {
 	
 	private static final String COMPONENT_NAME = "Utility Helper";	
@@ -82,45 +82,13 @@ public class UtilityHelper {
 	 * Method used to get the node config (data node) as string
 	 * Used for debugging purposes
 	 */
-	@SuppressWarnings("unchecked")
 	public static String convertMapObjectToString(Map<String, Object> data) {
-		StringBuffer string = new StringBuffer();
-		
-		String id = (String) data.get("id");
-		if(UtilityHelper.isEmptyString(id))
-			string.append("id:"+id+"..");
-		
-		String name = (String) data.get("name");
-		if(UtilityHelper.isEmptyString(name))
-			string.append("name:"+name+"..");
-
-		ArrayList<Map<String, String>> inputs = (ArrayList<Map<String, String>>)data.get("input");
-		if(inputs!=null) {
-			string.append("..INPUTS..");
-			for(Map<String, String> input : inputs) {
-				Iterator<String> iterator = input.keySet().iterator();
-				while(iterator.hasNext()) {
-					String key = iterator.next();
-					Object value = input.get(key);
-					if(value instanceof String)
-						string.append(key+":"+input.get(key)+"..");
-				}
-			}
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			return mapper.writeValueAsString(data);
+		} catch (Exception exception) {
+			return null;
 		}
-		
-		ArrayList<Map<String, String>> outputs = (ArrayList<Map<String, String>>)data.get("output");
-		if(inputs!=null) {
-			string.append("..OUTPUTS..");
-			for(Map<String, String> output : outputs) {
-				Iterator<String> iterator = output.keySet().iterator();
-				while(iterator.hasNext()) {
-					String key = iterator.next();
-					string.append(key+":"+output.get(key)+"..");
-				}
-			}
-		}
-
-		return string.toString();
 	}
 	
 	
@@ -200,6 +168,23 @@ public class UtilityHelper {
 	public static String getAsset(String path) {
 		return Play.application().configuration().getString("application.URL.assets") + path;
 		// return controllers.routes.Assets.at("images/nodes/asana.png").absoluteURL(Controller.request());
+	}
+	
+	
+	/**
+	 * Returns a deep cloned version of the Map. Used by trigger 
+	 * methods to spawn multiple processes without affecting object references
+	 */
+	public static Map<String, Object> deepCloneNodeData(Map<String, Object> nodeData) {
+		Map<String, Object> clonedData = null;
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			String json = mapper.writeValueAsString(nodeData);
+			clonedData = mapper.readValue(json, Map.class);
+		} catch (Exception exception) {
+			UtilityHelper.logError(COMPONENT_NAME, "deepCloneObjectUsingJSON()", "Failed in serializing object using jackson objectmapper", exception);
+		}
+		return clonedData;
 	}
 	
 }

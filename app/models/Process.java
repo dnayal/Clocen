@@ -20,6 +20,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import play.Play;
 import play.db.ebean.Model;
 import play.libs.Json;
+import process.ProcessExecutor;
 
 import com.avaje.ebean.Expr;
 
@@ -223,6 +224,31 @@ public class Process extends Model {
 	}
 	
 	
+	/**
+	 * This method creates a process array and copies the node data to it.
+	 * Currently, it is only used by trigger services (node index = 0)
+	 */
+	public static void executePollProcessWithDeepClonedProcessArray(String processId, Integer nodeIndex, Map<String, Object> data) { 
+		try {
+			// get the process object
+			Process process = getProcess(processId);
+			// get the arraylist representation of the process
+			ArrayList<Map<String, Object>> processArray = process.getProcessDataAsObject();
+			// get the node with the given index
+			Map<String, Object> dataMap = (Map<String, Object>) processArray.get(nodeIndex);
+			// map the node data to the array
+			// it is important to remember that nodes use the "data" part node the whole node element directly
+			dataMap.put("data", data);
+			// execute the process as if it were a proper process
+			ProcessExecutor.executePollProcess(processId, processArray, process.getUserId());
+		} catch (Exception exception) {
+			UtilityHelper.logError(COMPONENT_NAME, "executePollProcessWithDeepClonedProcessArray()", 
+					"Execution failed for process[" + processId + "][" + nodeIndex + "] - " + exception.getMessage(), 
+					exception);
+		}
+	}
+	
+
 	public Boolean isUserOwner(String userId) {
 		if(userId.equalsIgnoreCase(this.userId))
 			return true;

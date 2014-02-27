@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import models.IdName;
+import models.Process;
 import models.ServiceAccessToken;
 import nodes.Node;
 
@@ -105,7 +106,7 @@ public class AsanaServices implements AsanaConstants {
 	 * the call to Asana. Once it gets the result, output values are stored in 
 	 * the map object 
 	 */
-	public Map<String, Object> getNewTaskCreated(Map<String, Object> data) {
+	public Map<String, Object> getNewTaskCreated(String processId, Integer nodeIndex, Map<String, Object> data) {
 		// get the input variables
 		ArrayList<Map<String, Object>> inputs = (ArrayList<Map<String, Object>>)data.get("input");
 		String workspaceId = null;
@@ -152,12 +153,20 @@ public class AsanaServices implements AsanaConstants {
 			// if a new task was created, populate the output variables with 
 			// the task details
 			if(taskCreateDate.isAfter(nowMinusPollerInterval)) {
+				// create a deep clone of the object so that 
+				// objects are not used using reference
+				// This deep cloned object is created every time a matching new task 
+				// is found to be created so that its information can be added on 
+				// to the process array information for execution without 
+				// affecting reference of any other object
+				Map<String, Object> clonedData = UtilityHelper.deepCloneNodeData(data);
+				
 				String taskId = taskJson.get("id").asText();
 				String taskName = taskJson.get("name").asText();
 				String taskDescription = taskJson.get("notes").asText();
 				ArrayList<Map<String, Object>> attachments = getAttachments(taskId);
 				
-				ArrayList<Map<String, Object>> outputs = (ArrayList<Map<String, Object>>)data.get("output");
+				ArrayList<Map<String, Object>> outputs = (ArrayList<Map<String, Object>>)clonedData.get("output");
 				for(Map<String, Object> output : outputs) {
 					String id = (String) output.get("id");
 					
@@ -175,8 +184,8 @@ public class AsanaServices implements AsanaConstants {
 				UtilityHelper.logMessage(COMPONENT_NAME, "getNewTaskCreated()", "New Task Event processed for Asana for user [" + sat.getKey().getUserId() + "]");
 				
 				// if you did get a newly created task, and have got its details, 
-				// return the data for the first matching task you get
-				return data;
+				// map it to the process array and get it executed
+				Process.executePollProcessWithDeepClonedProcessArray(processId, nodeIndex, clonedData);
 			}
 		}
 
@@ -190,7 +199,7 @@ public class AsanaServices implements AsanaConstants {
 	 * extract its properties to pass to the next activity in 
 	 * the process  
 	 */
-	public Map<String, Object> getNewProjectCreated(Map<String, Object> data) {
+	public Map<String, Object> getNewProjectCreated(String processId, Integer nodeIndex, Map<String, Object> data) {
 		// get the input variables
 		ArrayList<Map<String, Object>> inputs = (ArrayList<Map<String, Object>>) data.get("input");
 		String workspaceId = null;
@@ -235,12 +244,20 @@ public class AsanaServices implements AsanaConstants {
 			// if a new project was created, populate the output variables with 
 			// the project details
 			if(projectCreateDate.isAfter(nowMinusPollerInterval)) {
+				// create a deep clone of the object so that 
+				// objects are not used using reference
+				// This deep cloned object is created every time a matching new task 
+				// is found to be created so that its information can be added on 
+				// to the process array information for execution without 
+				// affecting reference of any other object
+				Map<String, Object> clonedData = UtilityHelper.deepCloneNodeData(data);
+
 				String projectId = projectJSON.get("id").asText();
 				String projectName = projectJSON.get("name").asText();
 				String projectDescription = projectJSON.get("notes").asText();
 				
 				
-				ArrayList<Map<String, Object>> outputs = (ArrayList<Map<String, Object>>)data.get("output");
+				ArrayList<Map<String, Object>> outputs = (ArrayList<Map<String, Object>>)clonedData.get("output");
 				for(Map<String, Object> output : outputs) {
 					String id = (String) output.get("id");
 					
@@ -256,8 +273,8 @@ public class AsanaServices implements AsanaConstants {
 				UtilityHelper.logMessage(COMPONENT_NAME, "getNewProjectCreated()", "New Project Event processed for Asana for user [" + sat.getKey().getUserId() + "]");
 				
 				// if you did get a newly created task, and have got its details, 
-				// return the data for the first matching task you get
-				return data;
+				// map it to the process array and get it executed
+				Process.executePollProcessWithDeepClonedProcessArray(processId, nodeIndex, clonedData);
 			}
 		}
 		
@@ -268,7 +285,7 @@ public class AsanaServices implements AsanaConstants {
 	/**
 	 * Create new task with the assignee as the user who created the process
 	 */
-	public Map<String, Object> createTask(Map<String, Object> data) {
+	public Map<String, Object> createTask(String processId, Integer nodeIndex, Map<String, Object> data) {
 		// get the input variables
 		ArrayList<Map<String, Object>> inputs = (ArrayList<Map<String, Object>>)data.get("input");
 		String workspaceId = null, taskName = null, taskDescription = null;
@@ -377,7 +394,7 @@ public class AsanaServices implements AsanaConstants {
 	/**
 	 * Create new project
 	 */
-	public Map<String, Object> createProject(Map<String, Object> data) {
+	public Map<String, Object> createProject(String processId, Integer nodeIndex, Map<String, Object> data) {
 		// get the input variables
 		ArrayList<Map<String, Object>> inputs = (ArrayList<Map<String, Object>>)data.get("input");
 		String workspaceId = null, projectName = null, projectDescription = null;

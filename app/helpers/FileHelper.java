@@ -54,7 +54,7 @@ public class FileHelper {
 	public String setFileSource(String data) {
 		this.fileURLorData = data;
 		this.fileId = UtilityHelper.getUniqueId();
-		this.fileName = fileId + "_TEXT";
+		this.fileName = fileId + "_TEXT.txt";
 		this.sourceType = SourceFileType.TEXT;
 		
 		return fileId;

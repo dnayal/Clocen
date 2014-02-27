@@ -16,6 +16,7 @@ public interface Node {
 	};
 	
 	public static final String TRIGGER_TYPE_POLL = "poll";
+	public static final String TRIGGER_TYPE_POLL_CALLED_BY_NODE = "poll_node";
 	public static final String TRIGGER_TYPE_HOOK = "hook";
 	
 	// constants for service attributes
@@ -57,7 +58,7 @@ public interface Node {
 	/**
 	 * Executes the required service for the node
 	 */
-	public Map<String, Object> executeService(String serviceName, ServiceAccessToken sat, Map<String, Object> nodeData);
+	public Map<String, Object> executeService(String processId, Integer nodeIndex, String serviceName, ServiceAccessToken sat, Map<String, Object> nodeData);
 	
 	
 	/**

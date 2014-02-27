@@ -185,15 +185,15 @@ public class Box implements Node, BoxConstants {
 	 * Box services exposed to the user
 	 */
 	@Override
-	public Map<String, Object> executeService(String serviceName, ServiceAccessToken sat, Map<String, Object> nodeData) {
+	public Map<String, Object> executeService(String processId, Integer nodeIndex, String serviceName, ServiceAccessToken sat, Map<String, Object> nodeData) {
 		BoxServices services = new BoxServices(sat);
 		
 		// service to create a new file
 		if(serviceName.equalsIgnoreCase(SERVICE_ACTION_CREATE_FILE)) {
-			return services.createFile(nodeData);
+			return services.createFile(processId, nodeIndex, nodeData);
 		// service to create a new folder	
 		} if(serviceName.equalsIgnoreCase(SERVICE_ACTION_CREATE_FOLDER)) {
-			return services.createFolder(nodeData);
+			return services.createFolder(processId, nodeIndex, nodeData);
 		} else { 
 			return null;
 		}
@@ -241,7 +241,7 @@ public class Box implements Node, BoxConstants {
 				// update the process array with it
 				if(output != null) {
 					array.set(0, output);
-					ProcessExecutor.executeHookProcess(array, params.getKey().getUserId());
+					ProcessExecutor.executeHookProcess(process.getProcessId(), array, params.getKey().getUserId());
 				}
 			}
 			
@@ -265,7 +265,7 @@ public class Box implements Node, BoxConstants {
 				// update the process array with it
 				if(output != null) {
 					array.set(0, output);
-					ProcessExecutor.executeHookProcess(array, params.getKey().getUserId());
+					ProcessExecutor.executeHookProcess(process.getProcessId(), array, params.getKey().getUserId());
 				}
 			}
 		}

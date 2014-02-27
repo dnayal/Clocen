@@ -135,21 +135,21 @@ public class Asana implements Node, AsanaConstants {
 	 * Asana services exposed to the user
 	 */
 	@Override
-	public Map<String, Object> executeService(String serviceName, ServiceAccessToken sat, Map<String, Object> nodeData) {
+	public Map<String, Object> executeService(String processId, Integer nodeIndex, String serviceName, ServiceAccessToken sat, Map<String, Object> nodeData) {
 		AsanaServices services = new AsanaServices(sat);
 		
 		// service to know whether new task was created
 		if (serviceName.equalsIgnoreCase(SERVICE_TRIGGER_NEW_TASK_CREATED)) {
-			return services.getNewTaskCreated(nodeData);
+			return services.getNewTaskCreated(processId, nodeIndex, nodeData);
 		// service to create a new task
 		} else if (serviceName.equalsIgnoreCase(SERVICE_ACTION_CREATE_TASK)) {
-			return services.createTask(nodeData);
+			return services.createTask(processId, nodeIndex, nodeData);
 		// service to create a new project
 		} else if (serviceName.equalsIgnoreCase(SERVICE_ACTION_CREATE_PROJECT)) {
-			return services.createProject(nodeData);
+			return services.createProject(processId, nodeIndex, nodeData);
 		// service to know whether new project was created
 		} else if (serviceName.equalsIgnoreCase(SERVICE_TRIGGER_NEW_PROJECT_CREATED)) {
-			return services.getNewProjectCreated(nodeData);
+			return services.getNewProjectCreated(processId, nodeIndex, nodeData);
 		} else
 			return null;
 	}
