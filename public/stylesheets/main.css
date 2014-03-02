@@ -6,6 +6,15 @@ body {
 	padding-top: 50px;
 }
 
+.cc-index-feature-header {
+	font-family: 'Roboto', 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
+	color: #F08080;
+}
+
+.cc-index-feature-description {
+	color: #808080;
+}
+
 .cc-vertical-center {
 	top: 35%;
 }
@@ -64,6 +73,15 @@ body {
 	text-shadow: black 0.1em 0.1em 0.2em;
 }
 
+.cc-control-cloud {
+	text-align: center; 
+	font-size: 3.5em; 
+	padding-top: 35px; 
+	padding-bottom: 35px; 
+	color: #A9A9A9;	
+	font-family: 'Roboto', 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
+}
+
 .cc-title-dark {
 	text-align: center; 
 	font-size: 3.5em; 
@@ -84,4 +102,11 @@ input.ng-dirty.ng-invalid {
 	left: 0;
 	width: 100px;
 	height: 100px;
+}
+
+.index-feature-container {
+	padding-bottom: 100px; 
+	padding-top: 100px;
+	background-repeat: no-repeat;
+	background-position: 50% 0;		
 }
