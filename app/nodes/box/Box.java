@@ -4,22 +4,25 @@ import helpers.OAuth2Helper;
 import helpers.UtilityHelper;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
 import models.NodeParams;
 import models.NodeParamsKey;
 import models.Process;
-import models.ServiceAccessToken;
-import models.ServiceAccessTokenKey;
+import models.ServiceAuthToken;
 import models.User;
 import nodes.Node;
+import nodes.box.services.BoxConstants;
+import nodes.box.services.BoxServices;
 
 import org.codehaus.jackson.JsonNode;
 
+import play.Play;
 import play.data.DynamicForm;
 import process.ProcessExecutor;
+import auth.NodeAuthType;
+import auth.OAuth2NodeDefaultImpl;
 
 /**
  * Box access token is valid for 1 hour. In order to get a new valid token, 
@@ -28,28 +31,38 @@ import process.ProcessExecutor;
  * BOX API DOC - http://developers.box.com/docs/
  *
  */
-public class Box implements Node, BoxConstants {
+public class Box extends OAuth2NodeDefaultImpl implements BoxConstants {
 
 	private static final String COMPONENT_NAME = "Box Node";	
 
 	@Override
-	public String authorize(String userId, AccessType accessType, String data) {
-		String response = OAuth2Helper.getAccess(userId, NODE_ID, CLIENT_ID, CLIENT_SECRET, 
-				accessType, data, OAUTH_AUTHORIZE_URL, OAUTH_TOKEN_URL);
+	public String authorize(String userId, OAuth2AccessType accessType, String data) {
+		String response = null;
+		
+		// Use test API account in DEV and TEST environments
+		if(Play.isDev() || Play.isTest()) {
+			UtilityHelper.logMessage(COMPONENT_NAME, "authorize()", "Authorizing Box node using test API account");
+			response = OAuth2Helper.getAccess(userId, NODE_ID, TEST_CLIENT_ID, TEST_CLIENT_SECRET, 
+					this, accessType, data, OAUTH_AUTHORIZE_URL, OAUTH_TOKEN_URL);
+		// use proper Clocen account in PROD
+		} else {
+			response = OAuth2Helper.getAccess(userId, NODE_ID, CLIENT_ID, CLIENT_SECRET, 
+					this, accessType, data, OAUTH_AUTHORIZE_URL, OAUTH_TOKEN_URL);
+		}
 
 		// replacing this if loop with switch case will give error
 		// because the compiler then generates an internal class
 		// which fails in ServiceNodeHelper.getNodeClass as runtime 
 		// engine is unable to instantiate it
-		if(accessType==AccessType.OAUTH_RENEW || accessType==AccessType.OAUTH_TOKEN) {
-			ServiceAccessTokenKey key = new ServiceAccessTokenKey(userId, NODE_ID);
-			BoxServices boxServices = new BoxServices(ServiceAccessToken.getServiceAccessToken(key));
+		if(accessType==OAuth2AccessType.OAUTH2_RENEW || accessType==OAuth2AccessType.OAUTH2_TOKEN) {
+			List<ServiceAuthToken> serviceTokens = ServiceAuthToken.getServiceAuthTokens(userId, NODE_ID);
+			BoxServices boxServices = new BoxServices(this, serviceTokens);
 
 			// get the user id and store it
 			String id = boxServices.getUserId();
 			if(!UtilityHelper.isEmptyString(id)) {
 				NodeParams params = new NodeParams(new NodeParamsKey(userId, NODE_ID, PARAM_USER_ID), 
-											id, Calendar.getInstance().getTime());
+											id, UtilityHelper.getCurrentTime());
 				params.store();
 			}
 		}
@@ -99,7 +112,7 @@ public class Box implements Node, BoxConstants {
 	 */
 	@Override
 	public Boolean serviceResponseHasError(String serviceName, Integer statusCode, 
-			JsonNode responseJSON, ServiceAccessToken serviceToken) {
+			JsonNode responseJSON, List<ServiceAuthToken> serviceTokens) {
 	
 		Boolean serviceHasErrors = true; 
 		
@@ -154,7 +167,7 @@ public class Box implements Node, BoxConstants {
 	
 			for(JsonNode error : errors) {
 				UtilityHelper.logMessage(COMPONENT_NAME, "serviceResponseHasError()", "Service error for user [" + 
-						serviceToken.getKey().getUserId() + "] & node [" + serviceToken.getKey().getNodeId() + 
+						serviceTokens.get(0).getKey().getUserId() + "] & node [" + serviceTokens.get(0).getKey().getNodeId() + 
 						"] - (" + serviceName + ")" + error.get("message").asText() + " [" + statusCode + "]");
 			}
 		}
@@ -168,9 +181,8 @@ public class Box implements Node, BoxConstants {
 	 */
 	@Override
 	public JsonNode callInfoService(User user, String service) {
-		ServiceAccessTokenKey key = new ServiceAccessTokenKey(user.getUserId(), getNodeId());
-		ServiceAccessToken token = ServiceAccessToken.getServiceAccessToken(key);
-		BoxServices services = new BoxServices(token);
+		List<ServiceAuthToken> serviceTokens = ServiceAuthToken.getServiceAuthTokens(user.getUserId(), getNodeId());
+		BoxServices services = new BoxServices(this, serviceTokens);
 		
 		// service to get list of all folders to monitor
 		if (service.equalsIgnoreCase(SERVICE_INFO_GET_FOLDERS)) {
@@ -185,8 +197,8 @@ public class Box implements Node, BoxConstants {
 	 * Box services exposed to the user
 	 */
 	@Override
-	public Map<String, Object> executeService(String processId, Integer nodeIndex, String serviceName, ServiceAccessToken sat, Map<String, Object> nodeData) {
-		BoxServices services = new BoxServices(sat);
+	public Map<String, Object> executeService(String processId, Integer nodeIndex, String serviceName, List<ServiceAuthToken> serviceTokens, Map<String, Object> nodeData) {
+		BoxServices services = new BoxServices(this, serviceTokens);
 		
 		// service to create a new file
 		if(serviceName.equalsIgnoreCase(SERVICE_ACTION_CREATE_FILE)) {
@@ -213,11 +225,16 @@ public class Box implements Node, BoxConstants {
 		// For the given box id, get the NodeParams based on the incoming userId
 		// This will provide us with the internal user id mapped in Clocen
 		NodeParams params = NodeParams.retrieveByValue(NODE_ID, PARAM_USER_ID, boxUserId);
+		
+		// if the user is not mapped in Clocen, do not proceed
+		if (params==null) {
+			return;
+		}
+		
 		// Once you have the Clocen user id, you can create a 
 		// servicetoken to get the processes created by the user
-		ServiceAccessTokenKey key = new ServiceAccessTokenKey(params.getKey().getUserId(), NODE_ID);
-		ServiceAccessToken accessToken = ServiceAccessToken.getServiceAccessToken(key);
-		BoxServices boxServices = new BoxServices(accessToken);
+		List<ServiceAuthToken> serviceTokens = ServiceAuthToken.getServiceAuthTokens(params.getKey().getUserId(), getNodeId());
+		BoxServices boxServices = new BoxServices(this, serviceTokens);
 		
 		List<Process> processes = null;
 
@@ -228,7 +245,7 @@ public class Box implements Node, BoxConstants {
 															&& itemType.equalsIgnoreCase(ITEM_TYPE_FILE)) {
 			UtilityHelper.logMessage(COMPONENT_NAME, "executeTrigger()", "File Created or Updated for user id : " + params.getKey().getUserId());
 			// Get all the processes with the given trigger
-			processes = Process.getProcessesForTrigger(key, SERVICE_TRIGGER_FILE_UPLOADED);
+			processes = Process.getProcessesForTrigger(getUserId(serviceTokens), getNodeId(), SERVICE_TRIGGER_FILE_UPLOADED);
 			
 			// Loop through each process and check whether the trigger 
 			// has been fired for it. If so, map the output values
@@ -252,7 +269,7 @@ public class Box implements Node, BoxConstants {
 			
 			UtilityHelper.logMessage(COMPONENT_NAME, "executeTrigger()", "New Folder Created for user id : " + params.getKey().getUserId());
 			// Get all processes with the given trigger
-			processes = Process.getProcessesForTrigger(key, SERVICE_TRIGGER_NEW_FOLDER_CREATED);
+			processes = Process.getProcessesForTrigger(getUserId(serviceTokens), getNodeId(), SERVICE_TRIGGER_NEW_FOLDER_CREATED);
 
 			// Loop through each process and check whether the trigger 
 			// has been fired for it. If so, map the output values
@@ -269,5 +286,11 @@ public class Box implements Node, BoxConstants {
 				}
 			}
 		}
+	}
+
+
+	@Override
+	public NodeAuthType getAuthType() {
+		return NodeAuthType.OAUTH_2;
 	}
 }

@@ -2,9 +2,6 @@ package controllers;
 
 import helpers.SecurityHelper;
 import helpers.UtilityHelper;
-
-import java.util.Calendar;
-
 import models.BetaUser;
 import models.User;
 import play.data.DynamicForm;
@@ -81,7 +78,7 @@ public class UserController extends Controller {
 		try {
 			DynamicForm form = DynamicForm.form().bindFromRequest();
 			String email = form.get("email");
-			BetaUser user = new BetaUser(email, Calendar.getInstance().getTime(), false, false);
+			BetaUser user = new BetaUser(email, UtilityHelper.getCurrentTime(), false, false);
 			user.save();
 			UtilityHelper.logMessage(COMPONENT_NAME, "signup()", "Beta user [" + email + "] saved");
 			UtilityHelper.sendMail(email, "Thanks for signing up with Clocen!", signup_betauser.render().toString());
@@ -110,7 +107,7 @@ public class UserController extends Controller {
 					&& !UtilityHelper.isEmptyString(password) ) {
 				user.setUserId(UtilityHelper.getUniqueId());
 				user.setPassword(SecurityHelper.generateHash(user.getUserId(), password));
-				user.setCreateTimestamp(Calendar.getInstance().getTime());
+				user.setCreateTimestamp(UtilityHelper.getCurrentTime());
 				
 				user.save();
 				User.login(email, password);

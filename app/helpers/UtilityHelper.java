@@ -1,6 +1,9 @@
 package helpers;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -53,6 +56,15 @@ public class UtilityHelper {
 	}
 	
 	
+	/**
+	 * Returns the current time - the whole application should 
+	 * leverage this common method get the current date/time
+	 */
+	public static Date getCurrentTime() {
+		return Calendar.getInstance().getTime();
+	}
+	
+	
 	public static JsonNode getCountries() {
 		JsonNode result = null;
 		JsonFactory factory = new MappingJsonFactory();
@@ -93,12 +105,12 @@ public class UtilityHelper {
 	
 	
 	public static void logMessage(String component, String method, String message) {
-		Logger.debug("[" + Calendar.getInstance().getTime() + "] " + "["+ component +"] " + "[" + method + "] " + message);
+		Logger.debug("[" + getCurrentTime() + "] " + "["+ component +"] " + "[" + method + "] " + message);
 	}
 	
 
 	public static void logError(String component, String method, String message, Throwable error) {
-		Logger.error("[" + Calendar.getInstance().getTime() + "] " + "["+ component +"] " + "[" + method + "] " + message, error);
+		Logger.error("[" + getCurrentTime() + "] " + "["+ component +"] " + "[" + method + "] " + message, error);
 	}
 	
 
@@ -149,6 +161,15 @@ public class UtilityHelper {
 	public static DateTime convertToUTCTime(String dateTime, String format) {
 		DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(format);
 		return dateTimeFormatter.parseDateTime(dateTime).withZone(DateTimeZone.UTC);
+	}
+	
+	
+	/**
+	 * Converts date in string format to Date
+	 */
+	public static Date convertStringToDate(String format, String dateString) throws ParseException {
+		Date date = new SimpleDateFormat(format).parse(dateString);
+		return date;
 	}
 	
 

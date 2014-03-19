@@ -32,14 +32,13 @@ create table process (
   constraint pk_process primary key (process_id))
 ;
 
-create table service_access_token (
+create table service_auth_token (
   user_id                   varchar(100),
-  node_id                   varchar(20),
-  access_token              varchar(100),
-  refresh_token             varchar(100),
-  expiration_time           datetime,
+  node_id                   varchar(100),
+  token                     varchar(100),
+  value                     varchar(500),
   create_timestamp          datetime,
-  constraint pk_service_access_token primary key (user_id, node_id))
+  constraint pk_service_auth_token primary key (user_id, node_id, token))
 ;
 
 create table user (
@@ -69,7 +68,7 @@ drop table node_params;
 
 drop table process;
 
-drop table service_access_token;
+drop table service_auth_token;
 
 drop table user;
 

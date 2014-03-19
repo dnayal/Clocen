@@ -2,12 +2,11 @@ package controllers;
 
 import helpers.ServiceNodeHelper;
 import helpers.UtilityHelper;
-import models.ServiceAccessToken;
-import models.ServiceAccessTokenKey;
-import nodes.Node;
-import nodes.Node.AccessType;
 import play.data.DynamicForm;
-import play.mvc.*;
+import play.mvc.Controller;
+import play.mvc.Result;
+import auth.OAuth2AuthNode;
+import auth.OAuth2AuthNode.OAuth2AccessType;
 
 public class OAuth2Controller extends Controller {
 	
@@ -15,8 +14,8 @@ public class OAuth2Controller extends Controller {
 
 	
 	public static Result authorizeCall(String userId, String nodeId) {
-		Node node = ServiceNodeHelper.getNode(nodeId);
-		String result = node.authorize(userId, AccessType.OAUTH_AUTHORIZE, null);
+		OAuth2AuthNode node = (OAuth2AuthNode) ServiceNodeHelper.getNode(nodeId);
+		String result = node.authorize(userId, OAuth2AccessType.OAUTH2_AUTHORIZE, null);
 		
 		UtilityHelper.logMessage(COMPONENT_NAME, "authorizeCall()", result);
     	
@@ -38,17 +37,16 @@ public class OAuth2Controller extends Controller {
     	} else {
     		UtilityHelper.logMessage(COMPONENT_NAME, "tokenCallback()", "Code Received for User [" + userId + "] Node [" + nodeId + "]");
     		
-    		Node node = ServiceNodeHelper.getNode(nodeId);
-    		node.authorize(userId, AccessType.OAUTH_TOKEN, code);
+    		OAuth2AuthNode node = (OAuth2AuthNode) ServiceNodeHelper.getNode(nodeId);
+    		node.authorize(userId, OAuth2AccessType.OAUTH2_TOKEN, code);
 			return ok();
     	}
     }
     
     
     public static Result refreshToken(String userId, String nodeId) {
-    	ServiceAccessTokenKey key = new ServiceAccessTokenKey(userId, nodeId);
-    	ServiceAccessToken token = ServiceAccessToken.getServiceAccessToken(key);
-    	token.refreshToken();
+    	OAuth2AuthNode node = (OAuth2AuthNode) ServiceNodeHelper.getNode(nodeId);
+    	node.refreshAccessToken(userId, nodeId);
     	
 		UtilityHelper.logMessage(COMPONENT_NAME, "refreshToken()", "Refresh token for User [" + userId + "] Node [" + nodeId + "]");
 		

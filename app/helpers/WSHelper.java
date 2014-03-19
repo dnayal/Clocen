@@ -1,9 +1,10 @@
 package helpers;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
-import models.ServiceAccessToken;
+import models.ServiceAuthToken;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -14,6 +15,8 @@ import org.apache.http.entity.mime.content.AbstractContentBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.codehaus.jackson.map.ObjectMapper;
+
+import auth.OAuth2AuthNode;
 
 @SuppressWarnings("unchecked")
 public class WSHelper {
@@ -31,13 +34,14 @@ public class WSHelper {
 	 * @throws IOException 
 	 * @throws ClientProtocolException 
 	 */
-	public static Map<String, Object> postRequestWithFileUpload(String URL, ServiceAccessToken sat, 
-			Map<String, AbstractContentBody> bodyPart) throws ClientProtocolException, IOException {
+	public static Map<String, Object> postRequestWithFileUpload(String URL, OAuth2AuthNode oauthNode, 
+			List<ServiceAuthToken> serviceTokens, Map<String, AbstractContentBody> bodyPart) 
+					throws ClientProtocolException, IOException {
 		
 		Map<String, Object> map = null;
 
 		HttpPost postRequest = new HttpPost(URL);
-		postRequest.setHeader("Authorization", "Bearer " + sat.getAccessToken());
+		postRequest.setHeader("Authorization", "Bearer " + oauthNode.getAccessToken(serviceTokens));
 		
 		MultipartEntityBuilder multipartEntity = MultipartEntityBuilder.create();
 		// add the body parts 

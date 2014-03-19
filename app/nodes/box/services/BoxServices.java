@@ -1,4 +1,4 @@
-package nodes.box;
+package nodes.box.services;
 
 import helpers.FileHelper;
 import helpers.UtilityHelper;
@@ -8,11 +8,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import models.IdName;
-import models.ServiceAccessToken;
+import models.ServiceAuthToken;
 import nodes.Node;
+import nodes.box.Box;
 
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.content.AbstractContentBody;
@@ -30,19 +32,12 @@ public class BoxServices implements BoxConstants {
 
 	private static final String COMPONENT_NAME = "Box Services";
 
-	private ServiceAccessToken sat;
+	private List<ServiceAuthToken> serviceTokens = null;
+	private Box box = null;
 	
-	// if you delete this method, the Node initiation can fail
-	// as the ServiceNodeHelper looks for all classes in the  
-	// node.<<node id>> package and initializes using the  
-	// default constructor
-	public BoxServices() {
-		sat = null;
-	}
-	
-	
-	public BoxServices(ServiceAccessToken sat) {
-		this.sat = sat;
+	public BoxServices(Box box, List<ServiceAuthToken> serviceTokens) {
+		this.box = box;
+		this.serviceTokens = serviceTokens;
 	}
 	
 	
@@ -57,14 +52,14 @@ public class BoxServices implements BoxConstants {
 
 		// get the information on the root folder
 		Promise<Response> response = WS.url(API_BASE_URL + "/folders/0")
-				.setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
+				.setHeader("Authorization", "Bearer " + box.getAccessToken(serviceTokens)).get();
 		
 		JsonNode json = null; 
 		Response result = response.get();
 		
 		// check for errors in response
 		Box box = new Box();
-		if(box.serviceResponseHasError(SERVICE_INFO_GET_FOLDERS, result.getStatus(), result.asJson(), sat))
+		if(box.serviceResponseHasError(SERVICE_INFO_GET_FOLDERS, result.getStatus(), result.asJson(), serviceTokens))
 			return null;
 		else
 			json = result.asJson();
@@ -163,7 +158,7 @@ public class BoxServices implements BoxConstants {
 			try {
 				
 				// Call the REST POST request with the required parameters
-				Map<String, Object> map = WSHelper.postRequestWithFileUpload("https://upload.box.com/api/2.0/files/content", sat, bodyPart);
+				Map<String, Object> map = WSHelper.postRequestWithFileUpload("https://upload.box.com/api/2.0/files/content", box, serviceTokens, bodyPart);
 				
 				ArrayList<Map<String, Object>> entries = (ArrayList<Map<String, Object>>) map.get("entries");
 				attachmentId = (String) entries.get(0).get("id");
@@ -194,7 +189,7 @@ public class BoxServices implements BoxConstants {
 			} 
 		}
 		
-		UtilityHelper.logMessage(COMPONENT_NAME, "createFile()", "New file created in Box for user [" + sat.getKey().getUserId() + "]");
+		UtilityHelper.logMessage(COMPONENT_NAME, "createFile()", "New file created in Box for user [" + box.getUserId(serviceTokens) + "]");
 
 		return data;
 	}
@@ -232,7 +227,7 @@ public class BoxServices implements BoxConstants {
 		// Returns only the tasks assigned to the current user
 		Promise<Response> response = WS.url(API_BASE_URL+"/folders")
 				.setQueryParameter("fields", "name")
-				.setHeader("Authorization", "Bearer " + sat.getAccessToken())
+				.setHeader("Authorization", "Bearer " + box.getAccessToken(serviceTokens))
 				.post("{\"name\":\"" + folderName + "\",\"parent\":{\"id\":\"" + parentFolderId + "\"}}");
 
 		JsonNode json = null;
@@ -240,7 +235,7 @@ public class BoxServices implements BoxConstants {
 		
 		// check for errors, and if found, process those
 		Box box = new Box();
-		if(box.serviceResponseHasError(SERVICE_ACTION_CREATE_FOLDER, result.getStatus(), result.asJson(), sat))
+		if(box.serviceResponseHasError(SERVICE_ACTION_CREATE_FOLDER, result.getStatus(), result.asJson(), serviceTokens))
 			return null;
 		else
 			json = result.asJson();
@@ -260,7 +255,7 @@ public class BoxServices implements BoxConstants {
 			} 
 		}
 		
-		UtilityHelper.logMessage(COMPONENT_NAME, "createFolder()", "New folder created in Box for user [" + sat.getKey().getUserId() + "]");
+		UtilityHelper.logMessage(COMPONENT_NAME, "createFolder()", "New folder created in Box for user [" + box.getUserId(serviceTokens) + "]");
 
 		return data;
 	}
@@ -273,14 +268,14 @@ public class BoxServices implements BoxConstants {
 		// get the information on the current user
 		Promise<Response> response = WS.url(API_BASE_URL + "/users/me")
 				.setQueryParameter("fields", "login,name")
-				.setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
+				.setHeader("Authorization", "Bearer " + box.getAccessToken(serviceTokens)).get();
 		
 		JsonNode json = null; 
 		Response result = response.get();
 		
 		// check for errors in response
 		Box box = new Box();
-		if(box.serviceResponseHasError(SERVICE_INTERNAL_GET_USER_ID, result.getStatus(), result.asJson(), sat))
+		if(box.serviceResponseHasError(SERVICE_INTERNAL_GET_USER_ID, result.getStatus(), result.asJson(), serviceTokens))
 			return null;
 		else
 			json = result.asJson();
@@ -397,7 +392,7 @@ public class BoxServices implements BoxConstants {
 	 */
 	private ArrayList<Map<String, Object>> getFile(String fileId, String fileName) {
 		Promise<Response> response = WS.url(API_BASE_URL + "/files/" + fileId + "/content")
-				.setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
+				.setHeader("Authorization", "Bearer " + box.getAccessToken(serviceTokens)).get();
 
 		ArrayList<Map<String, Object>> attachments = new ArrayList<Map<String, Object>>();
 
@@ -424,7 +419,7 @@ public class BoxServices implements BoxConstants {
 		Boolean status = false;
 		
 		Promise<Response> response = WS.url(API_BASE_URL + "/files/" + fileId)
-				.setHeader("Authorization", "Bearer " + sat.getAccessToken())
+				.setHeader("Authorization", "Bearer " + box.getAccessToken(serviceTokens))
 				.put("{\"name\":\"" + fileName + "\"}");
 
 		JsonNode json = null;
@@ -432,7 +427,7 @@ public class BoxServices implements BoxConstants {
 		
 		// check for errors, and if found, process those
 		Box box = new Box();
-		if(box.serviceResponseHasError(SERVICE_INTERNAL_RENAME_FILE, result.getStatus(), result.asJson(), sat))
+		if(box.serviceResponseHasError(SERVICE_INTERNAL_RENAME_FILE, result.getStatus(), result.asJson(), serviceTokens))
 			status = false;
 		else
 			json = result.asJson();

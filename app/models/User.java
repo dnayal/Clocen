@@ -5,10 +5,8 @@ import helpers.ServiceNodeHelper;
 import helpers.UtilityHelper;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -293,81 +291,38 @@ public class User extends Model {
 
 
 	/**
-	 * Returns all active access tokens of active services for the given user
-	 */
-	public List<ServiceAccessToken> getAllServiceTokens() {
-		List<ServiceAccessToken> tokenList = ServiceAccessToken.getAllServiceAccessTokensForUser(userId);
-		for(ServiceAccessToken token: tokenList) {
-			// access token will be null for invalid or expired ServiceAccessTokens
-			if(token.getAccessToken() == null)
-				tokenList.remove(token);
-		}
-		return tokenList;
-	}
-	
-	
-	/**
 	 * Returns the list of all nodes, along with the flag mentioning 
 	 * whether the user has authorized use of that service.
-	 * 
-	 * This method first goes through the list of all nodes, then for 
-	 * each node finds out for which ones has the user provided access, 
-	 * sets the flag accordingly - and returns the list of all the nodes
 	 */
 	public List<ServiceNodeInfo> getAllNodes() {
+		// initialize the ArrayList 
 		ArrayList<ServiceNodeInfo> nodeList = new ArrayList<ServiceNodeInfo>();
-		boolean isAuthorized;
 
-		List<ServiceAccessToken> serviceTokens = getAllServiceTokens();
+		// Get all node ids
 		HashSet<String> allNodeIds = ServiceNodeHelper.getAllNodeIds();
 		
-		Iterator<String> allNodeIterator = allNodeIds.iterator();
-		
-		while(allNodeIterator.hasNext()) {
-			String nodeId = allNodeIterator.next();
-			isAuthorized = false;
-			
-			for (ServiceAccessToken serviceToken : serviceTokens) {
-				if(serviceToken.getKey().getNodeId().equalsIgnoreCase(nodeId)) {
-					isAuthorized = true;
-					break;
-				}
-			}
-			
+		// go through each node
+		for(String nodeId : allNodeIds) {
+			// Instantiate the node
 			Node node = ServiceNodeHelper.getNode(nodeId);
+			
+			// Check whether the user has authorized the node
+			Boolean isAuthorized = node.isAuthorized(userId);
+			
+			// create the ServiceNodeInfo object
 			ServiceNodeInfo serviceNode = new ServiceNodeInfo(nodeId, node.getName(), node.getLogo(), node.getDescription(), 
 					isAuthorized
 					?controllers.routes.Application.refreshOauth2Token(node.getNodeId()).toString()	
 					:controllers.routes.Application.authorizeOauth2Call(node.getNodeId()).toString(),
 					node.getAppURL(),
 					isAuthorized);
+
+			// add it to the list
 			nodeList.add(serviceNode);
 		}
-
-		return nodeList;
-	}
-
-
-	/**
-	 * Returns access token of the given service for the current user
-	 */
-	public ServiceAccessToken getServiceAccessToken(String nodeId) {
-		ServiceAccessTokenKey key = new ServiceAccessTokenKey(userId, nodeId);
-		ServiceAccessToken token = ServiceAccessToken.getServiceAccessToken(key);
 		
-		if (token.getExpirationTime().before(Calendar.getInstance().getTime())) {
-			UtilityHelper.logError(COMPONENT_NAME, "getServiceAccessToken()", "Token expired", new RuntimeException("Token expired for Node:" +nodeId + " User:"+userId));
-			if(!token.refreshToken()) {
-				UtilityHelper.logError(COMPONENT_NAME, "getServiceAccessToken()", "Token refresh failed", new RuntimeException("Unable to refresh token for Node:" +nodeId + " User:"+userId));
-				return null;
-			} else {
-				// retrieve token again, if refresh is successful
-				token = ServiceAccessToken.getServiceAccessToken(key);
-				UtilityHelper.logMessage(COMPONENT_NAME, "getServiceAccessToken()", "Token refreshed");
-			}
-		}
-
-		return token;
+		// return the list back
+		return nodeList;
 	}
 
 }

@@ -1,6 +1,7 @@
 package helpers;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -21,7 +22,8 @@ public class FileHelper {
 	enum SourceFileType {
 		URL, 
 		TEXT,
-		BINARY
+		INPUTSTREAM,
+		FILE
 	};
 	
 	
@@ -31,6 +33,18 @@ public class FileHelper {
 	
 	
 	public void setFileName(String newFileName) {
+		
+		if(sourceType==SourceFileType.FILE) {
+			File currentFile = new File(getFilePath());
+			File newFile = new File(getFileDirectoryPath() + "/"+ newFileName);
+			try {
+				FileUtils.moveFile(currentFile, newFile);
+			} catch (IOException exception) {
+				UtilityHelper.logError(COMPONENT_NAME, "setFileName(String newFileName)", exception.getMessage(), exception);
+			}
+		}
+		
+		// update the file name to the new one
 		fileName = newFileName;
 	}
 	
@@ -67,7 +81,7 @@ public class FileHelper {
 	public String setFileSource(InputStream inputStream, String name) {
 		this.inputStream = inputStream;
 		this.fileId = UtilityHelper.getUniqueId();
-		this.sourceType = SourceFileType.BINARY;
+		this.sourceType = SourceFileType.INPUTSTREAM;
 				
 		if(UtilityHelper.isEmptyString(name))
 			this.fileName = this.fileId;
@@ -101,10 +115,19 @@ public class FileHelper {
 					FileUtils.writeStringToFile(file, fileURLorData, Play.application().configuration().getString("application.encoding"));
 					break;
 					
-				case BINARY:
+				case INPUTSTREAM:
 					FileUtils.copyInputStreamToFile(inputStream, file);
 					inputStream.close();
+					// once the input stream has been closed, 
+					// we need to store the file locally, to 
+					// ensure that it available for other nodes in the process
+					//
+					// The reason we have to do this is that unlike URL or TEXT, 
+					// an inputstream once closed is not available
+					this.sourceType = SourceFileType.FILE;
 					break;
+				case FILE: // return file
+					return file;
 			}
 		} catch (Exception exception) {
 			UtilityHelper.logError(COMPONENT_NAME, "getFileFromSource()", exception.getMessage(), exception);
@@ -118,11 +141,15 @@ public class FileHelper {
 		Boolean result = false;
 		try {
 			switch(sourceType) {
-				case URL: case TEXT: case BINARY:
+				case URL: case TEXT: 
 					File directory = new File(getFileDirectoryPath());
 					for(File file : directory.listFiles())
 						result = file.delete();
 					result = directory.delete();
+					break;
+				case INPUTSTREAM: case FILE:
+					// do not delete the file,
+					// as it might be required later
 					break;
 			}
 		} catch(Exception exception) {
@@ -139,7 +166,11 @@ public class FileHelper {
 
 	
 	private String getFileDirectoryPath() {
-		return FileUtils.getTempDirectoryPath() + "/" + fileId;
+		if(Play.isDev() || Play.isTest()) {
+			return Play.application().configuration().getString("temp.folder.DEV") + "/" + fileId; 
+		} else {
+			return Play.application().configuration().getString("temp.folder.PROD") + "/" + fileId; 
+		}
 	}
 	
 	

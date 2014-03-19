@@ -6,11 +6,11 @@ import helpers.UtilityHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import models.Process;
-import models.ServiceAccessToken;
-import models.ServiceAccessTokenKey;
+import models.ServiceAuthToken;
 import nodes.Node;
 
 /**
@@ -112,13 +112,13 @@ public class ProcessExecutor {
 					// The output (previousNode) will be the same as the input (data)
 					// except that the output variables of the output node will be populated 
 					// with the values retrieved from the operation
-					ServiceAccessToken sat = ServiceAccessToken.getServiceAccessToken(new ServiceAccessTokenKey(userId, serviceNode.getNodeId()));
-					// if the service token is null then the user might have   
+					List<ServiceAuthToken> serviceTokens = ServiceAuthToken.getServiceAuthTokens(userId, serviceNode.getNodeId());
+					// if the node is not authorized then the user might have   
 					// revoked the rights (or the token would have been deleted) 
 					// and there is no point in executing the rest of the process
-					if(sat == null)
+					if(!serviceNode.isAuthorized(userId))
 						return;
-					previousNode = serviceNode.executeService(processId, arrayIndex, operation, sat, data); 
+					previousNode = serviceNode.executeService(processId, arrayIndex, operation, serviceTokens, data); 
 				}
 				
 				arrayIndex++;

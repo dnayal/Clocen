@@ -1,4 +1,4 @@
-package nodes.asana;
+package nodes.asana.services;
 
 import helpers.FileHelper;
 import helpers.UtilityHelper;
@@ -8,12 +8,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import models.IdName;
 import models.Process;
-import models.ServiceAccessToken;
+import models.ServiceAuthToken;
 import nodes.Node;
+import nodes.asana.Asana;
 
 import org.apache.http.entity.mime.content.AbstractContentBody;
 import org.apache.http.entity.mime.content.FileBody;
@@ -34,19 +36,12 @@ public class AsanaServices implements AsanaConstants {
 	
 	private static final String COMPONENT_NAME = "Asana Services";
 
-	private ServiceAccessToken sat;
+	private List<ServiceAuthToken> serviceTokens = null;
+	private Asana asana = null;
 	
-	// if you delete this method, the Node initiation can fail
-	// as the ServiceNodeHelper looks for all classes in the  
-	// node.<<node id>> package and initializes using the  
-	// default constructor
-	public AsanaServices() {
-		sat = null;
-	}
-	
-	
-	public AsanaServices(ServiceAccessToken sat) {
-		this.sat = sat;
+	public AsanaServices(Asana asana, List<ServiceAuthToken> serviceTokens) {
+		this.serviceTokens = serviceTokens;
+		this.asana = asana;
 	}
 
 
@@ -60,14 +55,14 @@ public class AsanaServices implements AsanaConstants {
 		// make the call to web service to get all the attachments for the task 
 		Promise<Response> response = WS.url(API_BASE_URL+"/tasks/"+taskId+"/attachments")
 				.setQueryParameter("opt_fields", "name,download_url")
-				.setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
+				.setHeader("Authorization", "Bearer " + asana.getAccessToken(serviceTokens)).get();
 	
 		JsonNode json = null;
 		Response result = response.get();
 		
 		// check for errors, and if found, process those
 		Asana asana = new Asana();
-		if(asana.serviceResponseHasError(SERVICE_INTERNAL_GET_ATTACHMENTS, result.getStatus(), result.asJson(), sat))
+		if(asana.serviceResponseHasError(SERVICE_INTERNAL_GET_ATTACHMENTS, result.getStatus(), result.asJson(), serviceTokens))
 			return null;
 		else
 			json = result.asJson().path("data");
@@ -129,14 +124,14 @@ public class AsanaServices implements AsanaConstants {
 		Promise<Response> response = WS.url(API_BASE_URL+"/workspaces/"+workspaceId+"/tasks")
 				.setQueryParameter("opt_fields", "created_at,name,notes")
 				.setQueryParameter("assignee", "me")
-				.setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
+				.setHeader("Authorization", "Bearer " + asana.getAccessToken(serviceTokens)).get();
 
 		JsonNode json = null;
 		Response result = response.get();
 		
 		// check for errors, and if found, process those
 		Asana asana = new Asana();
-		if(asana.serviceResponseHasError(SERVICE_TRIGGER_NEW_TASK_CREATED, result.getStatus(), result.asJson(), sat))
+		if(asana.serviceResponseHasError(SERVICE_TRIGGER_NEW_TASK_CREATED, result.getStatus(), result.asJson(), serviceTokens))
 			return null;
 		else
 			json = result.asJson().path("data");
@@ -181,7 +176,7 @@ public class AsanaServices implements AsanaConstants {
 					} 
 				}
 				
-				UtilityHelper.logMessage(COMPONENT_NAME, "getNewTaskCreated()", "New Task Event processed for Asana for user [" + sat.getKey().getUserId() + "]");
+				UtilityHelper.logMessage(COMPONENT_NAME, "getNewTaskCreated()", "New Task Event processed for Asana for user [" + asana.getUserId(serviceTokens) + "]");
 				
 				// if you did get a newly created task, and have got its details, 
 				// map it to the process array and get it executed
@@ -220,14 +215,14 @@ public class AsanaServices implements AsanaConstants {
 		// make the call to web service to get all the projects in workspace 
 		Promise<Response> response = WS.url(API_BASE_URL+"/workspaces/"+workspaceId+"/projects")
 				.setQueryParameter("opt_fields", "created_at,name,notes")
-				.setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
+				.setHeader("Authorization", "Bearer " + asana.getUserId(serviceTokens)).get();
 
 		JsonNode json = null;
 		Response result = response.get();
 		
 		// check for errors, and if found, process those
 		Asana asana = new Asana();
-		if(asana.serviceResponseHasError(SERVICE_TRIGGER_NEW_PROJECT_CREATED, result.getStatus(), result.asJson(), sat))
+		if(asana.serviceResponseHasError(SERVICE_TRIGGER_NEW_PROJECT_CREATED, result.getStatus(), result.asJson(), serviceTokens))
 			return null;
 		else
 			json = result.asJson().path("data");
@@ -270,7 +265,7 @@ public class AsanaServices implements AsanaConstants {
 					} 
 				}
 				
-				UtilityHelper.logMessage(COMPONENT_NAME, "getNewProjectCreated()", "New Project Event processed for Asana for user [" + sat.getKey().getUserId() + "]");
+				UtilityHelper.logMessage(COMPONENT_NAME, "getNewProjectCreated()", "New Project Event processed for Asana for user [" + asana.getUserId(serviceTokens) + "]");
 				
 				// if you did get a newly created task, and have got its details, 
 				// map it to the process array and get it executed
@@ -320,7 +315,7 @@ public class AsanaServices implements AsanaConstants {
 		// make the call to web service to create new task
 		// with the current user as the assignee
 		Promise<Response> response = WS.url(API_BASE_URL+"/workspaces/"+workspaceId+"/tasks")
-				.setHeader("Authorization", "Bearer " + sat.getAccessToken())
+				.setHeader("Authorization", "Bearer " + asana.getAccessToken(serviceTokens))
 				.setHeader("Content-Type", Play.application().configuration().getString("application.services.POST.contentType"))
 				.post("name="+UtilityHelper.getString(taskName)+"&notes="+UtilityHelper.getString(taskDescription)+"&assignee=me");
 
@@ -329,7 +324,7 @@ public class AsanaServices implements AsanaConstants {
 		
 		// check for errors, and if found, process those
 		Asana asana = new Asana();
-		if(asana.serviceResponseHasError(SERVICE_ACTION_CREATE_TASK, result.getStatus(), result.asJson(), sat))
+		if(asana.serviceResponseHasError(SERVICE_ACTION_CREATE_TASK, result.getStatus(), result.asJson(), serviceTokens))
 			return null;
 		else
 			json = result.asJson().path("data");
@@ -355,7 +350,7 @@ public class AsanaServices implements AsanaConstants {
 				try {
 					
 					// Call the REST POST request with the required parameters
-					Map<String, Object> map = WSHelper.postRequestWithFileUpload(API_BASE_URL+"/tasks/"+taskId+"/attachments", sat, bodyPart);
+					Map<String, Object> map = WSHelper.postRequestWithFileUpload(API_BASE_URL+"/tasks/"+taskId+"/attachments", asana, serviceTokens, bodyPart);
 
 					Map<String, Object> dataMap = (Map<String, Object>) map.get("data");
 					Long attachmentId = (Long) dataMap.get("id");
@@ -385,7 +380,7 @@ public class AsanaServices implements AsanaConstants {
 			} 
 		}
 		
-		UtilityHelper.logMessage(COMPONENT_NAME, "createTask()", "New Task Created in Asana for user [" + sat.getKey().getUserId() + "]");
+		UtilityHelper.logMessage(COMPONENT_NAME, "createTask()", "New Task Created in Asana for user [" + asana.getAccessToken(serviceTokens) + "]");
 		
 		return data;
 	}
@@ -423,7 +418,7 @@ public class AsanaServices implements AsanaConstants {
 		// make the call to web service to create new project
 		// with the current user as the assignee
 		Promise<Response> response = WS.url(API_BASE_URL+"/workspaces/" + workspaceId + "/projects")
-				.setHeader("Authorization", "Bearer " + sat.getAccessToken())
+				.setHeader("Authorization", "Bearer " + asana.getAccessToken(serviceTokens))
 				.setHeader("Content-Type", Play.application().configuration().getString("application.services.POST.contentType"))
 				.post("name="+UtilityHelper.getString(projectName)+"&notes="+UtilityHelper.getString(projectDescription));
 
@@ -432,7 +427,7 @@ public class AsanaServices implements AsanaConstants {
 		
 		// check for errors, and if found, process those
 		Asana asana = new Asana();
-		if(asana.serviceResponseHasError(SERVICE_ACTION_CREATE_PROJECT, result.getStatus(), result.asJson(), sat))
+		if(asana.serviceResponseHasError(SERVICE_ACTION_CREATE_PROJECT, result.getStatus(), result.asJson(), serviceTokens))
 			return null;
 		else
 			json = result.asJson().path("data");
@@ -454,7 +449,7 @@ public class AsanaServices implements AsanaConstants {
 			} 
 		}
 		
-		UtilityHelper.logMessage(COMPONENT_NAME, "createProject()", "New Project Created in Asana for user [" + sat.getKey().getUserId() + "]");
+		UtilityHelper.logMessage(COMPONENT_NAME, "createProject()", "New Project Created in Asana for user [" + asana.getUserId(serviceTokens) + "]");
 		
 		return data;
 	}
@@ -466,14 +461,14 @@ public class AsanaServices implements AsanaConstants {
 	public JsonNode getWorkspaces() {
 		ArrayList<IdName> list = new ArrayList<IdName>();
 
-		Promise<Response> response = WS.url(API_BASE_URL + "/workspaces").setHeader("Authorization", "Bearer " + sat.getAccessToken()).get();
-
+		Promise<Response> response = WS.url(API_BASE_URL + "/workspaces").setHeader("Authorization", "Bearer " + asana.getAccessToken(serviceTokens)).get();
+		
 		JsonNode json = null;
 		Response result = response.get();
 		
 		// check for errors in response
 		Asana asana = new Asana();
-		if(asana.serviceResponseHasError(SERVICE_INFO_GET_WORKSPACES, result.getStatus(), result.asJson(), sat))
+		if(asana.serviceResponseHasError(SERVICE_INFO_GET_WORKSPACES, result.getStatus(), result.asJson(), serviceTokens))
 			return null;
 		else
 			json = result.asJson().path("data");

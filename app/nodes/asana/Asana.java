@@ -3,26 +3,40 @@ package nodes.asana;
 import helpers.OAuth2Helper;
 import helpers.UtilityHelper;
 
+import java.util.List;
 import java.util.Map;
 
-import models.ServiceAccessToken;
-import models.ServiceAccessTokenKey;
+import models.ServiceAuthToken;
 import models.User;
 import nodes.Node;
+import nodes.asana.services.AsanaConstants;
+import nodes.asana.services.AsanaServices;
 
 import org.codehaus.jackson.JsonNode;
+
+import play.Play;
+import auth.NodeAuthType;
+import auth.OAuth2NodeDefaultImpl;
 
 /**
  * Node interface for Asana
  */
-public class Asana implements Node, AsanaConstants {
+public class Asana extends OAuth2NodeDefaultImpl implements AsanaConstants {
 
 	private static final String COMPONENT_NAME = "Asana Node";
 
 	@Override
-	public String authorize(String userId, AccessType accessType, String data) {
-		return OAuth2Helper.getAccess(userId, NODE_ID, CLIENT_ID, CLIENT_SECRET, 
-				accessType, data, OAUTH_AUTHORIZE_URL, OAUTH_TOKEN_URL);
+	public String authorize(String userId, OAuth2AccessType accessType, String data) {
+		// Use test API account in DEV and TEST environments
+		if (Play.isDev() || Play.isTest()) {
+			UtilityHelper.logMessage(COMPONENT_NAME, "authorize()", "Authorizing Asana node using test API account");
+			return OAuth2Helper.getAccess(userId, NODE_ID, TEST_CLIENT_ID, TEST_CLIENT_SECRET, 
+					this, accessType, data, OAUTH_AUTHORIZE_URL, OAUTH_TOKEN_URL);
+		// use proper Clocen account in PROD
+		} else {
+			return OAuth2Helper.getAccess(userId, NODE_ID, CLIENT_ID, CLIENT_SECRET, 
+				this, accessType, data, OAUTH_AUTHORIZE_URL, OAUTH_TOKEN_URL);
+		}
 	}
 	
 	
@@ -67,7 +81,7 @@ public class Asana implements Node, AsanaConstants {
 	 */
 	@Override
 	public Boolean serviceResponseHasError(String serviceName, Integer statusCode, 
-			JsonNode responseJSON, ServiceAccessToken serviceToken) {
+			JsonNode responseJSON, List<ServiceAuthToken> serviceTokens) {
 		
 		Boolean serviceHasErrors = true; 
 		
@@ -104,8 +118,8 @@ public class Asana implements Node, AsanaConstants {
 			
 			for(JsonNode error : errors) {
 				UtilityHelper.logMessage(COMPONENT_NAME, "serviceResponseHasError()", "Service error for user [" + 
-						serviceToken.getKey().getUserId() + "] & node [" + serviceToken.getKey().getNodeId() + 
-						"] - (" + serviceName + ")" + error.get("message").asText() + " [" + statusCode + "]");
+						getUserId(serviceTokens) + "] & node [" + getNodeId() + "] - (" + 
+						serviceName + ")" + error.get("message").asText() + " [" + statusCode + "]");
 			}
 		}
 	
@@ -118,9 +132,8 @@ public class Asana implements Node, AsanaConstants {
 	 */
 	@Override
 	public JsonNode callInfoService(User user, String service) {
-		ServiceAccessTokenKey key = new ServiceAccessTokenKey(user.getUserId(), getNodeId());
-		ServiceAccessToken token = ServiceAccessToken.getServiceAccessToken(key);
-		AsanaServices services = new AsanaServices(token);
+		List<ServiceAuthToken> serviceTokens = ServiceAuthToken.getServiceAuthTokens(user.getUserId(), getNodeId());
+		AsanaServices services = new AsanaServices(this, serviceTokens);
 		
 		// service to get the list of all workspaces
 		if (service.equalsIgnoreCase(SERVICE_INFO_GET_WORKSPACES)) {
@@ -135,8 +148,8 @@ public class Asana implements Node, AsanaConstants {
 	 * Asana services exposed to the user
 	 */
 	@Override
-	public Map<String, Object> executeService(String processId, Integer nodeIndex, String serviceName, ServiceAccessToken sat, Map<String, Object> nodeData) {
-		AsanaServices services = new AsanaServices(sat);
+	public Map<String, Object> executeService(String processId, Integer nodeIndex, String serviceName, List<ServiceAuthToken> serviceTokens, Map<String, Object> nodeData) {
+		AsanaServices services = new AsanaServices(this, serviceTokens);
 		
 		// service to know whether new task was created
 		if (serviceName.equalsIgnoreCase(SERVICE_TRIGGER_NEW_TASK_CREATED)) {
@@ -161,6 +174,12 @@ public class Asana implements Node, AsanaConstants {
 	@Override
 	public void executeTrigger(Object object) {
 		return;
+	}
+
+
+	@Override
+	public NodeAuthType getAuthType() {
+		return NodeAuthType.OAUTH_2;
 	}
 
 }

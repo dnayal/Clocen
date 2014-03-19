@@ -1,19 +1,16 @@
 package nodes;
 
+import java.util.List;
 import java.util.Map;
 
-import models.ServiceAccessToken;
+import models.ServiceAuthToken;
 import models.User;
 
 import org.codehaus.jackson.JsonNode;
 
+import auth.NodeAuthType;
+
 public interface Node {
-	
-	public static enum AccessType {
-		OAUTH_AUTHORIZE, 
-		OAUTH_TOKEN,
-		OAUTH_RENEW
-	};
 	
 	public static final String TRIGGER_TYPE_POLL = "poll";
 	public static final String TRIGGER_TYPE_POLL_CALLED_BY_NODE = "poll_node";
@@ -26,8 +23,6 @@ public interface Node {
 	public static final String ATTR_TYPE_LONGSTRING = "longstring";
 	public static final String ATTR_TYPE_FILE = "file";
 	
-	public String authorize(String userId, AccessType accessType, String data);
-	
 	public String getNodeId();
 	
 	public String getName();
@@ -39,13 +34,15 @@ public interface Node {
 	public String getAppURL();
 	
 	public String getDescription();
+	
+	public NodeAuthType getAuthType();
 
 	
 	/**
 	 * Checks whether the service was executed successfully. 
 	 * If there are any errors, the node processes those accordingly
 	 */
-	public Boolean serviceResponseHasError(String serviceName, Integer statusCode, JsonNode responseJSON, ServiceAccessToken serviceToken);
+	public Boolean serviceResponseHasError(String serviceName, Integer statusCode, JsonNode responseJSON, List<ServiceAuthToken> serviceTokens);
 	
 	
 	/**
@@ -58,7 +55,7 @@ public interface Node {
 	/**
 	 * Executes the required service for the node
 	 */
-	public Map<String, Object> executeService(String processId, Integer nodeIndex, String serviceName, ServiceAccessToken sat, Map<String, Object> nodeData);
+	public Map<String, Object> executeService(String processId, Integer nodeIndex, String serviceName, List<ServiceAuthToken> serviceTokens, Map<String, Object> nodeData);
 	
 	
 	/**
@@ -66,5 +63,11 @@ public interface Node {
 	 * to process event notifications
 	 */
 	public void executeTrigger(Object object);
+	
+	
+	/**
+	 * Returns true if the user has authorized the node
+	 */
+	public Boolean isAuthorized(String userId);
 
 }

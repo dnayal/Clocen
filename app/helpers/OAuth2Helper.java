@@ -2,13 +2,12 @@ package helpers;
 
 import java.util.Calendar;
 
-import models.ServiceAccessToken;
-import nodes.Node.AccessType;
-
 import org.codehaus.jackson.JsonNode;
 
 import play.Play;
 import play.libs.WS;
+import auth.OAuth2AuthNode;
+import auth.OAuth2AuthNode.OAuth2AccessType;
 
 public class OAuth2Helper {
 
@@ -39,18 +38,18 @@ public class OAuth2Helper {
 	 * to authorize, get token and refresh token
 	 */
 	public static String getAccess(String userId, String nodeId, String clientId, String clientSecret, 
-			AccessType accessType, String data, String authorizeURL, String tokenURL) {
+			OAuth2AuthNode oauthNode, OAuth2AccessType accessType, String data, String authorizeURL, String tokenURL) {
 		
 		String accessToken = null;
 		String refreshToken = null;
 		Integer expiresIn = null;
 		
 		switch(accessType) {
-			case OAUTH_AUTHORIZE:
+			case OAUTH2_AUTHORIZE:
 				return authorizeURL + "?response_type=code&client_id="+
 					clientId +"&state=authenticated&redirect_uri=" + getRedirectURI(nodeId);
 				
-			case OAUTH_TOKEN:
+			case OAUTH2_TOKEN:
 				if(UtilityHelper.isEmptyString(data))
 					throw new RuntimeException("OAuth 2 code empty for Node Id: " + nodeId + " token call");
 
@@ -66,15 +65,16 @@ public class OAuth2Helper {
 				Calendar calendar = Calendar.getInstance();
 				calendar.add(Calendar.SECOND, expiresIn);
 				
-				ServiceAccessToken sat = new ServiceAccessToken(userId, nodeId, accessToken, 
-						refreshToken, calendar.getTime(), Calendar.getInstance().getTime());
-				sat.save();
+				// save the various OAuth2 tokens after successful token call
+				oauthNode.saveAccessToken(userId, nodeId, accessToken);
+				oauthNode.saveRefreshToken(userId, nodeId, refreshToken);
+				oauthNode.saveAccessTokenExpirationTime(userId, nodeId, calendar.getTime());
 				
 				UtilityHelper.logMessage(COMPONENT_NAME, "getAccess()", "Service token saved for user [" + userId + "] node [" + nodeId + "]");
 				
 				return accessToken;
 				
-			case OAUTH_RENEW:
+			case OAUTH2_RENEW:
 				if(UtilityHelper.isEmptyString(data))
 					throw new RuntimeException("OAuth 2 refresh token empty for Node Id: " + nodeId + " refresh call");
 
@@ -95,9 +95,11 @@ public class OAuth2Helper {
 				calendar = Calendar.getInstance();
 				calendar.add(Calendar.SECOND, expiresIn);
 				
-				sat = new ServiceAccessToken(userId, nodeId, accessToken, refreshToken, 
-						calendar.getTime(), Calendar.getInstance().getTime());
-				sat.save();
+				// save the various OAuth2 tokens after successful refresh
+				oauthNode.saveAccessToken(userId, nodeId, accessToken);
+				oauthNode.saveRefreshToken(userId, nodeId, refreshToken);
+				oauthNode.saveAccessTokenExpirationTime(userId, nodeId, calendar.getTime());
+				
 				
 				UtilityHelper.logMessage(COMPONENT_NAME, "getAccess()", "Service token renewed for user [" + userId + "] node [" + nodeId + "]");
 

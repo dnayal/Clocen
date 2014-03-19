@@ -7,40 +7,62 @@ import javax.persistence.Embeddable;
  * Composite primary key for Service Access Tokens
  */
 @Embeddable
-public class ServiceAccessTokenKey {
+public class ServiceAuthTokenKey {
 
 	@Column(length=100)
 	private String userId;
-	@Column(length=20)
+	@Column(length=100)
 	private String nodeId;
+	@Column(length=100)
+	private String token;
 
-	public ServiceAccessTokenKey(String userId, String nodeId) {
+	
+	public ServiceAuthTokenKey(String userId, String nodeId, String token) {
 		this.userId = userId;
 		this.nodeId = nodeId;
+		this.token = token;
 	}
+
 
 	public String getUserId() {
 		return userId;
 	}
 
+	
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
 
+	
 	public String getNodeId() {
 		return nodeId;
 	}
 
+	
 	public void setNodeId(String nodeId) {
 		this.nodeId = nodeId;
 	}
 
+	
+	public String getToken() {
+		return token;
+	}
+
+	
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof ServiceAccessTokenKey) {
-			ServiceAccessTokenKey node = ((ServiceAccessTokenKey)obj);
-			return node.getNodeId().equalsIgnoreCase(getNodeId()) && node.getUserId().equalsIgnoreCase(getUserId());
+		if (obj instanceof ServiceAuthTokenKey) {
+			ServiceAuthTokenKey key = ((ServiceAuthTokenKey) obj);
+			return key.getNodeId().equalsIgnoreCase(getNodeId()) 
+					&& key.getUserId().equalsIgnoreCase(getUserId())
+					&& key.getToken().equalsIgnoreCase(getToken());
 		}
+		
 		return false;
 	}
 	
@@ -50,10 +72,10 @@ public class ServiceAccessTokenKey {
 		return userId.hashCode();
 	}
 
-	
+
 	@Override
 	public String toString() {
-		return "ServiceAccessTokenKey [userId=" + userId + ", nodeId=" + nodeId
-				+ "]";
+		return "ServiceAuthTokenKey [userId=" + userId + ", nodeId=" + nodeId + ", token=" + token + "]";
 	}
+
 }

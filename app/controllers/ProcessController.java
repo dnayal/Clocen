@@ -4,16 +4,15 @@ import helpers.ServiceNodeHelper;
 import helpers.UtilityHelper;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
+import models.Process;
 import nodes.Node;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.ObjectNode;
 
-import models.Process;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -78,7 +77,7 @@ public class ProcessController extends Controller {
 			
 			process.setProcessId(UtilityHelper.getUniqueId());
 			process.setUserId(userId);
-			process.setCreateTimestamp(Calendar.getInstance().getTime());
+			process.setCreateTimestamp(UtilityHelper.getCurrentTime());
 			process.save();
 			
 			UtilityHelper.logMessage(COMPONENT_NAME, "saveProcess()", "Process [" + process.getProcessId() + "] saved for User [" + userId + "]");
